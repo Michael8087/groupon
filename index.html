@@ -1,0 +1,1052 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Groupon Personalization Prototype</title>
+<style>
+:root{
+  --green:#3f8a12;
+  --green-dark:#2b5f0c;
+  --green-light:#e8f4dd;
+  --bg-desk:#e4e6e0;
+  --bg:#f6f7f3;
+  --surface:#ffffff;
+  --text:#16190f;
+  --text-muted:#666f5c;
+  --border:#e3e5dc;
+  --red:#c22b1f;
+  --gold:#e0a512;
+  --pink:#e01575;
+  --navy:#12141b;
+  --navy-2:#1c1f29;
+  --shadow: 0 1px 2px rgba(20,30,10,.06);
+  --radius:14px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg-desk:#0d0f0a;
+    --bg:#12140f;
+    --surface:#1a1d15;
+    --text:#eef0e7;
+    --text-muted:#9aa290;
+    --border:#2a2e22;
+    --green:#63b52e;
+    --green-light:#1c2814;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg-desk:#0d0f0a;
+  --bg:#12140f;
+  --surface:#1a1d15;
+  --text:#eef0e7;
+  --text-muted:#9aa290;
+  --border:#2a2e22;
+  --green:#63b52e;
+  --green-light:#1c2814;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg-desk);
+  font-family:'Work Sans', system-ui, sans-serif;
+  color:var(--text);
+  display:flex;
+  justify-content:center;
+  min-height:100vh;
+}
+img{max-width:100%;}
+.wordmark{
+  font-family:'Baloo 2', system-ui, sans-serif;
+}
+a{color:inherit;}
+.desk-wrap{
+  width:100%;
+  max-width:430px;
+  padding-block:0;
+  display:flex;
+  flex-direction:column;
+}
+@media (min-width:480px){
+  body{padding-block:28px;}
+  .desk-wrap{
+    border-radius:34px;
+    overflow:hidden;
+    box-shadow:0 30px 60px -20px rgba(0,0,0,.35), 0 0 0 8px #10120c;
+    min-height:860px;
+  }
+}
+.phone-shell{
+  background:var(--bg);
+  display:flex;
+  flex-direction:column;
+  min-height:100%;
+  position:relative;
+}
+/* status bar */
+.statusbar{
+  background:var(--navy);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:6px 18px;
+  padding-top:calc(6px + env(safe-area-inset-top,0px));
+  font-size:13px;
+  font-weight:600;
+  font-variant-numeric:tabular-nums;
+}
+.statusbar .icons{display:flex;gap:6px;align-items:center;}
+/* header */
+.app-header{
+  background:var(--navy);
+  color:#fff;
+  padding:6px 16px 14px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.location-row{
+  display:flex;align-items:center;gap:6px;
+  font-family:'Baloo 2', system-ui, sans-serif;
+  font-size:22px;font-weight:700;
+}
+.location-row svg{margin-top:3px;}
+.dashed-divider{
+  border:none;border-top:2px dashed rgba(255,255,255,.25);
+  margin:0;
+}
+.dashed-divider.on-light{border-top-color:var(--border);}
+.search-bar{
+  background:#fff;
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:12px 14px;
+  color:var(--text-muted);
+}
+.search-bar input{
+  border:none;outline:none;flex:1;font-size:14.5px;font-family:inherit;color:var(--text);background:none;
+}
+.search-bar svg{flex:none;}
+/* content */
+.content{
+  flex:1;
+  padding:0 0 90px;
+  display:flex;
+  flex-direction:column;
+  gap:26px;
+}
+.section-pad{padding:0 14px;}
+.hero-carousel{
+  display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;
+  padding:14px 14px 0;scrollbar-width:none;
+}
+.hero-carousel::-webkit-scrollbar{display:none;}
+.hero-slide{
+  flex:none;width:82%;height:210px;border-radius:var(--radius);
+  position:relative;overflow:hidden;scroll-snap-align:start;
+  display:flex;align-items:flex-end;
+  box-shadow:var(--shadow);
+}
+.hero-slide .scrim{
+  position:absolute;inset:0;
+  background:linear-gradient(to top, rgba(0,0,0,.72) 10%, rgba(0,0,0,.15) 55%, rgba(0,0,0,0) 80%);
+}
+.hero-slide .txt{position:relative;padding:16px;color:#fff;display:flex;flex-direction:column;gap:4px;}
+.hero-slide h1{font-family:'Baloo 2';font-size:19px;margin:0;line-height:1.2;text-wrap:balance;}
+.hero-slide p{margin:0;font-size:12.5px;text-decoration:underline;text-underline-offset:2px;opacity:.95;max-width:92%;}
+.hero-slide .eyebrow{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;opacity:.85;}
+.dots-row{display:flex;gap:5px;justify-content:center;padding-top:2px;}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--border);}
+.dot.on{background:var(--text);width:14px;border-radius:4px;}
+.module{display:flex;flex-direction:column;gap:10px;}
+.module-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 14px;}
+.module-head h2{font-size:15px;margin:0;font-weight:700;display:flex;align-items:center;gap:3px;}
+.module-head .sub{font-size:12px;color:var(--text-muted);margin-top:2px;}
+.why-btn{
+  background:none;border:1px solid var(--border);color:var(--text-muted);
+  width:22px;height:22px;border-radius:50%;font-size:12px;font-style:italic;font-family:Georgia,serif;
+  cursor:pointer;flex:none;display:flex;align-items:center;justify-content:center;
+}
+.why-note{
+  font-size:12px;color:var(--text-muted);
+  background:var(--surface);
+  border:1px dashed var(--border);
+  border-radius:10px;
+  padding:9px 11px;
+  margin:-2px 14px 0;
+}
+.why-note b{color:var(--text);}
+.row-scroll{
+  display:flex;gap:12px;overflow-x:auto;padding:0 14px 2px;scrollbar-width:none;
+}
+.row-scroll::-webkit-scrollbar{display:none;}
+.card{
+  flex:none;width:168px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  overflow:hidden;
+  box-shadow:var(--shadow);
+  display:flex;flex-direction:column;
+}
+.card .img{
+  height:100px;display:flex;align-items:center;justify-content:center;font-size:34px;position:relative;
+}
+.card .badge{
+  position:absolute;top:6px;left:6px;
+  background:var(--red);color:#fff;font-size:10px;font-weight:700;
+  padding:2px 6px;border-radius:6px;
+}
+.card .body{padding:9px 10px 11px;display:flex;flex-direction:column;gap:4px;}
+.card .cat{font-size:10px;color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:.03em;}
+.card .title{font-size:12.5px;font-weight:600;line-height:1.3;min-height:2.6em;}
+.card .rating{font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:3px;}
+.card .rating .star{color:var(--gold);}
+.card .price-row{display:flex;align-items:baseline;gap:6px;margin-top:2px;}
+.card .price{font-family:'Baloo 2';font-size:16px;font-weight:700;color:var(--text);}
+.card .orig{font-size:11px;color:var(--text-muted);text-decoration:line-through;}
+.card .sold{font-size:10px;color:var(--text-muted);}
+.big-carousel{
+  display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;
+  padding:0 14px 2px;scrollbar-width:none;
+}
+.big-carousel::-webkit-scrollbar{display:none;}
+.big-card{
+  flex:none;width:78%;border-radius:var(--radius);
+  overflow:hidden;box-shadow:var(--shadow);
+  background:var(--surface);border:1px solid var(--border);
+  scroll-snap-align:start;display:flex;flex-direction:column;
+}
+.big-card .photo{height:190px;position:relative;flex:none;}
+.big-card .badge-pill{
+  position:absolute;top:12px;left:12px;background:var(--pink);color:#fff;
+  font-size:11.5px;font-weight:700;padding:5px 10px;border-radius:999px;
+  display:flex;align-items:center;gap:5px;
+}
+.big-card .heart-btn{
+  position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:50%;
+  background:rgba(255,255,255,.92);border:none;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--navy);
+}
+.big-card .heart-btn.on{color:var(--red);}
+.big-card .tag-pill{
+  position:absolute;bottom:10px;left:12px;background:rgba(255,255,255,.95);color:var(--text);
+  font-size:11px;font-weight:700;padding:4px 9px;border-radius:8px;display:flex;align-items:center;gap:5px;
+}
+.big-card .info{padding:12px 14px 14px;display:flex;flex-direction:column;gap:4px;}
+.big-card .info .cat{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--green);}
+.big-card .info .title{font-family:'Baloo 2';font-size:15px;line-height:1.3;}
+.big-card .info .price-row{display:flex;gap:8px;align-items:baseline;margin-top:2px;}
+.big-card .info .price{font-family:'Baloo 2';font-size:17px;font-weight:700;color:var(--text);}
+.big-card .info .orig{font-size:12px;text-decoration:line-through;color:var(--text-muted);}
+.big-card .info .rating{font-size:11.5px;color:var(--text-muted);}
+.chip-picker{display:flex;flex-wrap:wrap;gap:8px;padding:0 14px;}
+.chip-picker button{
+  border:1px solid var(--border);background:var(--surface);color:var(--text);
+  padding:8px 12px;border-radius:999px;font-size:12.5px;font-weight:600;cursor:pointer;
+  display:flex;gap:6px;align-items:center;
+}
+.chip-picker button.picked{background:var(--green);border-color:var(--green);color:#fff;}
+.nudge{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:14px;display:flex;gap:12px;align-items:center;margin:0 14px;
+}
+.nudge .ico{font-size:26px;flex:none;}
+.nudge .txt{font-size:12.5px;color:var(--text-muted);}
+.nudge .txt b{color:var(--text);}
+/* tabbar */
+.tabbar{
+  position:fixed;left:0;right:0;bottom:0;
+  max-width:430px;margin:0 auto;
+  background:var(--surface);
+  border-top:1px solid var(--border);
+  display:flex;
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+.desk-wrap{position:relative;}
+.tabbar-slot{height:58px;}
+.tab{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  background:none;border:none;color:var(--text-muted);font-size:10.5px;font-weight:600;padding:6px 0;cursor:pointer;
+}
+.tab.active{color:var(--green);}
+.g-mark{
+  width:20px;height:20px;border-radius:50%;background:var(--green);color:#fff;
+  font-family:'Baloo 2';font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;
+}
+.icon-wrap{position:relative;display:inline-flex;}
+.badge-dot{
+  position:absolute;top:-4px;right:-7px;
+  background:var(--green);color:#fff;font-size:9px;font-weight:700;
+  width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+}
+/* debug fab + drawer */
+.debug-fab-layer{
+  position:fixed;left:0;right:0;bottom:74px;max-width:430px;margin:0 auto;
+  pointer-events:none;z-index:20;
+}
+.debug-fab{
+  position:absolute;right:14px;bottom:0;pointer-events:auto;
+  width:46px;height:46px;border-radius:50%;
+  background:var(--text);color:var(--bg);
+  border:none;font-size:19px;box-shadow:0 6px 16px rgba(0,0,0,.25);
+  cursor:pointer;
+}
+.scrim{position:fixed;top:0;left:0;right:0;bottom:0;max-width:430px;margin:0 auto;background:rgba(0,0,0,.35);z-index:29;}
+.drawer{
+  position:fixed;left:0;right:0;bottom:0;max-width:430px;margin:0 auto;
+  max-height:86%;
+  background:var(--bg);
+  border-top-left-radius:20px;border-top-right-radius:20px;
+  box-shadow:0 -10px 30px rgba(0,0,0,.3);
+  z-index:30;
+  display:flex;flex-direction:column;
+}
+.drawer-handle{width:38px;height:4px;border-radius:2px;background:var(--border);margin:10px auto 2px;flex:none;}
+.drawer-top{display:flex;align-items:center;justify-content:space-between;padding:4px 16px 8px;flex:none;}
+.drawer-top h2{font-size:15px;margin:0;font-family:'Baloo 2';}
+.drawer-top button{background:none;border:none;color:var(--text-muted);font-size:20px;cursor:pointer;}
+.drawer-scroll{overflow-y:auto;padding:0 16px 24px;display:flex;flex-direction:column;gap:18px;}
+.d-section{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;}
+.d-section h3{margin:0;font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);}
+.persona-grid{display:flex;flex-wrap:wrap;gap:8px;}
+.persona-btn{
+  border:1.5px solid var(--border);background:var(--bg);color:var(--text);
+  padding:8px 11px;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;text-align:left;flex:1 1 130px;
+}
+.persona-btn small{display:block;font-weight:400;color:var(--text-muted);margin-top:2px;font-size:10.5px;}
+.persona-btn.active{border-color:var(--green);background:var(--green-light);}
+.visit-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.visit-btn{
+  border:1.5px solid var(--border);background:var(--bg);color:var(--text);
+  width:34px;height:34px;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;font-variant-numeric:tabular-nums;
+}
+.visit-btn.active{background:var(--green);border-color:var(--green);color:#fff;}
+.link-btn{background:none;border:none;color:var(--green);font-weight:700;font-size:12px;cursor:pointer;padding:0;}
+.sig-list{display:flex;flex-direction:column;gap:6px;font-size:12px;}
+.sig-row{display:flex;gap:8px;align-items:flex-start;}
+.sig-tag{flex:none;font-size:10px;font-weight:700;border-radius:5px;padding:1px 6px;margin-top:1px;}
+.sig-tag.have{background:var(--green-light);color:var(--green);}
+.sig-tag.missing{background:var(--red);color:#fff;opacity:.85;}
+.trace-list{display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text-muted);}
+.trace-list li{list-style:none;}
+.trace-list b{color:var(--text);}
+.rules-editor textarea{
+  width:100%;min-height:220px;font-family:ui-monospace,Menlo,monospace;font-size:11.5px;
+  background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:10px;
+  resize:vertical;
+}
+.rules-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.btn{
+  border:none;border-radius:8px;padding:8px 13px;font-size:12.5px;font-weight:700;cursor:pointer;
+}
+.btn.primary{background:var(--green);color:#fff;}
+.btn.ghost{background:var(--bg);border:1px solid var(--border);color:var(--text);}
+.err-line{color:var(--red);font-size:11.5px;min-height:14px;}
+.select-line{display:flex;gap:8px;align-items:center;font-size:12px;flex-wrap:wrap;}
+.select-line select{
+  font-family:inherit;font-size:12px;padding:5px 7px;border-radius:7px;border:1px solid var(--border);
+  background:var(--surface);color:var(--text);
+}
+.disclaimer{font-size:10.5px;color:var(--text-muted);text-align:center;padding-top:4px;}
+.toast{
+  position:absolute;left:50%;bottom:100px;transform:translateX(-50%);
+  background:var(--text);color:var(--bg);font-size:12px;font-weight:600;
+  padding:8px 14px;border-radius:999px;z-index:40;white-space:nowrap;
+}
+[hidden]{display:none!important;}
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Work+Sans:wght@400;500;600;700&display=swap">
+</head>
+<body>
+
+<div class="desk-wrap">
+<div class="phone-shell">
+
+  <div class="statusbar">
+    <span id="clock">9:41</span>
+    <div class="icons">
+      <svg width="16" height="11" viewBox="0 0 16 11" fill="none"><rect x="0" y="7" width="3" height="4" rx="0.5" fill="#fff"/><rect x="4.5" y="5" width="3" height="6" rx="0.5" fill="#fff"/><rect x="9" y="2.5" width="3" height="8.5" rx="0.5" fill="#fff"/><rect x="13" y="0" width="3" height="11" rx="0.5" fill="#fff"/></svg>
+      <svg width="15" height="11" viewBox="0 0 16 12" fill="none"><path d="M1 4a11 11 0 0114 0M3.3 6.6a7.4 7.4 0 019.4 0M5.6 9a3.9 3.9 0 014.8 0" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/><circle cx="8" cy="10.6" r="1" fill="#fff"/></svg>
+      <span style="font-variant-numeric:tabular-nums;">29</span>
+      <svg width="20" height="11" viewBox="0 0 20 11" fill="none"><rect x="0.5" y="0.5" width="17" height="10" rx="2.5" stroke="#fff"/><rect x="2" y="2" width="4" height="7" rx="1" fill="#fff"/><rect x="18.5" y="3.5" width="1.5" height="4" rx="0.7" fill="#fff"/></svg>
+    </div>
+  </div>
+
+  <header class="app-header">
+    <div class="location-row">
+      <span id="cityLabel">Chicago</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <hr class="dashed-divider">
+    <div class="search-bar">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input type="text" placeholder="Search Massage" id="searchInput">
+    </div>
+  </header>
+
+  <main class="content" id="content"></main>
+
+  <div class="tabbar-slot"></div>
+  <nav class="tabbar" id="tabbar">
+    <button class="tab active" data-tab="explore">
+      <span class="g-mark">G</span>
+      Explore
+    </button>
+    <button class="tab" data-tab="categories">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>
+      Categories
+    </button>
+    <button class="tab" data-tab="cart">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1.4" fill="currentColor" stroke="none"/><circle cx="18" cy="21" r="1.4" fill="currentColor" stroke="none"/><path d="M2 3h2l2.6 12.6a2 2 0 002 1.6h8.8a2 2 0 002-1.6L21 7H6"/></svg>
+      Cart
+    </button>
+    <button class="tab" data-tab="alerts">
+      <span class="icon-wrap">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>
+        <span class="badge-dot">2</span>
+      </span>
+      Notifications
+    </button>
+    <button class="tab" data-tab="account">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+      Profile
+    </button>
+  </nav>
+
+  <div class="debug-fab-layer">
+    <button class="debug-fab" id="debugFab" aria-label="Open personalization engine">🧠</button>
+  </div>
+
+  <div id="scrim" class="scrim" hidden></div>
+  <div id="drawer" class="drawer" hidden>
+    <div class="drawer-handle"></div>
+    <div class="drawer-top">
+      <h2>Personalization engine</h2>
+      <button id="drawerClose" aria-label="Close">✕</button>
+    </div>
+    <div class="drawer-scroll">
+
+      <div class="d-section">
+        <h3>1 · Customer profile</h3>
+        <div class="persona-grid" id="personaGrid"></div>
+        <div class="sig-list" id="signalList"></div>
+      </div>
+
+      <div class="d-section">
+        <h3>2 · Visit simulator</h3>
+        <div class="visit-row" id="visitRow"></div>
+        <div class="select-line">
+          <span id="visitLabel" style="color:var(--text-muted)"></span>
+          <button class="link-btn" id="resetVisits">Reset visit history</button>
+        </div>
+      </div>
+
+      <div class="d-section">
+        <h3>3 · Why this page</h3>
+        <ul class="trace-list" id="traceList"></ul>
+      </div>
+
+      <div class="d-section rules-editor">
+        <h3>4 · Rules (live‑editable)</h3>
+        <div class="select-line">
+          Editing: <select id="ruleScopeSelect"></select>
+        </div>
+        <textarea id="ruleTextarea" spellcheck="false"></textarea>
+        <div class="err-line" id="ruleError"></div>
+        <div class="rules-actions">
+          <button class="btn primary" id="applyRules">Apply &amp; re-render</button>
+          <button class="btn ghost" id="revertRules">Revert this block</button>
+          <button class="btn ghost" id="resetAllDemo">Reset whole demo</button>
+        </div>
+      </div>
+
+      <p class="disclaimer">Prototype built for a Groupon PM case study — not an official Groupon product.</p>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" hidden></div>
+
+</div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+var CATEGORIES = [
+  {id:"food", label:"Food & Drink", emoji:"🍽️"},
+  {id:"spa", label:"Beauty & Spa", emoji:"💆"},
+  {id:"things", label:"Things To Do", emoji:"🎟️"},
+  {id:"travel", label:"Travel", emoji:"✈️"},
+  {id:"home", label:"Home Services", emoji:"🏠"},
+  {id:"auto", label:"Automotive", emoji:"🚗"},
+  {id:"local", label:"Local", emoji:"📍"},
+  {id:"goods", label:"Goods", emoji:"🛍️"}
+];
+
+var DEALS = {
+  spa1:{title:"60-Min Swedish Massage",cat:"Beauty & Spa",emoji:"💆",price:39,orig:89,rating:4.8,ratings:"2.1k",loc:"2.1 mi",sold:"500+ bought"},
+  spa2:{title:"Gel Manicure + Pedicure",cat:"Beauty & Spa",emoji:"💅",price:29,orig:60,rating:4.7,ratings:"980",loc:"1.1 mi",sold:"400+ bought"},
+  rest1:{title:"3-Course Dinner for Two",cat:"Food & Drink",emoji:"🍽️",price:35,orig:70,rating:4.6,ratings:"860",loc:"1.4 mi",sold:"300+ bought"},
+  rest2:{title:"All-You-Can-Eat Sushi",cat:"Food & Drink",emoji:"🍣",price:24,orig:40,rating:4.5,ratings:"1.7k",loc:"0.8 mi",sold:"2k+ bought"},
+  thing1:{title:"Escape Room Adventure",cat:"Things To Do",emoji:"🎟️",price:22,orig:45,rating:4.7,ratings:"1.5k",loc:"3.0 mi",sold:"1k+ bought"},
+  thing2:{title:"Sunset Kayak Tour",cat:"Things To Do",emoji:"🚣",price:45,orig:80,rating:4.8,ratings:"220",loc:"4.2 mi",sold:"150+ booked"},
+  travel1:{title:"3-Night Cancún All-Inclusive",cat:"Travel",emoji:"✈️",price:399,orig:899,rating:4.5,ratings:"530",loc:"Nationwide",sold:"90+ booked"},
+  home1:{title:"Deep House Cleaning, 3 Hrs",cat:"Home Services",emoji:"🧹",price:69,orig:150,rating:4.9,ratings:"610",loc:"Local pros",sold:"200+ bought"},
+  auto1:{title:"Full Synthetic Oil Change",cat:"Automotive",emoji:"🚗",price:29,orig:65,rating:4.4,ratings:"390",loc:"2.8 mi",sold:"700+ bought"},
+  goods1:{title:"Wireless Earbuds, 2-Pack",cat:"Goods",emoji:"🎧",price:19,orig:49,rating:4.3,ratings:"2.9k",loc:"Ships free",sold:"5k+ bought"}
+};
+
+function off(d){ return Math.round((1 - d.price/d.orig) * 100); }
+
+var PHOTO_TAGS = {
+  "Beauty & Spa": ["spa,massage", 11],
+  "Food & Drink": ["restaurant,dinner", 22],
+  "Things To Do": ["amusementpark,ferriswheel", 33],
+  "Travel": ["beach,resort", 44],
+  "Home Services": ["cleaning,house", 55],
+  "Automotive": ["mechanic,garage", 66],
+  "Goods": ["earbuds,shopping", 77],
+  "Local": ["city,skyline", 88],
+  "Generic": ["downtown,city", 99]
+};
+var PHOTO_FALLBACK = {
+  "Beauty & Spa": "#a9805c", "Food & Drink": "#bd7a3a", "Things To Do": "#c9642c",
+  "Travel": "#2f8f8a", "Home Services": "#8a9a7c", "Automotive": "#5c6a75",
+  "Goods": "#8a6bad", "Local": "#4d6470", "Generic": "#8a9a7c"
+};
+function photoUrl(cat, w, h){
+  var t = PHOTO_TAGS[cat] || PHOTO_TAGS.Generic;
+  return "https://loremflickr.com/"+w+"/"+h+"/"+t[0]+"?lock="+t[1];
+}
+function photoFor(cat, w, h){
+  var fallback = PHOTO_FALLBACK[cat] || PHOTO_FALLBACK.Generic;
+  return fallback+" url('"+photoUrl(cat, w||800, h||600)+"') center/cover no-repeat";
+}
+
+var PERSONAS = {
+  cold_start:{label:"New / unknown visitor", hint:"No signals yet"},
+  deal_hunter:{label:"Deal Hunter", hint:"Price-first, no category loyalty"},
+  occasion_planner:{label:"Occasion Planner", hint:"Buys ahead of events"},
+  local_regular:{label:"Local Regular", hint:"Repeat buyer, 1–2 local categories"}
+};
+
+var SIGNALS = {
+  cold_start:{have:[],missing:[
+    {label:"Segment", how:"No behavioral or transactional data yet — nothing to infer from."},
+    {label:"Location precision", how:"IP-level city only; ask for precise location or infer from first search."}
+  ]},
+  deal_hunter:{have:[
+    {label:"Referral query", value:"“cheap deals near me”"},
+    {label:"Avg. discount clicked", value:"54%"},
+    {label:"Category loyalty", value:"none detected across 3 categories"}
+  ],missing:[
+    {label:"True price sensitivity vs. curiosity", how:"A/B test conversion at different discount thresholds."},
+    {label:"Household income band", how:"Third-party enrichment or optional profile field."}
+  ]},
+  occasion_planner:{have:[
+    {label:"Search terms", value:"“anniversary dinner”, “date night”"},
+    {label:"Saved / wishlisted deals", value:"1 (Escape Room Adventure)"},
+    {label:"Purchase cadence", value:"low frequency, higher basket"}
+  ],missing:[
+    {label:"The actual occasion date", how:"Optional calendar prompt at checkout (“when's the big day?”) instead of a quiz."},
+    {label:"Who it's for", how:"Infer from gift-wrap / 2-person deal selections."}
+  ]},
+  local_regular:{have:[
+    {label:"Home metro", value:"resolved from delivery/redemption history"},
+    {label:"Repeat category", value:"Beauty & Spa, 4 purchases / 90 days"},
+    {label:"Days since last redemption", value:"19"}
+  ],missing:[
+    {label:"Preferred merchant vs. category", how:"Track redemption-location clicks, not just purchases."},
+    {label:"Churn risk", how:"Model time-since-last-purchase against category median repurchase cycle."}
+  ]}
+};
+
+function dealRow(title, sub, ids, why){
+  return {type:"deals", title:title, sub:sub||"", ids:ids, why:why};
+}
+function heroOf(headline, sub, cta, photo){ return {headline:headline, sub:sub, cta:cta||"See all deals", photo:photo||"Local"}; }
+function nudge(icon, html){ return {type:"nudge", icon:icon, html:html}; }
+function chips(why){ return {type:"chips", why:why}; }
+
+var DEFAULT_RULES = {
+  cold_start:{ "1": {
+    hero: heroOf("Your city, today's best deals","Handpicked top sellers, same for every new visitor","See all deals","Local"),
+    modules:[
+      chips("No signals yet — tapping a category below is the fastest first-party signal we can capture (replaces the old onboarding quiz)."),
+      dealRow("Trending near you", "Citywide top sellers", ["spa1","rest1","thing1","goods1"], "No persona detected yet, so we rank by citywide popularity, identical for everyone."),
+      dealRow("Popular this week", "", ["travel1","auto1","spa2","thing2"], "Generic popularity ranking — not personalized.")
+    ]
+  }},
+  deal_hunter:{
+    "1":{
+      hero: heroOf("Biggest discounts, hand-picked","We noticed a “cheap deals near me” search","Shop lowest prices","Goods"),
+      modules:[
+        dealRow("Best % off right now","Whole feed sorted by discount, not category", ["goods1","thing1","auto1","spa1","rest2"], "Referral query matched a price-first search pattern → entire feed re-ranked by discount %."),
+        dealRow("Trending near you","", ["rest1","travel1"], "Fallback generic module while we gather more signal.")
+      ]
+    },
+    "2":{
+      hero: heroOf("Steep discounts on Goods","Because you've been browsing Goods deals","See more like this","Goods"),
+      modules:[
+        dealRow("Because you viewed Goods","3 Goods listings viewed this visit", ["goods1"], "Session click-stream: 3 Goods views this visit → surfaced above the generic discount feed."),
+        dealRow("Best % off right now","", ["thing1","auto1","spa1"], "Discount-first ranking still applies to the rest of the feed."),
+        dealRow("Trending near you","", ["rest1"], "Generic fallback.")
+      ]
+    },
+    "3":{
+      hero: heroOf("Picked for you: unbeatable prices","You saved 61% last time — more like that","Shop your top picks","Goods"),
+      modules:[
+        dealRow("Top picks for you","Curated by discount %, any category", ["goods1","auto1","thing1","spa1","rest2"], "Purchase history + confirmed high price sensitivity → whole feed re-ranked by discount %, ignoring category."),
+        nudge("💸","<b>Come back within 30 days</b> — new drops added daily, and your saved deals expire soon."),
+        dealRow("Trending near you","", ["travel1"], "Generic fallback module kept for discovery.")
+      ]
+    }
+  },
+  occasion_planner:{
+    "1":{
+      hero: heroOf("Ideas for your next occasion","Because your search mentioned “anniversary”","Browse Things To Do","Things To Do"),
+      modules:[
+        dealRow("Things To Do near you","", ["thing1","thing2"], "Search intent matched an occasion-planning pattern → Things To Do promoted above generic modules."),
+        dealRow("Popular dinners","", ["rest1","rest2"], "Complementary category for the same occasion."),
+        dealRow("Trending near you","", ["spa1","goods1"], "Generic fallback.")
+      ]
+    },
+    "2":{
+      hero: heroOf("Planning something special?","Saved for later: Escape Room Adventure","Continue planning","Things To Do"),
+      modules:[
+        dealRow("Your saved ideas","1 deal saved this month", ["thing1"], "Explicit save/wishlist action is the strongest available signal — pinned to the top."),
+        dealRow("More date-night ideas","", ["thing2","rest1"], "Related to the saved deal's category and price band."),
+        dealRow("Trending near you","", ["spa2"], "Generic fallback.")
+      ]
+    },
+    "3":{
+      hero: heroOf("Picked for your next occasion","Loved Escape Room Adventure? Here's what's next","See recommendations","Travel"),
+      modules:[
+        dealRow("Top picks for you","Occasion-themed, higher basket", ["thing2","rest1","travel1"], "Purchase confirmed occasion-planner pattern → curated toward higher-basket experiences, not lowest price."),
+        nudge("🎉","<b>Plan your next occasion</b> — deals expire, memories don't. New Things To Do added weekly."),
+        dealRow("Getaways","", ["travel1"], "Adjacent category for bigger occasions (anniversaries, milestones).")
+      ]
+    }
+  },
+  local_regular:{
+    "1":{
+      hero: heroOf("Your neighborhood favorites","Because you're near downtown","See local deals","Local"),
+      modules:[
+        dealRow("Popular near you","", ["spa1","rest1","home1"], "Home metro resolved from redemption history → local modules promoted over nationwide ones."),
+        dealRow("Trending citywide","", ["thing1","goods1"], "Generic fallback while category loyalty is still forming.")
+      ]
+    },
+    "2":{
+      hero: heroOf("More Beauty & Spa near you","Because you keep coming back to Spa deals","See all Spa deals","Beauty & Spa"),
+      modules:[
+        dealRow("Because you love Beauty & Spa","2 repeat views this month", ["spa1","spa2"], "Repeat category views (2 sessions) → Beauty & Spa promoted to the top module."),
+        dealRow("Popular near you","", ["rest1","home1"], "Local ranking continues below the loyal category."),
+        dealRow("Trending citywide","", ["auto1"], "Generic fallback.")
+      ]
+    },
+    "3":{
+      hero: heroOf("Picked for you: your go-to spa","Time for another Swedish Massage?","Book again","Beauty & Spa"),
+      modules:[
+        dealRow("Top picks for you","Beauty & Spa, ranked by your history", ["spa1","spa2"], "Confirmed repeat purchase (2x in 90 days) → single-category feed, ranked by past purchase fit."),
+        nudge("💆","<b>It's been 19 days</b> since your last massage — most Local Regulars rebook within 30."),
+        dealRow("Popular near you","", ["rest1","home1"], "Kept for discovery outside the loyal category.")
+      ]
+    }
+  }
+};
+
+var STORE_KEY = "groupon_proto_v1";
+function loadState(){
+  try{
+    var raw = localStorage.getItem(STORE_KEY);
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  return {persona:"cold_start", visits:{}, overrides:{}, chipsPicked:[]};
+}
+function saveState(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
+}
+var state = loadState();
+if(!state.visits) state.visits = {};
+if(!state.overrides) state.overrides = {};
+if(!state.chipsPicked) state.chipsPicked = [];
+
+function stageFor(persona){
+  if(persona === "cold_start") return "1";
+  var v = state.visits[persona] || 1;
+  if(v > 3) v = 3;
+  return String(v);
+}
+function rulesFor(persona, stage){
+  var ov = state.overrides[persona] && state.overrides[persona][stage];
+  if(ov) return ov;
+  return DEFAULT_RULES[persona][stage];
+}
+
+var GENERIC_FILLER_SLIDE = {headline:"Fall Favorites Start Here", sub:"Top attractions & experiences, up to 30% off", photo:"Things To Do"};
+
+function chevronSvg(){ return '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>'; }
+
+function heroSlide(h, eyebrow){
+  return '<div class="hero-slide" style="background:'+photoFor(h.photo)+';">'
+    + '<div class="scrim"></div>'
+    + '<div class="txt">'
+    +   (eyebrow?'<span class="eyebrow">'+eyebrow+'</span>':'')
+    +   '<h1>'+h.headline+'</h1>'
+    +   '<p>'+h.sub+'</p>'
+    + '</div></div>';
+}
+
+function card(id){
+  var d = DEALS[id];
+  var pct = off(d);
+  return '<div class="card">'
+    + '<div class="img" style="background:'+photoFor(d.cat,400,300)+';">'
+    +   '<span class="badge">-'+pct+'%</span>'
+    + '</div>'
+    + '<div class="body">'
+    +   '<span class="cat">'+d.cat+'</span>'
+    +   '<span class="title">'+d.title+'</span>'
+    +   '<span class="rating"><span class="star">★</span>'+d.rating.toFixed(1)+' ('+d.ratings+') · '+d.loc+'</span>'
+    +   '<span class="price-row"><span class="price">$'+d.price+'</span><span class="orig">$'+d.orig+'</span></span>'
+    +   '<span class="sold">'+d.sold+'</span>'
+    + '</div></div>';
+}
+
+function bigCard(id, tag){
+  var d = DEALS[id];
+  var pct = off(d);
+  return '<div class="big-card">'
+    + '<div class="photo" style="background:'+photoFor(d.cat)+';">'
+    +   '<span class="badge-pill">🏷️ -'+pct+'%</span>'
+    +   '<button class="heart-btn" data-heart="'+id+'" aria-label="Save">♡</button>'
+    +   (tag ? '<span class="tag-pill">'+tag+'</span>' : '')
+    + '</div>'
+    + '<div class="info">'
+    +   '<span class="cat">'+d.cat+'</span>'
+    +   '<span class="title">'+d.title+'</span>'
+    +   '<span class="rating">★ '+d.rating.toFixed(1)+' ('+d.ratings+') · '+d.loc+'</span>'
+    +   '<span class="price-row"><span class="price">$'+d.price+'</span><span class="orig">$'+d.orig+'</span></span>'
+    + '</div></div>';
+}
+
+function renderChipsModule(m, idx){
+  var picked = state.chipsPicked;
+  var chipsHtml = CATEGORIES.map(function(c){
+    var on = picked.indexOf(c.id) > -1;
+    return '<button data-chip="'+c.id+'" class="'+(on?"picked":"")+'">'+c.emoji+' '+c.label+'</button>';
+  }).join("");
+  return '<div class="module">'
+    + '<div class="module-head"><div><h2>What are you into?</h2><div class="sub">Tap a few — no quiz required</div></div>'
+    + whyBtn(idx) + '</div>'
+    + '<div class="why-note" id="why-'+idx+'" hidden>'+m.why+'</div>'
+    + '<div class="chip-picker">'+chipsHtml+'</div>'
+    + '</div>';
+}
+
+function whyBtn(idx){ return '<button class="why-btn" data-why="'+idx+'">i</button>'; }
+
+function renderBigModule(m, idx){
+  var ids = m.ids.slice(0,4);
+  var tag = /trending|popular/i.test(m.title) ? "📈 Trending" : "🔥 "+m.title;
+  var cardsHtml = ids.map(function(id){ return bigCard(id, tag); }).join("");
+  var dotsHtml = ids.map(function(_,i){ return '<span class="dot'+(i===0?" on":"")+'"></span>'; }).join("");
+  return '<div class="module">'
+    + '<div class="module-head"><div><h2>'+m.title+chevronSvg()+'</h2>'+(m.sub?'<div class="sub">'+m.sub+'</div>':'')+'</div>'
+    + whyBtn(idx) + '</div>'
+    + '<div class="why-note" id="why-'+idx+'" hidden>'+m.why+'</div>'
+    + '<div class="big-carousel" data-carousel="big-'+idx+'">'+cardsHtml+'</div>'
+    + '<div class="dots-row" data-dots="big-'+idx+'">'+dotsHtml+'</div>'
+    + '<hr class="dashed-divider on-light" style="margin:2px 14px 0;">'
+    + '</div>';
+}
+
+function renderModule(m, idx, big){
+  if(m.type === "chips") return renderChipsModule(m, idx);
+  if(m.type === "nudge"){
+    return '<div class="module"><div class="nudge"><span class="ico">'+m.icon+'</span><span class="txt">'+m.html+'</span></div></div>';
+  }
+  if(big) return renderBigModule(m, idx);
+  var cardsHtml = m.ids.map(card).join("");
+  return '<div class="module">'
+    + '<div class="module-head"><div><h2>'+m.title+'</h2>'+(m.sub?'<div class="sub">'+m.sub+'</div>':'')+'</div>'
+    + whyBtn(idx) + '</div>'
+    + '<div class="why-note" id="why-'+idx+'" hidden>'+m.why+'</div>'
+    + '<div class="row-scroll">'+cardsHtml+'</div>'
+    + '</div>';
+}
+
+function syncDots(car, dotsEl){
+  var kids = car.children;
+  if(!kids.length) return;
+  var w = kids[0].getBoundingClientRect().width + 12;
+  var idx = Math.round(car.scrollLeft / w);
+  var dots = dotsEl.children;
+  for(var i=0;i<dots.length;i++){ dots[i].classList.toggle("on", i===idx); }
+}
+
+function render(){
+  var persona = state.persona;
+  var stage = stageFor(persona);
+  var rules = rulesFor(persona, stage);
+  var heroEyebrow = persona==="cold_start" ? "Explore" : PERSONAS[persona].label+" · visit "+stage;
+
+  var html = '<div class="hero-carousel" data-carousel="hero">'
+    + heroSlide(rules.hero, heroEyebrow)
+    + heroSlide(GENERIC_FILLER_SLIDE, "")
+    + '</div>'
+    + '<div class="dots-row" data-dots="hero"><span class="dot on"></span><span class="dot"></span></div>';
+
+  var bigUsed = false;
+  rules.modules.forEach(function(m, i){
+    var isBig = (m.type === "deals" && !bigUsed);
+    if(isBig) bigUsed = true;
+    html += renderModule(m, i, isBig);
+  });
+
+  document.getElementById("content").innerHTML = html;
+
+  document.querySelectorAll("[data-carousel]").forEach(function(car){
+    var key = car.getAttribute("data-carousel");
+    var dotsEl = document.querySelector('[data-dots="'+key+'"]');
+    if(!dotsEl) return;
+    car.addEventListener("scroll", function(){ syncDots(car, dotsEl); }, {passive:true});
+  });
+  document.querySelectorAll("[data-heart]").forEach(function(b){
+    b.addEventListener("click", function(e){
+      e.stopPropagation();
+      b.classList.toggle("on");
+      b.textContent = b.classList.contains("on") ? "♥" : "♡";
+    });
+  });
+  document.querySelectorAll("[data-why]").forEach(function(b){
+    b.addEventListener("click", function(){
+      var note = document.getElementById("why-"+b.getAttribute("data-why"));
+      note.hidden = !note.hidden;
+    });
+  });
+  document.querySelectorAll("[data-chip]").forEach(function(b){
+    b.addEventListener("click", function(){
+      var id = b.getAttribute("data-chip");
+      var i = state.chipsPicked.indexOf(id);
+      if(i > -1) state.chipsPicked.splice(i,1); else state.chipsPicked.push(id);
+      saveState();
+      render();
+      if(state.chipsPicked.length === 1){
+        toast("Signal captured — this is exactly what would seed segment detection.");
+      }
+    });
+  });
+
+  renderDrawerDynamic();
+}
+
+function renderPersonaGrid(){
+  var el = document.getElementById("personaGrid");
+  el.innerHTML = "";
+  Object.keys(PERSONAS).forEach(function(id){
+    var b = document.createElement("button");
+    b.className = "persona-btn" + (state.persona===id ? " active" : "");
+    b.innerHTML = PERSONAS[id].label + "<small>"+PERSONAS[id].hint+"</small>";
+    b.addEventListener("click", function(){
+      state.persona = id;
+      if(id !== "cold_start" && !state.visits[id]) state.visits[id] = 1;
+      saveState();
+      render();
+    });
+    el.appendChild(b);
+  });
+}
+
+function renderSignalList(){
+  var el = document.getElementById("signalList");
+  var sig = SIGNALS[state.persona];
+  var html = "";
+  sig.have.forEach(function(s){
+    html += '<div class="sig-row"><span class="sig-tag have">HAVE</span><span><b>'+s.label+'</b>'+(s.value? ": "+s.value : "")+'</span></div>';
+  });
+  sig.missing.forEach(function(s){
+    html += '<div class="sig-row"><span class="sig-tag missing">MISSING</span><span><b>'+s.label+'</b> — '+s.how+'</span></div>';
+  });
+  el.innerHTML = html || '<div class="sig-row" style="color:var(--text-muted)">No data collected yet.</div>';
+}
+
+function renderVisitRow(){
+  var el = document.getElementById("visitRow");
+  var label = document.getElementById("visitLabel");
+  el.innerHTML = "";
+  if(state.persona === "cold_start"){
+    label.textContent = "Unknown visitors always see stage 1 (no history to build on).";
+    return;
+  }
+  [1,2,3].forEach(function(n){
+    var cur = state.visits[state.persona] || 1;
+    var b = document.createElement("button");
+    b.className = "visit-btn" + (cur===n ? " active" : "");
+    b.textContent = n===3 ? "3+" : n;
+    b.addEventListener("click", function(){
+      state.visits[state.persona] = n;
+      saveState();
+      render();
+    });
+    el.appendChild(b);
+  });
+  var cur = state.visits[state.persona] || 1;
+  label.textContent = "Visit " + cur + " of this month's simulated visits.";
+}
+
+function renderTrace(){
+  var el = document.getElementById("traceList");
+  var persona = state.persona, stage = stageFor(persona);
+  var rules = rulesFor(persona, stage);
+  var lines = [];
+  lines.push('<li><b>Segment:</b> '+(persona==="cold_start"?"none detected":PERSONAS[persona].label)+'</li>');
+  lines.push('<li><b>Rule matched:</b> '+persona+' × visit '+stage+'</li>');
+  lines.push('<li><b>Modules, in order:</b> '+rules.modules.filter(function(m){return m.title||m.type==="chips"||m.type==="nudge";}).map(function(m){return m.title || (m.type==="chips"?"Signal chips":"Retention nudge");}).join(" → ")+'</li>');
+  rules.modules.forEach(function(m){ if(m.why) lines.push('<li>• '+m.why+'</li>'); });
+  el.innerHTML = lines.join("");
+}
+
+var RULE_SCOPE_LIST = [];
+Object.keys(DEFAULT_RULES).forEach(function(p){
+  Object.keys(DEFAULT_RULES[p]).forEach(function(s){
+    RULE_SCOPE_LIST.push(p+"::"+s);
+  });
+});
+function renderRuleScopeSelect(){
+  var sel = document.getElementById("ruleScopeSelect");
+  if(sel.options.length) return;
+  RULE_SCOPE_LIST.forEach(function(key){
+    var parts = key.split("::");
+    var opt = document.createElement("option");
+    opt.value = key;
+    opt.textContent = PERSONAS[parts[0]].label + " · visit " + parts[1];
+    sel.appendChild(opt);
+  });
+  sel.value = state.persona + "::" + stageFor(state.persona);
+  sel.addEventListener("change", loadRuleTextarea);
+}
+function loadRuleTextarea(){
+  var sel = document.getElementById("ruleScopeSelect");
+  var parts = sel.value.split("::");
+  var data = rulesFor(parts[0], parts[1]);
+  document.getElementById("ruleTextarea").value = JSON.stringify(data, null, 2);
+  document.getElementById("ruleError").textContent = "";
+}
+
+function renderDrawerDynamic(){
+  renderPersonaGrid();
+  renderSignalList();
+  renderVisitRow();
+  renderTrace();
+  renderRuleScopeSelect();
+  var sel = document.getElementById("ruleScopeSelect");
+  var current = state.persona + "::" + stageFor(state.persona);
+  if([...sel.options].some(function(o){return o.value===current;})){
+    sel.value = current;
+  }
+  loadRuleTextarea();
+}
+
+function toast(msg){
+  var t = document.getElementById("toast");
+  t.textContent = msg;
+  t.hidden = false;
+  clearTimeout(toast._h);
+  toast._h = setTimeout(function(){ t.hidden = true; }, 2600);
+}
+
+function openDrawer(){
+  document.getElementById("drawer").hidden = false;
+  document.getElementById("scrim").hidden = false;
+  renderDrawerDynamic();
+}
+function closeDrawer(){
+  document.getElementById("drawer").hidden = true;
+  document.getElementById("scrim").hidden = true;
+}
+
+document.getElementById("debugFab").addEventListener("click", openDrawer);
+document.getElementById("drawerClose").addEventListener("click", closeDrawer);
+document.getElementById("scrim").addEventListener("click", closeDrawer);
+
+document.getElementById("resetVisits").addEventListener("click", function(){
+  state.visits[state.persona] = 1;
+  saveState();
+  render();
+});
+
+document.getElementById("applyRules").addEventListener("click", function(){
+  var sel = document.getElementById("ruleScopeSelect");
+  var scopeKey = sel.value;
+  var parts = scopeKey.split("::");
+  var errEl = document.getElementById("ruleError");
+  try{
+    var parsed = JSON.parse(document.getElementById("ruleTextarea").value);
+    if(!parsed.hero || !parsed.modules) throw new Error("Expected an object with \"hero\" and \"modules\".");
+    if(!state.overrides[parts[0]]) state.overrides[parts[0]] = {};
+    state.overrides[parts[0]][parts[1]] = parsed;
+    saveState();
+    errEl.textContent = "";
+    toast("Rules updated — page re-rendered.");
+    render();
+    document.getElementById("ruleScopeSelect").value = scopeKey;
+    loadRuleTextarea();
+  }catch(e){
+    errEl.textContent = "Invalid JSON: " + e.message;
+  }
+});
+
+document.getElementById("revertRules").addEventListener("click", function(){
+  var sel = document.getElementById("ruleScopeSelect");
+  var scopeKey = sel.value;
+  var parts = scopeKey.split("::");
+  if(state.overrides[parts[0]]) delete state.overrides[parts[0]][parts[1]];
+  saveState();
+  render();
+  document.getElementById("ruleScopeSelect").value = scopeKey;
+  loadRuleTextarea();
+  toast("Reverted to default for this block.");
+});
+
+document.getElementById("resetAllDemo").addEventListener("click", function(){
+  state = {persona:"cold_start", visits:{}, overrides:{}, chipsPicked:[]};
+  saveState();
+  closeDrawer();
+  render();
+  toast("Demo reset.");
+});
+
+document.querySelectorAll(".tab").forEach(function(t){
+  t.addEventListener("click", function(){
+    if(t.getAttribute("data-tab") === "explore"){
+      document.querySelectorAll(".tab").forEach(function(x){x.classList.remove("active");});
+      t.classList.add("active");
+      return;
+    }
+    toast("This prototype covers the Explore homepage only (per the case-study scope).");
+  });
+});
+
+function tickClock(){
+  var now = new Date();
+  var h = now.getHours()%12; if(h===0) h=12;
+  var m = now.getMinutes();
+  document.getElementById("clock").textContent = h + ":" + (m<10?"0":"") + m;
+}
+tickClock();
+setInterval(tickClock, 15000);
+
+render();
+})();
+</script>
+</body>
+</html>
