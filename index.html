@@ -272,14 +272,12 @@ a{color:inherit;}
 }
 .tabbar-slot{height:58px;}
 .tab{
-  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
-  background:none;border:none;color:var(--text-muted);font-size:10.5px;font-weight:600;padding:6px 0;cursor:pointer;
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  background:none;border:none;color:var(--text-muted);font-size:11px;font-weight:500;padding:6px 0;cursor:pointer;
+  font-family:'Work Sans', system-ui, sans-serif;
 }
-.tab.active{color:var(--green);}
-.g-mark{
-  width:20px;height:20px;border-radius:50%;background:var(--green);color:#fff;
-  font-family:'Baloo 2';font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;
-}
+.tab svg{display:block;}
+.tab.active{color:var(--green);font-weight:700;}
 .icon-wrap{position:relative;display:inline-flex;}
 .badge-dot{
   position:absolute;top:-4px;right:-7px;
@@ -421,7 +419,7 @@ a{color:inherit;}
   <div class="tabbar-slot"></div>
   <nav class="tabbar" id="tabbar">
     <button class="tab active" data-tab="explore">
-      <span class="g-mark">G</span>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.5" stroke="currentColor" stroke-width="1.7"/><circle cx="10.3" cy="10.3" r="3.4" stroke="currentColor" stroke-width="1.7"/><path d="M12.7 12.7l3 3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
       Explore
     </button>
     <button class="tab" data-tab="categories">
@@ -936,7 +934,7 @@ function renderPage(){
     html = heroCarouselHtml(personalized, filler, "Explore");
     html += soloModuleHtml("Trending near you", "Citywide, lightly tuned by your profile", ranked[0], null, 0);
     html += segmentPickerModuleHtml(1);
-    html += lazyWrap(skeletonSolo(2), smallRowModuleHtml("Popular this week", "", rest, 2));
+    html += lazyWrap(skeletonSolo(1), smallRowModuleHtml("Popular this week", "", rest, 2));
   } else {
     var rankedSeg = rankSegment(seg);
     var more = rankedSeg.slice(1,11);
@@ -948,15 +946,15 @@ function renderPage(){
     html = heroCarouselHtml(personalized2, filler2, SEGMENTS[seg].label);
     html += soloModuleHtml("Top picks for you", reason, rankedSeg[0], seg, 0);
     html += filterChipsModuleHtml(seg, 1);
-    html += lazyWrap(skeletonSolo(2), smallRowModuleHtml("More for you", "", more, 2));
+    html += lazyWrap(skeletonSolo(1), smallRowModuleHtml("More for you", "", more, 2));
     var discoverDeals = rankSegment(other).slice(0,8);
-    html += lazyWrap(skeletonSolo(2), smallRowModuleHtml("Discover: " + SEGMENTS[other].label, "Something different, top-rated", discoverDeals, 3));
+    html += lazyWrap(skeletonSolo(1), smallRowModuleHtml("Discover: " + SEGMENTS[other].label, "Something different, top-rated", discoverDeals, 3));
   }
 
   var rvHtml = recentlyViewedModuleHtml();
   if(rvHtml) html += lazyWrap(skeletonSolo(1), rvHtml);
-  html += lazyWrap(skeletonSolo(2), giftsModuleHtml());
-  html += lazyWrap(skeletonSolo(2), highlyRatedModuleHtml());
+  html += lazyWrap(skeletonSolo(1), giftsModuleHtml());
+  html += lazyWrap(skeletonSolo(1), highlyRatedModuleHtml());
 
   document.getElementById("content").innerHTML = html;
   wirePageEvents();
