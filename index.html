@@ -56,7 +56,9 @@ body{
   color:var(--text);
   display:flex;
   justify-content:center;
-  min-height:100vh;
+  height:100vh;
+  height:100dvh;
+  overflow:hidden;
 }
 img{max-width:100%;}
 .wordmark{
@@ -78,14 +80,15 @@ a{color:inherit;}
     border-radius:34px;
     overflow:hidden;
     box-shadow:0 30px 60px -20px rgba(0,0,0,.35), 0 0 0 8px #10120c;
-    min-height:860px;
+    height:min(860px, calc(100vh - 56px));
+    height:min(860px, calc(100dvh - 56px));
   }
 }
 .phone-shell{
   background:var(--bg);
   display:flex;
   flex-direction:column;
-  min-height:100%;
+  height:100%;
   position:relative;
 }
 /* status bar */
@@ -138,6 +141,9 @@ a{color:inherit;}
 /* content */
 .content{
   flex:1;
+  min-height:0;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
   padding:0 0 90px;
   display:flex;
   flex-direction:column;
@@ -361,9 +367,9 @@ a{color:inherit;}
 }
 .disclaimer{font-size:10.5px;color:var(--text-muted);text-align:center;padding-top:4px;}
 .toast{
-  position:absolute;left:50%;bottom:100px;transform:translateX(-50%);
+  position:absolute;left:16px;right:16px;bottom:100px;
   background:var(--text);color:var(--bg);font-size:12px;font-weight:600;
-  padding:8px 14px;border-radius:999px;z-index:40;white-space:nowrap;
+  padding:9px 14px;border-radius:14px;z-index:40;text-align:center;
 }
 [hidden]{display:none!important;}
 </style>
