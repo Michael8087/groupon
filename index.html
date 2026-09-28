@@ -59,6 +59,7 @@ body{
   height:100vh;
   height:100dvh;
   overflow:hidden;
+  position:relative;
 }
 img{max-width:100%;}
 .wordmark{
@@ -300,11 +301,11 @@ a{color:inherit;}
 /* terminal panel (desktop only, sits beside the phone) */
 .terminal-panel{display:none;}
 @media (min-width:480px){
-  body{gap:20px;}
   .terminal-panel{
     --bg:#0d1117; --surface:#161b22; --text:#c9d1d9; --text-muted:#8b949e;
     --border:#30363d; --green:#3fb950; --green-light:#0d2b17; --red:#f85149;
     display:flex;flex-direction:column;
+    position:absolute;top:28px;left:calc(50% + 215px);
     width:380px;
     height:min(844px, calc(100vh - 56px));
     height:min(844px, calc(100dvh - 56px));
@@ -745,10 +746,14 @@ function heroSlideHtml(h, eyebrow){
     + (eyebrow ? '<span class="eyebrow">'+eyebrow+'</span>' : '')
     + '<h1>'+h.headline+'</h1><p>'+h.sub+'</p></div></div>';
 }
-function heroCarouselHtml(p, f, eyebrow){
-  return '<div class="hero-carousel" data-carousel="hero">'
-    + heroSlideHtml(p, eyebrow) + heroSlideHtml(f, "")
-    + '</div><div class="dots-row" data-dots="hero"><span class="dot on"></span><span class="dot"></span></div>';
+function heroCarouselHtml(slides, eyebrow){
+  var slidesHtml = slides.map(function(s, i){ return heroSlideHtml(s, i===0 ? eyebrow : ""); }).join("");
+  var dotsHtml = slides.map(function(_, i){ return '<span class="dot'+(i===0?" on":"")+'"></span>'; }).join("");
+  return '<div class="hero-carousel" data-carousel="hero">' + slidesHtml + '</div>'
+    + '<div class="dots-row" data-dots="hero">' + dotsHtml + '</div>';
+}
+function dealHeroSlide(d){
+  return {headline: d.title, sub: "$"+d.price+" · "+off(d)+"% off · "+d.addr, photoId: d.photoId};
 }
 
 function cardMatchTag(d, seg){
@@ -861,16 +866,6 @@ function smallRowModuleHtml(title, sub, deals, idx){
     + '</div>';
 }
 
-function filterChipsModuleHtml(seg, idx){
-  var chipsHtml = SEGMENTS[seg].attrs.map(function(a){
-    var active = (state.profile.chipFilters[seg]||[]).indexOf(a.key) > -1;
-    return '<button data-filterchip="'+a.key+'" data-seg="'+seg+'" class="'+(active?"picked":"")+'">'+a.highLabel+'</button>';
-  }).join("");
-  return '<div class="module"><div class="module-head"><div><h2>Refine for '+SEGMENTS[seg].label+'</h2><div class="sub">Tap what matters to you</div></div>'+whyBtn(idx)+'</div>'
-    + '<div class="why-note" id="why-'+idx+'" hidden>Each tap directly nudges that attribute’s weight in the ranking model — the strongest, most explicit signal we can get, short of a real quiz.</div>'
-    + '<div class="chip-picker">'+chipsHtml+'</div></div>';
-}
-
 function segmentPickerModuleHtml(idx){
   var chipsHtml = Object.keys(SEGMENTS).map(function(s){
     return '<button data-segpick="'+s+'">'+SEGMENTS[s].icon+' '+SEGMENTS[s].label+'</button>';
@@ -931,7 +926,8 @@ function renderPage(){
     var rest = ranked.slice(1,15);
     var personalized = {headline:"Your city, today's best deals", sub:"Handpicked top sellers, lightly tuned to what visitors like you tend to browse", photoId: ranked[0].photoId};
     var filler = {headline:"Citywide Favorites", sub:"Top-rated across every category this week", photoId: (ranked[8]||ranked[0]).photoId};
-    html = heroCarouselHtml(personalized, filler, "Explore");
+    var heroSlides = [personalized].concat(ranked.slice(1,5).map(dealHeroSlide)).concat([filler]);
+    html = heroCarouselHtml(heroSlides, "Explore");
     html += soloModuleHtml("Trending near you", "Citywide, lightly tuned by your profile", ranked[0], null, 0);
     html += segmentPickerModuleHtml(1);
     html += lazyWrap(skeletonSolo(1), smallRowModuleHtml("Popular this week", "", rest, 2));
@@ -943,9 +939,9 @@ function renderPage(){
     var personalized2 = {headline:"Picked for you: " + SEGMENTS[seg].label, sub: reason, photoId: rankedSeg[0].photoId};
     var filler2 = {headline:"Citywide Favorites", sub:"Top-rated across every category this week", photoId: DEALS[0].photoId};
     var other = otherSegment(seg);
-    html = heroCarouselHtml(personalized2, filler2, SEGMENTS[seg].label);
+    var heroSlides2 = [personalized2].concat(rankedSeg.slice(1,5).map(dealHeroSlide)).concat([filler2]);
+    html = heroCarouselHtml(heroSlides2, SEGMENTS[seg].label);
     html += soloModuleHtml("Top picks for you", reason, rankedSeg[0], seg, 0);
-    html += filterChipsModuleHtml(seg, 1);
     html += lazyWrap(skeletonSolo(1), smallRowModuleHtml("More for you", "", more, 2));
     var discoverDeals = rankSegment(other).slice(0,8);
     html += lazyWrap(skeletonSolo(1), smallRowModuleHtml("Discover: " + SEGMENTS[other].label, "Something different, top-rated", discoverDeals, 3));
@@ -1044,23 +1040,6 @@ function wirePageEvents(root){
     b.addEventListener("click", function(){
       var note = document.getElementById("why-"+b.getAttribute("data-why"));
       note.hidden = !note.hidden;
-    });
-  });
-
-  root.querySelectorAll("[data-filterchip]").forEach(function(b){
-    b.addEventListener("click", function(){
-      var key = b.getAttribute("data-filterchip"), seg = b.getAttribute("data-seg");
-      if(!state.profile.chipFilters[seg]) state.profile.chipFilters[seg] = [];
-      var arr = state.profile.chipFilters[seg];
-      var i = arr.indexOf(key);
-      var w = state.profile.weights[seg];
-      var attrDef = SEGMENTS[seg].attrs.filter(function(a){ return a.key===key; })[0];
-      if(i > -1){ arr.splice(i,1); w[key] = (w[key]||0) - FILTER_STRENGTH; }
-      else { arr.push(key); w[key] = (w[key]||0) + FILTER_STRENGTH; }
-      bumpEngagement(seg);
-      logBehavior("🎚️ Filtered " + SEGMENTS[seg].label + " by <b>" + (attrDef?attrDef.highLabel:key) + "</b>");
-      saveState();
-      render();
     });
   });
 
