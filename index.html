@@ -18,8 +18,8 @@
   --red:#c22b1f;
   --gold:#e0a512;
   --pink:#e01575;
-  --navy:#12141b;
-  --navy-2:#1c1f29;
+  --navy:#152a52;
+  --navy-2:#1d3a6e;
   --shadow: 0 1px 2px rgba(20,30,10,.06);
   --radius:14px;
   color-scheme:light;
@@ -577,7 +577,8 @@ DEALS.forEach(function(d){ DEALS_BY_ID[d.id] = d; });
 function off(d){ return Math.round((1 - d.price/d.orig) * 100); }
 function photoStyle(tags, w, h){
   w = w||800; h = h||600;
-  return "#8a9a7c url('https://loremflickr.com/"+w+"/"+h+"/"+tags[0]+"?lock="+tags[1]+"') center/cover no-repeat";
+  var seed = encodeURIComponent(tags[0]) + "-" + tags[1];
+  return "#8a9a7c url('https://picsum.photos/seed/"+seed+"/"+w+"/"+h+"') center/cover no-repeat";
 }
 
 /* ---------- state ---------- */
