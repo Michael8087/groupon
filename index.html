@@ -548,38 +548,37 @@ var SEARCH_KEYWORDS = {
 /* ---------- deal catalog ---------- */
 
 var DEALS = [
-  {id:"weekend_cottage", segment:"travel", title:"Weekend Countryside Cottage Stay", price:129, orig:259, rating:4.7, ratings:"410", loc:"2 hrs away", sold:"80+ booked", photoTags:["cottage,countryside",101], attrs:{price:.25,duration:.3,overseas:0,landmarks:.3,beach:0,adventureLevel:.3,food:.35}},
-  {id:"cancun_beach", segment:"travel", title:"3-Night Cancún All-Inclusive Beach Resort", price:399, orig:899, rating:4.5, ratings:"530", loc:"Nationwide flight", sold:"90+ booked", photoTags:["cancun,beach",102], attrs:{price:.8,duration:.6,overseas:1,landmarks:.1,beach:1,adventureLevel:.2,food:.5}},
-  {id:"rome_tour", segment:"travel", title:"5-Day Rome Highlights & Museums Tour", price:649, orig:1299, rating:4.9, ratings:"310", loc:"Nationwide flight", sold:"60+ booked", photoTags:["rome,landmark",103], attrs:{price:.6,duration:.5,overseas:1,landmarks:1,beach:0,adventureLevel:.1,food:.6}},
-  {id:"ski_lodge", segment:"travel", title:"Mountain Lodge Ski Weekend", price:219, orig:449, rating:4.6, ratings:"270", loc:"3 hrs away", sold:"70+ booked", photoTags:["ski,mountain",104], attrs:{price:.5,duration:.3,overseas:0,landmarks:.1,beach:0,adventureLevel:.8,food:.3}},
-  {id:"prague_break", segment:"travel", title:"Budget City Break: Old Town Hotel, 2 Nights", price:89, orig:179, rating:4.4, ratings:"640", loc:"Domestic", sold:"150+ booked", photoTags:["oldtown,prague",105], attrs:{price:.15,duration:.25,overseas:0,landmarks:.7,beach:0,adventureLevel:.1,food:.4}},
-  {id:"bali_escape", segment:"travel", title:"7-Day Bali Adventure & Beach Escape", price:899, orig:1799, rating:4.8, ratings:"180", loc:"Nationwide flight", sold:"40+ booked", photoTags:["bali,beach",106], attrs:{price:.85,duration:.85,overseas:1,landmarks:.3,beach:.8,adventureLevel:.6,food:.5}},
-  {id:"lisbon_food", segment:"travel", title:"Michelin-Guide Food Tour, Lisbon", price:259, orig:459, rating:4.7, ratings:"140", loc:"Nationwide flight", sold:"35+ booked", photoTags:["lisbon,food",107], attrs:{price:.5,duration:.35,overseas:1,landmarks:.4,beach:.2,adventureLevel:.1,food:1}},
+  {id:"weekend_cottage", segment:"travel", title:"Weekend Countryside Cottage Stay", price:129, orig:259, rating:4.7, ratings:"410", loc:"2 hrs away", sold:"80+ booked", photoId:76, attrs:{price:.25,duration:.3,overseas:0,landmarks:.3,beach:0,adventureLevel:.3,food:.35}},
+  {id:"cancun_beach", segment:"travel", title:"3-Night Cancún All-Inclusive Beach Resort", price:399, orig:899, rating:4.5, ratings:"530", loc:"Nationwide flight", sold:"90+ booked", photoId:215, attrs:{price:.8,duration:.6,overseas:1,landmarks:.1,beach:1,adventureLevel:.2,food:.5}},
+  {id:"rome_tour", segment:"travel", title:"5-Day Rome Highlights & Museums Tour", price:649, orig:1299, rating:4.9, ratings:"310", loc:"Nationwide flight", sold:"60+ booked", photoId:629, attrs:{price:.6,duration:.5,overseas:1,landmarks:1,beach:0,adventureLevel:.1,food:.6}},
+  {id:"ski_lodge", segment:"travel", title:"Mountain Lodge Ski Weekend", price:219, orig:449, rating:4.6, ratings:"270", loc:"3 hrs away", sold:"70+ booked", photoId:328, attrs:{price:.5,duration:.3,overseas:0,landmarks:.1,beach:0,adventureLevel:.8,food:.3}},
+  {id:"prague_break", segment:"travel", title:"Budget City Break: Old Town Hotel, 2 Nights", price:89, orig:179, rating:4.4, ratings:"640", loc:"Domestic", sold:"150+ booked", photoId:288, attrs:{price:.15,duration:.25,overseas:0,landmarks:.7,beach:0,adventureLevel:.1,food:.4}},
+  {id:"bali_escape", segment:"travel", title:"7-Day Bali Adventure & Beach Escape", price:899, orig:1799, rating:4.8, ratings:"180", loc:"Nationwide flight", sold:"40+ booked", photoId:218, attrs:{price:.85,duration:.85,overseas:1,landmarks:.3,beach:.8,adventureLevel:.6,food:.5}},
+  {id:"lisbon_food", segment:"travel", title:"Michelin-Guide Food Tour, Lisbon", price:259, orig:459, rating:4.7, ratings:"140", loc:"Nationwide flight", sold:"35+ booked", photoId:419, attrs:{price:.5,duration:.35,overseas:1,landmarks:.4,beach:.2,adventureLevel:.1,food:1}},
 
-  {id:"swedish_massage", segment:"wellness", title:"60-Min Swedish Massage", price:39, orig:89, rating:4.8, ratings:"2.1k", loc:"2.1 mi", sold:"500+ bought", photoTags:["massage,spa",111], attrs:{price:.3,intensity:.1,atHome:0,recurring:.5,distance:.7}},
-  {id:"mobile_massage", segment:"wellness", title:"Mobile At-Home Deep Tissue Massage", price:69, orig:139, rating:4.7, ratings:"640", loc:"Comes to you", sold:"220+ bought", photoTags:["massage,relax",112], attrs:{price:.45,intensity:.3,atHome:1,recurring:.4,distance:1}},
-  {id:"mani_pedi", segment:"wellness", title:"Gel Manicure + Pedicure", price:29, orig:60, rating:4.7, ratings:"980", loc:"1.1 mi", sold:"400+ bought", photoTags:["manicure,nails",113], attrs:{price:.2,intensity:0,atHome:0,recurring:.6,distance:.8}},
-  {id:"yoga_membership", segment:"wellness", title:"8-Week Unlimited Yoga Membership", price:79, orig:199, rating:4.8, ratings:"310", loc:"1.8 mi", sold:"150+ bought", photoTags:["yoga,studio",114], attrs:{price:.5,intensity:.4,atHome:0,recurring:1,distance:.6}},
-  {id:"bootcamp", segment:"wellness", title:"High-Intensity Bootcamp, 10 Classes", price:59, orig:149, rating:4.5, ratings:"260", loc:"2.4 mi", sold:"180+ bought", photoTags:["bootcamp,fitness",115], attrs:{price:.4,intensity:1,atHome:0,recurring:.8,distance:.5}},
-  {id:"spa_day", segment:"wellness", title:"Luxury Spa Day (Facial + Massage + Sauna)", price:129, orig:299, rating:4.9, ratings:"720", loc:"3.0 mi", sold:"300+ bought", photoTags:["spa,luxury",116], attrs:{price:.8,intensity:.1,atHome:0,recurring:.2,distance:.4}},
-  {id:"athome_facial", segment:"wellness", title:"At-Home Facial & Skincare Session", price:55, orig:110, rating:4.6, ratings:"190", loc:"Comes to you", sold:"90+ bought", photoTags:["facial,skincare",117], attrs:{price:.35,intensity:.05,atHome:1,recurring:.4,distance:1}},
+  {id:"swedish_massage", segment:"wellness", title:"60-Min Swedish Massage", price:39, orig:89, rating:4.8, ratings:"2.1k", loc:"2.1 mi", sold:"500+ bought", photoId:306, attrs:{price:.3,intensity:.1,atHome:0,recurring:.5,distance:.7}},
+  {id:"mobile_massage", segment:"wellness", title:"Mobile At-Home Deep Tissue Massage", price:69, orig:139, rating:4.7, ratings:"640", loc:"Comes to you", sold:"220+ bought", photoId:239, attrs:{price:.45,intensity:.3,atHome:1,recurring:.4,distance:1}},
+  {id:"mani_pedi", segment:"wellness", title:"Gel Manicure + Pedicure", price:29, orig:60, rating:4.7, ratings:"980", loc:"1.1 mi", sold:"400+ bought", photoId:341, attrs:{price:.2,intensity:0,atHome:0,recurring:.6,distance:.8}},
+  {id:"yoga_membership", segment:"wellness", title:"8-Week Unlimited Yoga Membership", price:79, orig:199, rating:4.8, ratings:"310", loc:"1.8 mi", sold:"150+ bought", photoId:633, attrs:{price:.5,intensity:.4,atHome:0,recurring:1,distance:.6}},
+  {id:"bootcamp", segment:"wellness", title:"High-Intensity Bootcamp, 10 Classes", price:59, orig:149, rating:4.5, ratings:"260", loc:"2.4 mi", sold:"180+ bought", photoId:281, attrs:{price:.4,intensity:1,atHome:0,recurring:.8,distance:.5}},
+  {id:"spa_day", segment:"wellness", title:"Luxury Spa Day (Facial + Massage + Sauna)", price:129, orig:299, rating:4.9, ratings:"720", loc:"3.0 mi", sold:"300+ bought", photoId:512, attrs:{price:.8,intensity:.1,atHome:0,recurring:.2,distance:.4}},
+  {id:"athome_facial", segment:"wellness", title:"At-Home Facial & Skincare Session", price:55, orig:110, rating:4.6, ratings:"190", loc:"Comes to you", sold:"90+ bought", photoId:312, attrs:{price:.35,intensity:.05,atHome:1,recurring:.4,distance:1}},
 
-  {id:"kayak_tour", segment:"adventure", title:"Sunset Kayak Tour", price:45, orig:80, rating:4.8, ratings:"220", loc:"4.2 mi", sold:"150+ booked", photoTags:["kayak,lake",121], attrs:{price:.3,difficulty:.3,outdoor:1,groupFriendly:.6,distance:.5}},
-  {id:"rock_climbing", segment:"adventure", title:"Indoor Rock Climbing Day Pass + Gear", price:25, orig:50, rating:4.5, ratings:"310", loc:"1.9 mi", sold:"260+ bought", photoTags:["climbing,gym",122], attrs:{price:.2,difficulty:.5,outdoor:0,groupFriendly:.5,distance:.8}},
-  {id:"zipline", segment:"adventure", title:"Zipline Canopy Adventure", price:59, orig:110, rating:4.9, ratings:"170", loc:"5.0 mi", sold:"90+ booked", photoTags:["zipline,forest",123], attrs:{price:.45,difficulty:.6,outdoor:1,groupFriendly:.7,distance:.4}},
-  {id:"hiking_trip", segment:"adventure", title:"Guided Mountain Hiking Day Trip", price:49, orig:95, rating:4.8, ratings:"140", loc:"6.5 mi", sold:"70+ booked", photoTags:["hiking,mountain",124], attrs:{price:.35,difficulty:.7,outdoor:1,groupFriendly:.8,distance:.3}},
-  {id:"rafting", segment:"adventure", title:"Whitewater Rafting Half-Day", price:79, orig:149, rating:4.9, ratings:"110", loc:"7.2 mi", sold:"50+ booked", photoTags:["rafting,river",125], attrs:{price:.5,difficulty:.8,outdoor:1,groupFriendly:.9,distance:.3}},
-  {id:"escape_room", segment:"adventure", title:"Escape Room Adventure", price:22, orig:45, rating:4.7, ratings:"1.5k", loc:"3.0 mi", sold:"1k+ bought", photoTags:["escaperoom,puzzle",126], attrs:{price:.25,difficulty:.4,outdoor:0,groupFriendly:1,distance:.7}},
-  {id:"skydiving", segment:"adventure", title:"Skydiving Tandem Jump", price:249, orig:399, rating:4.95, ratings:"95", loc:"9.0 mi", sold:"40+ booked", photoTags:["skydiving,parachute",127], attrs:{price:.9,difficulty:1,outdoor:1,groupFriendly:.3,distance:.2}}
+  {id:"kayak_tour", segment:"adventure", title:"Sunset Kayak Tour", price:45, orig:80, rating:4.8, ratings:"220", loc:"4.2 mi", sold:"150+ booked", photoId:469, attrs:{price:.3,difficulty:.3,outdoor:1,groupFriendly:.6,distance:.5}},
+  {id:"rock_climbing", segment:"adventure", title:"Indoor Rock Climbing Day Pass + Gear", price:25, orig:50, rating:4.5, ratings:"310", loc:"1.9 mi", sold:"260+ bought", photoId:136, attrs:{price:.2,difficulty:.5,outdoor:0,groupFriendly:.5,distance:.8}},
+  {id:"zipline", segment:"adventure", title:"Zipline Canopy Adventure", price:59, orig:110, rating:4.9, ratings:"170", loc:"5.0 mi", sold:"90+ booked", photoId:666, attrs:{price:.45,difficulty:.6,outdoor:1,groupFriendly:.7,distance:.4}},
+  {id:"hiking_trip", segment:"adventure", title:"Guided Mountain Hiking Day Trip", price:49, orig:95, rating:4.8, ratings:"140", loc:"6.5 mi", sold:"70+ booked", photoId:386, attrs:{price:.35,difficulty:.7,outdoor:1,groupFriendly:.8,distance:.3}},
+  {id:"rafting", segment:"adventure", title:"Whitewater Rafting Half-Day", price:79, orig:149, rating:4.9, ratings:"110", loc:"7.2 mi", sold:"50+ booked", photoId:295, attrs:{price:.5,difficulty:.8,outdoor:1,groupFriendly:.9,distance:.3}},
+  {id:"escape_room", segment:"adventure", title:"Escape Room Adventure", price:22, orig:45, rating:4.7, ratings:"1.5k", loc:"3.0 mi", sold:"1k+ bought", photoId:494, attrs:{price:.25,difficulty:.4,outdoor:0,groupFriendly:1,distance:.7}},
+  {id:"skydiving", segment:"adventure", title:"Skydiving Tandem Jump", price:249, orig:399, rating:4.95, ratings:"95", loc:"9.0 mi", sold:"40+ booked", photoId:401, attrs:{price:.9,difficulty:1,outdoor:1,groupFriendly:.3,distance:.2}}
 ];
 var DEALS_BY_ID = {};
 DEALS.forEach(function(d){ DEALS_BY_ID[d.id] = d; });
 
 function off(d){ return Math.round((1 - d.price/d.orig) * 100); }
-function photoStyle(tags, w, h){
+function photoStyle(photoId, w, h){
   w = w||800; h = h||600;
-  var seed = encodeURIComponent(tags[0]) + "-" + tags[1];
-  return "#8a9a7c url('https://picsum.photos/seed/"+seed+"/"+w+"/"+h+"') center/cover no-repeat";
+  return "#8a9a7c url('https://picsum.photos/id/"+photoId+"/"+w+"/"+h+"') center/cover no-repeat";
 }
 
 /* ---------- state ---------- */
@@ -689,7 +688,7 @@ function chevronSvg(){ return '<svg width="13" height="13" viewBox="0 0 24 24" f
 function whyBtn(idx){ return '<button class="why-btn" data-why="'+idx+'">i</button>'; }
 
 function heroSlideHtml(h, eyebrow){
-  return '<div class="hero-slide" style="background:'+photoStyle(h.photoTags)+';">'
+  return '<div class="hero-slide" style="background:'+photoStyle(h.photoId)+';">'
     + '<div class="scrim"></div><div class="txt">'
     + (eyebrow ? '<span class="eyebrow">'+eyebrow+'</span>' : '')
     + '<h1>'+h.headline+'</h1><p>'+h.sub+'</p></div></div>';
@@ -716,7 +715,7 @@ function bigCardHtml(d, seg){
   var liked = state.profile.session.saved.indexOf(d.id) > -1;
   var segLabel = SEGMENTS[d.segment] ? SEGMENTS[d.segment].label : d.segment;
   return '<div class="big-card">'
-    + '<div class="photo" style="background:'+photoStyle(d.photoTags)+';">'
+    + '<div class="photo" style="background:'+photoStyle(d.photoId)+';">'
     +   '<span class="badge-pill">🏷️ -'+pct+'%</span>'
     +   '<button class="heart-btn'+(liked?" on":"")+'" data-heart="'+d.id+'" aria-label="Save">'+(liked?"♥":"♡")+'</button>'
     +   '<span class="tag-pill">'+tag+'</span>'
@@ -733,7 +732,7 @@ function bigCardHtml(d, seg){
 function smallCardHtml(d){
   var pct = off(d);
   var segLabel = SEGMENTS[d.segment] ? SEGMENTS[d.segment].label : d.segment;
-  return '<div class="card"><div class="img" style="background:'+photoStyle(d.photoTags,400,300)+';"><span class="badge">-'+pct+'%</span></div>'
+  return '<div class="card"><div class="img" style="background:'+photoStyle(d.photoId,400,300)+';"><span class="badge">-'+pct+'%</span></div>'
     + '<div class="body"><span class="cat">'+segLabel+'</span>'
     + '<span class="title">'+d.title+'</span>'
     + '<span class="rating"><span class="star">★</span>'+d.rating.toFixed(2).replace(/0$/,"")+' ('+d.ratings+') · '+d.loc+'</span>'
@@ -795,8 +794,8 @@ function renderPage(){
   if(!seg){
     var ranked = rankColdStart();
     var top4 = ranked.slice(0,4), rest = ranked.slice(4,8);
-    var personalized = {headline:"Your city, today's best deals", sub:"Handpicked top sellers, lightly tuned to what visitors like you tend to browse", photoTags: top4[0].photoTags};
-    var filler = {headline:"Citywide Favorites", sub:"Top-rated across every category this week", photoTags: (ranked[8]||top4[0]).photoTags};
+    var personalized = {headline:"Your city, today's best deals", sub:"Handpicked top sellers, lightly tuned to what visitors like you tend to browse", photoId: top4[0].photoId};
+    var filler = {headline:"Citywide Favorites", sub:"Top-rated across every category this week", photoId: (ranked[8]||top4[0]).photoId};
     html = heroCarouselHtml(personalized, filler, "Explore");
     html += bigModuleHtml("Trending near you", "Citywide, lightly tuned by your profile", top4, null, 0);
     html += segmentPickerModuleHtml(1);
@@ -806,8 +805,8 @@ function renderPage(){
     var top4b = rankedSeg.slice(0,4), more = rankedSeg.slice(4,7);
     var phrase = topAttrPhrase(seg);
     var reason = phrase ? ("Because you lean toward " + phrase.toLowerCase()) : ("Because you've been exploring " + SEGMENTS[seg].label);
-    var personalized2 = {headline:"Picked for you: " + SEGMENTS[seg].label, sub: reason, photoTags: top4b[0].photoTags};
-    var filler2 = {headline:"Citywide Favorites", sub:"Top-rated across every category this week", photoTags: DEALS[0].photoTags};
+    var personalized2 = {headline:"Picked for you: " + SEGMENTS[seg].label, sub: reason, photoId: top4b[0].photoId};
+    var filler2 = {headline:"Citywide Favorites", sub:"Top-rated across every category this week", photoId: DEALS[0].photoId};
     var other = otherSegment(seg);
     html = heroCarouselHtml(personalized2, filler2, SEGMENTS[seg].label);
     html += bigModuleHtml("Top picks for you", reason, top4b, seg, 0);
