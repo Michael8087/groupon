@@ -284,13 +284,6 @@ a{color:inherit;}
 .recent-card .info .price-ladder .pct-pill{font-size:10px;padding:1px 6px;}
 .recent-card .info .price-ladder .tier2{font-size:10px;}
 .recent-card .info .price-ladder .promo{font-size:13px;}
-.chip-picker{display:flex;flex-wrap:wrap;gap:8px;padding:0 14px;}
-.chip-picker button{
-  border:1px solid var(--border);background:var(--surface);color:var(--text);
-  padding:8px 12px;border-radius:999px;font-size:12.5px;font-weight:600;cursor:pointer;
-  display:flex;gap:6px;align-items:center;
-}
-.chip-picker button.picked{background:var(--green);border-color:var(--green);color:#fff;}
 .nudge{
   background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
   padding:14px;display:flex;gap:12px;align-items:center;margin:0 14px;
@@ -977,15 +970,6 @@ function smallRowModuleHtml(title, sub, deals, idx){
     + '</div>';
 }
 
-function segmentPickerModuleHtml(idx){
-  var chipsHtml = Object.keys(SEGMENTS).map(function(s){
-    return '<button data-segpick="'+s+'">'+SEGMENTS[s].icon+' '+SEGMENTS[s].label+'</button>';
-  }).join("");
-  return '<div class="module"><div class="module-head"><div><h2>What are you into?</h2><div class="sub">Tap one — no quiz required</div></div>'+whyBtn(idx)+'</div>'
-    + '<div class="why-note" id="why-'+idx+'" hidden>No segment detected yet. Tapping directly declares intent — the fastest first-party signal, replacing the old onboarding quiz.</div>'
-    + '<div class="chip-picker">'+chipsHtml+'</div></div>';
-}
-
 /* ---------- lazy loading (skeleton -> real content on scroll) ---------- */
 
 var pendingLazy = {};
@@ -1044,7 +1028,6 @@ function renderPage(){
     var heroSlides = [personalized].concat(ranked.slice(1,5).map(dealHeroSlide)).concat([filler]);
     html = heroCarouselHtml(heroSlides, "Explore");
     html += soloModuleHtml("Trending in " + cityShort(state.profile.account.city), "Citywide, lightly tuned by your profile", ranked[0], null, 0);
-    html += segmentPickerModuleHtml(1);
     html += lazyWrap(skeletonSolo(1), smallRowModuleHtml("Popular this week", "", restFirst, 2));
     if(rvHtml) html += lazyWrap(skeletonSolo(1), rvHtml);
     html += lazyWrap(skeletonSolo(1), giftsModuleHtml());
@@ -1164,15 +1147,6 @@ function wirePageEvents(root){
     });
   });
 
-  root.querySelectorAll("[data-segpick]").forEach(function(b){
-    b.addEventListener("click", function(){
-      var seg = b.getAttribute("data-segpick");
-      bumpEngagement(seg); bumpEngagement(seg);
-      logBehavior("🧭 Told us: interested in <b>" + SEGMENTS[seg].label + "</b>");
-      saveState();
-      render();
-    });
-  });
 }
 
 /* ---------- drawer rendering ---------- */
