@@ -20,6 +20,7 @@
   --pink:#e01575;
   --navy:#152a52;
   --navy-2:#1d3a6e;
+  --link:#1a73e8;
   --shadow: 0 1px 2px rgba(20,30,10,.06);
   --radius:14px;
   color-scheme:light;
@@ -385,6 +386,36 @@ a{color:inherit;}
 .skel-line{height:13px;border-radius:6px;}
 @keyframes fadein{from{opacity:0;}to{opacity:1;}}
 .fade-in{animation:fadein .4s ease;}
+/* location-change modal */
+.location-row{cursor:pointer;}
+.location-modal{
+  position:absolute;inset:0;background:var(--surface);z-index:60;
+  display:flex;flex-direction:column;
+  padding-top:env(safe-area-inset-top,0px);
+}
+.loc-modal-head{display:flex;align-items:center;justify-content:center;position:relative;padding:16px 16px 8px;}
+.loc-modal-head h2{font-size:17px;font-weight:700;margin:0;color:var(--text);}
+.loc-close{position:absolute;left:16px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:22px;line-height:1;color:var(--text);cursor:pointer;padding:4px;}
+.loc-search-bar{
+  display:flex;align-items:center;gap:8px;background:var(--bg);border-radius:999px;
+  margin:10px 16px 6px;padding:12px 14px;color:var(--text-muted);
+}
+.loc-search-bar input{border:none;outline:none;background:none;flex:1;font-size:14.5px;font-family:inherit;color:var(--text);}
+.loc-search-bar svg{flex:none;}
+.loc-link-row{
+  display:flex;align-items:center;gap:12px;width:100%;border:none;background:none;text-align:left;
+  padding:14px 16px;font-size:15px;font-weight:600;color:var(--link);cursor:pointer;
+  border-bottom:1px solid var(--border);
+}
+.loc-link-row svg{flex:none;}
+.loc-section-label{padding:16px 16px 4px;font-size:13px;color:var(--text-muted);}
+.loc-recent-row{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:12px 16px;font-size:15px;font-weight:600;color:var(--text);border-bottom:1px solid var(--border);
+}
+.loc-recent-row .loc-recent-name{flex:1;cursor:pointer;}
+.loc-recent-row button{background:none;border:none;color:var(--text-muted);font-size:17px;line-height:1;cursor:pointer;padding:4px;}
+.loc-empty{padding:14px 16px;font-size:13.5px;color:var(--text-muted);}
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Work+Sans:wght@400;500;600;700&display=swap">
 </head>
@@ -404,7 +435,7 @@ a{color:inherit;}
   </div>
 
   <header class="app-header">
-    <div class="location-row">
+    <div class="location-row" id="locationRow">
       <span id="cityLabel">Prague</span>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
     </div>
@@ -452,6 +483,28 @@ a{color:inherit;}
   </div>
 
   <div id="toast" class="toast" hidden></div>
+
+  <div class="location-modal" id="locationModal" hidden>
+    <div class="loc-modal-head">
+      <button class="loc-close" id="locCloseBtn" aria-label="Close">&times;</button>
+      <h2>Change location</h2>
+    </div>
+    <div class="loc-search-bar">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.3"/></svg>
+      <input type="text" id="locSearchInput" placeholder="Search Location">
+    </div>
+    <div id="locSearchResults" hidden></div>
+    <button class="loc-link-row" id="locSetCurrent">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="2.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke-linecap="round"/><circle cx="12" cy="12" r="7.5"/></svg>
+      Set current location
+    </button>
+    <button class="loc-link-row" id="locSelectCountry">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18" stroke-linecap="round"/></svg>
+      Select Country
+    </button>
+    <div class="loc-section-label">Recent locations</div>
+    <div id="locRecentList"></div>
+  </div>
 
 </div>
 </div>
@@ -639,7 +692,7 @@ function freshWeights(){
 }
 function freshProfile(){
   return {
-    account:{gender:"F", age:40, city:"Prague, CZ"},
+    account:{gender:"F", age:40, city:"Prague, CZ", recentLocations:["Prague, CZ"]},
     acquisition:{source:"Facebook login"},
     session:{engagement:{travel:0,wellness:0,adventure:0}, searched:null, saved:[], purchases:[], log:[], recentlyViewed:[]},
     weights: freshWeights(),
@@ -654,6 +707,7 @@ function saveState(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)
 var state = loadState();
 if(!state.profile) state.profile = freshProfile();
 if(!state.profile.chipFilters) state.profile.chipFilters = {};
+if(!state.profile.account.recentLocations) state.profile.account.recentLocations = [state.profile.account.city];
 if(!state.profile.session.recentlyViewed) state.profile.session.recentlyViewed = [];
 if(!state.viewOverride) state.viewOverride = "auto";
 
@@ -738,6 +792,9 @@ function markViewed(id){
 /* ---------- page rendering ---------- */
 
 function chevronSvg(){ return '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>'; }
+function cityShort(city){ return (city||"").split(",")[0]; }
+var KNOWN_CITIES = ["Chicago, US","Prague, CZ","New York, US","Los Angeles, US","London, UK","Paris, FR","Barcelona, ES","Miami, US","Austin, US","Seattle, US","Vienna, AT","Rome, IT"];
+var GPS_CITY = "Chicago, US";
 function whyBtn(idx){ return '<button class="why-btn" data-why="'+idx+'">i</button>'; }
 
 function heroSlideHtml(h, eyebrow){
@@ -928,7 +985,7 @@ function renderPage(){
     var filler = {headline:"Citywide Favorites", sub:"Top-rated across every category this week", photoId: (ranked[8]||ranked[0]).photoId};
     var heroSlides = [personalized].concat(ranked.slice(1,5).map(dealHeroSlide)).concat([filler]);
     html = heroCarouselHtml(heroSlides, "Explore");
-    html += soloModuleHtml("Trending near you", "Citywide, lightly tuned by your profile", ranked[0], null, 0);
+    html += soloModuleHtml("Trending in " + cityShort(state.profile.account.city), "Citywide, lightly tuned by your profile", ranked[0], null, 0);
     html += segmentPickerModuleHtml(1);
     html += lazyWrap(skeletonSolo(1), smallRowModuleHtml("Popular this week", "", rest, 2));
   } else {
@@ -941,7 +998,7 @@ function renderPage(){
     var other = otherSegment(seg);
     var heroSlides2 = [personalized2].concat(rankedSeg.slice(1,5).map(dealHeroSlide)).concat([filler2]);
     html = heroCarouselHtml(heroSlides2, SEGMENTS[seg].label);
-    html += soloModuleHtml("Top picks for you", reason, rankedSeg[0], seg, 0);
+    html += soloModuleHtml("Trending in " + cityShort(state.profile.account.city), reason, rankedSeg[0], seg, 0);
     html += lazyWrap(skeletonSolo(1), smallRowModuleHtml("More for you", "", more, 2));
     var discoverDeals = rankSegment(other).slice(0,8);
     html += lazyWrap(skeletonSolo(1), smallRowModuleHtml("Discover: " + SEGMENTS[other].label, "Something different, top-rated", discoverDeals, 3));
@@ -1083,7 +1140,7 @@ function renderAcctList(){
   document.getElementById("acctAge").addEventListener("change", function(e){ p.account.age = parseInt(e.target.value,10)||30; saveState(); render(); });
   document.getElementById("acctCity").addEventListener("change", function(e){
     p.account.city = e.target.value;
-    document.getElementById("cityLabel").textContent = e.target.value.split(",")[0];
+    document.getElementById("cityLabel").textContent = cityShort(e.target.value);
     saveState(); render();
   });
   document.getElementById("acqSource").addEventListener("change", function(e){ p.acquisition.source = e.target.value; saveState(); });
@@ -1213,7 +1270,7 @@ document.getElementById("resetWeights").addEventListener("click", function(){
 document.getElementById("resetAllDemo").addEventListener("click", function(){
   state = {profile: freshProfile(), viewOverride:"auto"};
   saveState();
-  document.getElementById("cityLabel").textContent = state.profile.account.city.split(",")[0];
+  document.getElementById("cityLabel").textContent = cityShort(state.profile.account.city);
   render();
   toast("Demo reset.");
 });
@@ -1260,7 +1317,81 @@ function tickClock(){
 tickClock();
 setInterval(tickClock, 15000);
 
-document.getElementById("cityLabel").textContent = state.profile.account.city.split(",")[0];
+/* ---------- location-change modal ---------- */
+
+function selectLocation(city){
+  state.profile.account.city = city;
+  document.getElementById("cityLabel").textContent = cityShort(city);
+  var rl = state.profile.account.recentLocations;
+  var i = rl.indexOf(city);
+  if(i > -1) rl.splice(i, 1);
+  rl.unshift(city);
+  if(rl.length > 5) rl.length = 5;
+  saveState();
+  closeLocationModal();
+  render();
+  toast("Location set to " + cityShort(city) + ".");
+}
+function removeRecentLocation(city){
+  var rl = state.profile.account.recentLocations;
+  var i = rl.indexOf(city);
+  if(i > -1) rl.splice(i, 1);
+  saveState();
+  renderRecentLocations();
+}
+function renderRecentLocations(){
+  var el = document.getElementById("locRecentList");
+  var rl = state.profile.account.recentLocations;
+  if(!rl.length){ el.innerHTML = '<div class="loc-empty">No recent locations</div>'; return; }
+  el.innerHTML = rl.map(function(c){
+    return '<div class="loc-recent-row"><span class="loc-recent-name" data-pick-city="'+c+'">'+c+'</span>'
+      + '<button data-remove-city="'+c+'" aria-label="Remove">&times;</button></div>';
+  }).join("");
+  el.querySelectorAll("[data-pick-city]").forEach(function(row){
+    row.addEventListener("click", function(){ selectLocation(row.getAttribute("data-pick-city")); });
+  });
+  el.querySelectorAll("[data-remove-city]").forEach(function(btn){
+    btn.addEventListener("click", function(e){
+      e.stopPropagation();
+      removeRecentLocation(btn.getAttribute("data-remove-city"));
+    });
+  });
+}
+function renderLocationResults(query){
+  var el = document.getElementById("locSearchResults");
+  var q = query.trim().toLowerCase();
+  if(!q){ el.hidden = true; el.innerHTML = ""; return; }
+  var matches = KNOWN_CITIES.filter(function(c){ return c.toLowerCase().indexOf(q) > -1; });
+  el.hidden = false;
+  if(!matches.length){ el.innerHTML = '<div class="loc-empty">No matches</div>'; return; }
+  el.innerHTML = matches.map(function(c){
+    return '<div class="loc-recent-row"><span class="loc-recent-name" data-pick-city="'+c+'">'+c+'</span></div>';
+  }).join("");
+  el.querySelectorAll("[data-pick-city]").forEach(function(row){
+    row.addEventListener("click", function(){ selectLocation(row.getAttribute("data-pick-city")); });
+  });
+}
+function openLocationModal(){
+  document.getElementById("locSearchInput").value = "";
+  renderLocationResults("");
+  renderRecentLocations();
+  document.getElementById("locationModal").hidden = false;
+}
+function closeLocationModal(){
+  document.getElementById("locationModal").hidden = true;
+}
+
+document.getElementById("locationRow").addEventListener("click", openLocationModal);
+document.getElementById("locCloseBtn").addEventListener("click", closeLocationModal);
+document.getElementById("locSetCurrent").addEventListener("click", function(){ selectLocation(GPS_CITY); });
+document.getElementById("locSelectCountry").addEventListener("click", function(){
+  toast("Country picker isn't part of this prototype (Explore homepage only).");
+});
+document.getElementById("locSearchInput").addEventListener("input", function(e){
+  renderLocationResults(e.target.value);
+});
+
+document.getElementById("cityLabel").textContent = cityShort(state.profile.account.city);
 render();
 })();
 </script>
