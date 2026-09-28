@@ -221,15 +221,30 @@ a{color:inherit;}
   position:absolute;bottom:10px;left:12px;background:rgba(255,255,255,.95);color:var(--text);
   font-size:11px;font-weight:700;padding:4px 9px;border-radius:8px;display:flex;align-items:center;gap:5px;
 }
-.big-card .info{padding:12px 14px 14px;display:flex;flex-direction:column;gap:4px;}
-.big-card .info .cat{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--green);}
-.big-card .info .title{font-family:'Baloo 2';font-size:15px;line-height:1.3;}
-.big-card .info .price-row{display:flex;gap:8px;align-items:baseline;margin-top:2px;}
-.big-card .info .price{font-family:'Baloo 2';font-size:17px;font-weight:700;color:var(--text);}
-.big-card .info .orig{font-size:12px;text-decoration:line-through;color:var(--text-muted);}
-.big-card .info .rating{font-size:11.5px;color:var(--text-muted);}
+.big-card .info{padding:12px 14px 14px;display:flex;flex-direction:column;gap:5px;}
+.big-card .info .title{font-family:'Baloo 2';font-size:15.5px;line-height:1.3;}
+.big-card .info .addr-row{
+  display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--text-muted);
+}
+.big-card .info .addr-row .addr{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.big-card .info .addr-row .dist{flex:none;display:flex;align-items:center;gap:2px;}
+.stars{position:relative;display:inline-block;font-size:12.5px;line-height:1;letter-spacing:1.5px;}
+.stars .stars-bg{color:var(--border);}
+.stars .stars-fg{position:absolute;top:0;left:0;overflow:hidden;color:var(--gold);white-space:nowrap;}
+.big-card .info .rating-row{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);}
+.big-card .info .rating-row b{color:var(--text);font-weight:700;}
+.price-ladder{display:flex;flex-direction:column;gap:1px;margin-top:1px;}
+.price-ladder .tier1{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;}
+.price-ladder .orig{font-size:12.5px;text-decoration:line-through;color:var(--text-muted);}
+.price-ladder .sale{font-family:'Baloo 2';font-size:17px;font-weight:700;color:var(--green);}
+.price-ladder .pct-pill{
+  background:var(--green-light);color:var(--green);font-size:11px;font-weight:700;
+  padding:2px 7px;border-radius:5px;
+}
+.price-ladder .tier2{display:flex;align-items:baseline;gap:5px;flex-wrap:wrap;font-size:11.5px;color:#7b3fb0;}
+.price-ladder .promo{font-family:'Baloo 2';font-size:15px;font-weight:700;color:#7b3fb0;}
 .big-card .buy-btn{
-  margin-top:4px;align-self:flex-start;background:var(--green);color:#fff;border:none;
+  margin-top:5px;align-self:flex-start;background:var(--green);color:#fff;border:none;
   padding:6px 12px;border-radius:8px;font-size:11.5px;font-weight:700;cursor:pointer;
 }
 .chip-picker{display:flex;flex-wrap:wrap;gap:8px;padding:0 14px;}
@@ -543,53 +558,53 @@ var SEARCH_KEYWORDS = {
 /* ---------- deal catalog ---------- */
 
 var DEALS = [
-  {id:"weekend_cottage", segment:"travel", title:"Weekend Countryside Cottage Stay", price:129, orig:259, rating:4.7, ratings:"410", loc:"2 hrs away", sold:"80+ booked", photoId:76, attrs:{price:.25,duration:.3,overseas:0,landmarks:.3,beach:0,adventureLevel:.3,food:.35}},
-  {id:"cancun_beach", segment:"travel", title:"3-Night Cancún All-Inclusive Beach Resort", price:399, orig:899, rating:4.5, ratings:"530", loc:"Nationwide flight", sold:"90+ booked", photoId:215, attrs:{price:.8,duration:.6,overseas:1,landmarks:.1,beach:1,adventureLevel:.2,food:.5}},
-  {id:"rome_tour", segment:"travel", title:"5-Day Rome Highlights & Museums Tour", price:649, orig:1299, rating:4.9, ratings:"310", loc:"Nationwide flight", sold:"60+ booked", photoId:629, attrs:{price:.6,duration:.5,overseas:1,landmarks:1,beach:0,adventureLevel:.1,food:.6}},
-  {id:"ski_lodge", segment:"travel", title:"Mountain Lodge Ski Weekend", price:219, orig:449, rating:4.6, ratings:"270", loc:"3 hrs away", sold:"70+ booked", photoId:328, attrs:{price:.5,duration:.3,overseas:0,landmarks:.1,beach:0,adventureLevel:.8,food:.3}},
-  {id:"prague_break", segment:"travel", title:"Budget City Break: Old Town Hotel, 2 Nights", price:89, orig:179, rating:4.4, ratings:"640", loc:"Domestic", sold:"150+ booked", photoId:288, attrs:{price:.15,duration:.25,overseas:0,landmarks:.7,beach:0,adventureLevel:.1,food:.4}},
-  {id:"bali_escape", segment:"travel", title:"7-Day Bali Adventure & Beach Escape", price:899, orig:1799, rating:4.8, ratings:"180", loc:"Nationwide flight", sold:"40+ booked", photoId:218, attrs:{price:.85,duration:.85,overseas:1,landmarks:.3,beach:.8,adventureLevel:.6,food:.5}},
-  {id:"lisbon_food", segment:"travel", title:"Michelin-Guide Food Tour, Lisbon", price:259, orig:459, rating:4.7, ratings:"140", loc:"Nationwide flight", sold:"35+ booked", photoId:419, attrs:{price:.5,duration:.35,overseas:1,landmarks:.4,beach:.2,adventureLevel:.1,food:1}},
+  {id:"weekend_cottage", segment:"travel", title:"Weekend Countryside Cottage Stay", price:129, orig:259, rating:4.7, ratings:"410", loc:"2 hrs away", addr:"Door County, Wisconsin", sold:"80+ booked", photoId:76, attrs:{price:.25,duration:.3,overseas:0,landmarks:.3,beach:0,adventureLevel:.3,food:.35}},
+  {id:"cancun_beach", segment:"travel", title:"3-Night Cancún All-Inclusive Beach Resort", price:399, orig:899, rating:4.5, ratings:"530", loc:"Nationwide flight", addr:"Cancún, Mexico", sold:"90+ booked", photoId:215, attrs:{price:.8,duration:.6,overseas:1,landmarks:.1,beach:1,adventureLevel:.2,food:.5}},
+  {id:"rome_tour", segment:"travel", title:"5-Day Rome Highlights & Museums Tour", price:649, orig:1299, rating:4.9, ratings:"310", loc:"Nationwide flight", addr:"Rome, Italy", sold:"60+ booked", photoId:629, attrs:{price:.6,duration:.5,overseas:1,landmarks:1,beach:0,adventureLevel:.1,food:.6}},
+  {id:"ski_lodge", segment:"travel", title:"Mountain Lodge Ski Weekend", price:219, orig:449, rating:4.6, ratings:"270", loc:"3 hrs away", addr:"Aspen, Colorado", sold:"70+ booked", photoId:328, attrs:{price:.5,duration:.3,overseas:0,landmarks:.1,beach:0,adventureLevel:.8,food:.3}},
+  {id:"prague_break", segment:"travel", title:"Budget City Break: Old Town Hotel, 2 Nights", price:89, orig:179, rating:4.4, ratings:"640", loc:"Domestic", addr:"Prague, Czech Republic", sold:"150+ booked", photoId:288, attrs:{price:.15,duration:.25,overseas:0,landmarks:.7,beach:0,adventureLevel:.1,food:.4}},
+  {id:"bali_escape", segment:"travel", title:"7-Day Bali Adventure & Beach Escape", price:899, orig:1799, rating:4.8, ratings:"180", loc:"Nationwide flight", addr:"Bali, Indonesia", sold:"40+ booked", photoId:218, attrs:{price:.85,duration:.85,overseas:1,landmarks:.3,beach:.8,adventureLevel:.6,food:.5}},
+  {id:"lisbon_food", segment:"travel", title:"Michelin-Guide Food Tour, Lisbon", price:259, orig:459, rating:4.7, ratings:"140", loc:"Nationwide flight", addr:"Lisbon, Portugal", sold:"35+ booked", photoId:419, attrs:{price:.5,duration:.35,overseas:1,landmarks:.4,beach:.2,adventureLevel:.1,food:1}},
 
-  {id:"swedish_massage", segment:"wellness", title:"60-Min Swedish Massage", price:39, orig:89, rating:4.8, ratings:"2.1k", loc:"2.1 mi", sold:"500+ bought", photoId:306, attrs:{price:.3,intensity:.1,atHome:0,recurring:.5,distance:.7}},
-  {id:"mobile_massage", segment:"wellness", title:"Mobile At-Home Deep Tissue Massage", price:69, orig:139, rating:4.7, ratings:"640", loc:"Comes to you", sold:"220+ bought", photoId:239, attrs:{price:.45,intensity:.3,atHome:1,recurring:.4,distance:1}},
-  {id:"mani_pedi", segment:"wellness", title:"Gel Manicure + Pedicure", price:29, orig:60, rating:4.7, ratings:"980", loc:"1.1 mi", sold:"400+ bought", photoId:341, attrs:{price:.2,intensity:0,atHome:0,recurring:.6,distance:.8}},
-  {id:"yoga_membership", segment:"wellness", title:"8-Week Unlimited Yoga Membership", price:79, orig:199, rating:4.8, ratings:"310", loc:"1.8 mi", sold:"150+ bought", photoId:633, attrs:{price:.5,intensity:.4,atHome:0,recurring:1,distance:.6}},
-  {id:"bootcamp", segment:"wellness", title:"High-Intensity Bootcamp, 10 Classes", price:59, orig:149, rating:4.5, ratings:"260", loc:"2.4 mi", sold:"180+ bought", photoId:281, attrs:{price:.4,intensity:1,atHome:0,recurring:.8,distance:.5}},
-  {id:"spa_day", segment:"wellness", title:"Luxury Spa Day (Facial + Massage + Sauna)", price:129, orig:299, rating:4.9, ratings:"720", loc:"3.0 mi", sold:"300+ bought", photoId:512, attrs:{price:.8,intensity:.1,atHome:0,recurring:.2,distance:.4}},
-  {id:"athome_facial", segment:"wellness", title:"At-Home Facial & Skincare Session", price:55, orig:110, rating:4.6, ratings:"190", loc:"Comes to you", sold:"90+ bought", photoId:312, attrs:{price:.35,intensity:.05,atHome:1,recurring:.4,distance:1}},
+  {id:"swedish_massage", segment:"wellness", title:"60-Min Swedish Massage", price:39, orig:89, rating:4.8, ratings:"2.1k", loc:"2.1 mi", addr:"2100 North Clark Street, Chicago", sold:"500+ bought", photoId:306, attrs:{price:.3,intensity:.1,atHome:0,recurring:.5,distance:.7}},
+  {id:"mobile_massage", segment:"wellness", title:"Mobile At-Home Deep Tissue Massage", price:69, orig:139, rating:4.7, ratings:"640", loc:"Comes to you", addr:"Mobile service, Chicago", sold:"220+ bought", photoId:239, attrs:{price:.45,intensity:.3,atHome:1,recurring:.4,distance:1}},
+  {id:"mani_pedi", segment:"wellness", title:"Gel Manicure + Pedicure", price:29, orig:60, rating:4.7, ratings:"980", loc:"1.1 mi", addr:"3344 North Halsted Street, Chicago", sold:"400+ bought", photoId:341, attrs:{price:.2,intensity:0,atHome:0,recurring:.6,distance:.8}},
+  {id:"yoga_membership", segment:"wellness", title:"8-Week Unlimited Yoga Membership", price:79, orig:199, rating:4.8, ratings:"310", loc:"1.8 mi", addr:"1901 West Division Street, Chicago", sold:"150+ bought", photoId:633, attrs:{price:.5,intensity:.4,atHome:0,recurring:1,distance:.6}},
+  {id:"bootcamp", segment:"wellness", title:"High-Intensity Bootcamp, 10 Classes", price:59, orig:149, rating:4.5, ratings:"260", loc:"2.4 mi", addr:"755 North Milwaukee Avenue, Chicago", sold:"180+ bought", photoId:281, attrs:{price:.4,intensity:1,atHome:0,recurring:.8,distance:.5}},
+  {id:"spa_day", segment:"wellness", title:"Luxury Spa Day (Facial + Massage + Sauna)", price:129, orig:299, rating:4.9, ratings:"720", loc:"3.0 mi", addr:"540 North Michigan Avenue, Chicago", sold:"300+ bought", photoId:512, attrs:{price:.8,intensity:.1,atHome:0,recurring:.2,distance:.4}},
+  {id:"athome_facial", segment:"wellness", title:"At-Home Facial & Skincare Session", price:55, orig:110, rating:4.6, ratings:"190", loc:"Comes to you", addr:"Mobile service, Chicago", sold:"90+ bought", photoId:312, attrs:{price:.35,intensity:.05,atHome:1,recurring:.4,distance:1}},
 
-  {id:"kayak_tour", segment:"adventure", title:"Sunset Kayak Tour", price:45, orig:80, rating:4.8, ratings:"220", loc:"4.2 mi", sold:"150+ booked", photoId:469, attrs:{price:.3,difficulty:.3,outdoor:1,groupFriendly:.6,distance:.5}},
-  {id:"rock_climbing", segment:"adventure", title:"Indoor Rock Climbing Day Pass + Gear", price:25, orig:50, rating:4.5, ratings:"310", loc:"1.9 mi", sold:"260+ bought", photoId:136, attrs:{price:.2,difficulty:.5,outdoor:0,groupFriendly:.5,distance:.8}},
-  {id:"zipline", segment:"adventure", title:"Zipline Canopy Adventure", price:59, orig:110, rating:4.9, ratings:"170", loc:"5.0 mi", sold:"90+ booked", photoId:666, attrs:{price:.45,difficulty:.6,outdoor:1,groupFriendly:.7,distance:.4}},
-  {id:"hiking_trip", segment:"adventure", title:"Guided Mountain Hiking Day Trip", price:49, orig:95, rating:4.8, ratings:"140", loc:"6.5 mi", sold:"70+ booked", photoId:386, attrs:{price:.35,difficulty:.7,outdoor:1,groupFriendly:.8,distance:.3}},
-  {id:"rafting", segment:"adventure", title:"Whitewater Rafting Half-Day", price:79, orig:149, rating:4.9, ratings:"110", loc:"7.2 mi", sold:"50+ booked", photoId:295, attrs:{price:.5,difficulty:.8,outdoor:1,groupFriendly:.9,distance:.3}},
-  {id:"escape_room", segment:"adventure", title:"Escape Room Adventure", price:22, orig:45, rating:4.7, ratings:"1.5k", loc:"3.0 mi", sold:"1k+ bought", photoId:494, attrs:{price:.25,difficulty:.4,outdoor:0,groupFriendly:1,distance:.7}},
-  {id:"skydiving", segment:"adventure", title:"Skydiving Tandem Jump", price:249, orig:399, rating:4.95, ratings:"95", loc:"9.0 mi", sold:"40+ booked", photoId:401, attrs:{price:.9,difficulty:1,outdoor:1,groupFriendly:.3,distance:.2}},
+  {id:"kayak_tour", segment:"adventure", title:"Sunset Kayak Tour", price:45, orig:80, rating:4.8, ratings:"220", loc:"4.2 mi", addr:"401 East Randolph Street, Chicago", sold:"150+ booked", photoId:469, attrs:{price:.3,difficulty:.3,outdoor:1,groupFriendly:.6,distance:.5}},
+  {id:"rock_climbing", segment:"adventure", title:"Indoor Rock Climbing Day Pass + Gear", price:25, orig:50, rating:4.5, ratings:"310", loc:"1.9 mi", addr:"1220 West Van Buren Street, Chicago", sold:"260+ bought", photoId:136, attrs:{price:.2,difficulty:.5,outdoor:0,groupFriendly:.5,distance:.8}},
+  {id:"zipline", segment:"adventure", title:"Zipline Canopy Adventure", price:59, orig:110, rating:4.9, ratings:"170", loc:"5.0 mi", addr:"Starved Rock State Park, Illinois", sold:"90+ booked", photoId:666, attrs:{price:.45,difficulty:.6,outdoor:1,groupFriendly:.7,distance:.4}},
+  {id:"hiking_trip", segment:"adventure", title:"Guided Mountain Hiking Day Trip", price:49, orig:95, rating:4.8, ratings:"140", loc:"6.5 mi", addr:"Indiana Dunes National Park, Indiana", sold:"70+ booked", photoId:386, attrs:{price:.35,difficulty:.7,outdoor:1,groupFriendly:.8,distance:.3}},
+  {id:"rafting", segment:"adventure", title:"Whitewater Rafting Half-Day", price:79, orig:149, rating:4.9, ratings:"110", loc:"7.2 mi", addr:"Yorkville, Illinois", sold:"50+ booked", photoId:295, attrs:{price:.5,difficulty:.8,outdoor:1,groupFriendly:.9,distance:.3}},
+  {id:"escape_room", segment:"adventure", title:"Escape Room Adventure", price:22, orig:45, rating:4.7, ratings:"1.5k", loc:"3.0 mi", addr:"16 West Randolph Street, Chicago", sold:"1k+ bought", photoId:494, attrs:{price:.25,difficulty:.4,outdoor:0,groupFriendly:1,distance:.7}},
+  {id:"skydiving", segment:"adventure", title:"Skydiving Tandem Jump", price:249, orig:399, rating:4.95, ratings:"95", loc:"9.0 mi", addr:"Skydive Chicago, Ottawa, IL", sold:"40+ booked", photoId:401, attrs:{price:.9,difficulty:1,outdoor:1,groupFriendly:.3,distance:.2}},
 
-  {id:"old_town_getaway", segment:"travel", title:"Historic Old Town Weekend Getaway", price:95, orig:189, rating:4.6, ratings:"290", loc:"Domestic", sold:"60+ booked", photoId:61, attrs:{price:.3,duration:.25,overseas:0,landmarks:.7,beach:0,adventureLevel:.1,food:.4}},
-  {id:"palace_gardens", segment:"travel", title:"Grand Palace & Gardens Day Tour", price:179, orig:349, rating:4.8, ratings:"220", loc:"Nationwide flight", sold:"45+ booked", photoId:142, attrs:{price:.55,duration:.4,overseas:1,landmarks:1,beach:0,adventureLevel:.1,food:.3}},
-  {id:"canal_town", segment:"travel", title:"Canal Town Weekend Escape", price:149, orig:299, rating:4.7, ratings:"180", loc:"Nationwide flight", sold:"38+ booked", photoId:164, attrs:{price:.4,duration:.3,overseas:1,landmarks:.6,beach:0,adventureLevel:.2,food:.4}},
-  {id:"paris_weekend", segment:"travel", title:"Paris Weekend Highlights", price:399, orig:799, rating:4.9, ratings:"410", loc:"Nationwide flight", sold:"70+ booked", photoId:234, attrs:{price:.65,duration:.35,overseas:1,landmarks:.9,beach:0,adventureLevel:.1,food:.5}},
-  {id:"old_quarter_walk", segment:"travel", title:"Colorful Old Quarter Walking Tour", price:69, orig:139, rating:4.5, ratings:"520", loc:"Nationwide flight", sold:"95+ booked", photoId:308, attrs:{price:.25,duration:.2,overseas:1,landmarks:.6,beach:0,adventureLevel:.15,food:.35}},
-  {id:"cafe_culture", segment:"travel", title:"Café Culture City Break", price:219, orig:429, rating:4.6, ratings:"160", loc:"Nationwide flight", sold:"30+ booked", photoId:437, attrs:{price:.4,duration:.3,overseas:1,landmarks:.4,beach:0,adventureLevel:.1,food:.7}},
-  {id:"cinque_terre", segment:"travel", title:"Cinque Terre Coastal Village Tour", price:349, orig:699, rating:4.9, ratings:"260", loc:"Nationwide flight", sold:"55+ booked", photoId:449, attrs:{price:.6,duration:.4,overseas:1,landmarks:.6,beach:.5,adventureLevel:.3,food:.5}},
+  {id:"old_town_getaway", segment:"travel", title:"Historic Old Town Weekend Getaway", price:95, orig:189, rating:4.6, ratings:"290", loc:"Domestic", addr:"Charleston, South Carolina", sold:"60+ booked", photoId:61, attrs:{price:.3,duration:.25,overseas:0,landmarks:.7,beach:0,adventureLevel:.1,food:.4}},
+  {id:"palace_gardens", segment:"travel", title:"Grand Palace & Gardens Day Tour", price:179, orig:349, rating:4.8, ratings:"220", loc:"Nationwide flight", addr:"Versailles, France", sold:"45+ booked", photoId:142, attrs:{price:.55,duration:.4,overseas:1,landmarks:1,beach:0,adventureLevel:.1,food:.3}},
+  {id:"canal_town", segment:"travel", title:"Canal Town Weekend Escape", price:149, orig:299, rating:4.7, ratings:"180", loc:"Nationwide flight", addr:"Bruges, Belgium", sold:"38+ booked", photoId:164, attrs:{price:.4,duration:.3,overseas:1,landmarks:.6,beach:0,adventureLevel:.2,food:.4}},
+  {id:"paris_weekend", segment:"travel", title:"Paris Weekend Highlights", price:399, orig:799, rating:4.9, ratings:"410", loc:"Nationwide flight", addr:"Paris, France", sold:"70+ booked", photoId:234, attrs:{price:.65,duration:.35,overseas:1,landmarks:.9,beach:0,adventureLevel:.1,food:.5}},
+  {id:"old_quarter_walk", segment:"travel", title:"Colorful Old Quarter Walking Tour", price:69, orig:139, rating:4.5, ratings:"520", loc:"Nationwide flight", addr:"Girona, Spain", sold:"95+ booked", photoId:308, attrs:{price:.25,duration:.2,overseas:1,landmarks:.6,beach:0,adventureLevel:.15,food:.35}},
+  {id:"cafe_culture", segment:"travel", title:"Café Culture City Break", price:219, orig:429, rating:4.6, ratings:"160", loc:"Nationwide flight", addr:"Vienna, Austria", sold:"30+ booked", photoId:437, attrs:{price:.4,duration:.3,overseas:1,landmarks:.4,beach:0,adventureLevel:.1,food:.7}},
+  {id:"cinque_terre", segment:"travel", title:"Cinque Terre Coastal Village Tour", price:349, orig:699, rating:4.9, ratings:"260", loc:"Nationwide flight", addr:"Cinque Terre, Italy", sold:"55+ booked", photoId:449, attrs:{price:.6,duration:.4,overseas:1,landmarks:.6,beach:.5,adventureLevel:.3,food:.5}},
 
-  {id:"aromatherapy", segment:"wellness", title:"Aromatherapy Relaxation Session", price:45, orig:95, rating:4.6, ratings:"340", loc:"1.5 mi", sold:"220+ bought", photoId:159, attrs:{price:.3,intensity:.05,atHome:0,recurring:.3,distance:.6}},
-  {id:"hot_stone", segment:"wellness", title:"Hot Stone Therapy Session", price:59, orig:119, rating:4.7, ratings:"410", loc:"2.0 mi", sold:"310+ bought", photoId:326, attrs:{price:.45,intensity:.15,atHome:0,recurring:.3,distance:.6}},
-  {id:"nutrition_coaching", segment:"wellness", title:"Wellness Nutrition Coaching, 4 Sessions", price:89, orig:179, rating:4.5, ratings:"150", loc:"1.2 mi", sold:"80+ bought", photoId:493, attrs:{price:.35,intensity:.2,atHome:0,recurring:.7,distance:.5}},
-  {id:"botanical_facial", segment:"wellness", title:"Botanical Skincare Facial", price:49, orig:99, rating:4.7, ratings:"260", loc:"2.3 mi", sold:"190+ bought", photoId:189, attrs:{price:.4,intensity:.05,atHome:0,recurring:.3,distance:.6}},
-  {id:"meal_prep", segment:"wellness", title:"Healthy Meal Prep Workshop", price:39, orig:79, rating:4.4, ratings:"120", loc:"Comes to you", sold:"60+ bought", photoId:488, attrs:{price:.25,intensity:.15,atHome:1,recurring:.6,distance:1}},
-  {id:"juice_cleanse", segment:"wellness", title:"Juice Cleanse & Nutrition Program, 3-Day", price:65, orig:130, rating:4.3, ratings:"95", loc:"Delivered", sold:"70+ bought", photoId:627, attrs:{price:.3,intensity:.1,atHome:1,recurring:.5,distance:1}},
-  {id:"pool_cabana", segment:"wellness", title:"Private Pool Cabana Rental, Half-Day", price:99, orig:199, rating:4.8, ratings:"70", loc:"3.5 mi", sold:"25+ bought", photoId:637, attrs:{price:.6,intensity:.05,atHome:0,recurring:.1,distance:.4}},
+  {id:"aromatherapy", segment:"wellness", title:"Aromatherapy Relaxation Session", price:45, orig:95, rating:4.6, ratings:"340", loc:"1.5 mi", addr:"1220 West Webster Avenue, Chicago", sold:"220+ bought", photoId:159, attrs:{price:.3,intensity:.05,atHome:0,recurring:.3,distance:.6}},
+  {id:"hot_stone", segment:"wellness", title:"Hot Stone Therapy Session", price:59, orig:119, rating:4.7, ratings:"410", loc:"2.0 mi", addr:"2847 North Broadway, Chicago", sold:"310+ bought", photoId:326, attrs:{price:.45,intensity:.15,atHome:0,recurring:.3,distance:.6}},
+  {id:"nutrition_coaching", segment:"wellness", title:"Wellness Nutrition Coaching, 4 Sessions", price:89, orig:179, rating:4.5, ratings:"150", loc:"1.2 mi", addr:"160 East Illinois Street, Chicago", sold:"80+ bought", photoId:493, attrs:{price:.35,intensity:.2,atHome:0,recurring:.7,distance:.5}},
+  {id:"botanical_facial", segment:"wellness", title:"Botanical Skincare Facial", price:49, orig:99, rating:4.7, ratings:"260", loc:"2.3 mi", addr:"1700 West Division Street, Chicago", sold:"190+ bought", photoId:189, attrs:{price:.4,intensity:.05,atHome:0,recurring:.3,distance:.6}},
+  {id:"meal_prep", segment:"wellness", title:"Healthy Meal Prep Workshop", price:39, orig:79, rating:4.4, ratings:"120", loc:"Comes to you", addr:"Delivered, Chicago", sold:"60+ bought", photoId:488, attrs:{price:.25,intensity:.15,atHome:1,recurring:.6,distance:1}},
+  {id:"juice_cleanse", segment:"wellness", title:"Juice Cleanse & Nutrition Program, 3-Day", price:65, orig:130, rating:4.3, ratings:"95", loc:"Delivered", addr:"Delivered, Chicago", sold:"70+ bought", photoId:627, attrs:{price:.3,intensity:.1,atHome:1,recurring:.5,distance:1}},
+  {id:"pool_cabana", segment:"wellness", title:"Private Pool Cabana Rental, Half-Day", price:99, orig:199, rating:4.8, ratings:"70", loc:"3.5 mi", addr:"111 West Wacker Drive, Chicago", sold:"25+ bought", photoId:637, attrs:{price:.6,intensity:.05,atHome:0,recurring:.1,distance:.4}},
 
-  {id:"canoe_rental", segment:"adventure", title:"Two-Person Canoe Rental, Half-Day", price:29, orig:55, rating:4.6, ratings:"180", loc:"3.5 mi", sold:"110+ booked", photoId:124, attrs:{price:.25,difficulty:.2,outdoor:1,groupFriendly:.7,distance:.5}},
-  {id:"trail_running", segment:"adventure", title:"Forest Trail Running Tour", price:19, orig:40, rating:4.4, ratings:"90", loc:"4.0 mi", sold:"60+ booked", photoId:190, attrs:{price:.2,difficulty:.5,outdoor:1,groupFriendly:.4,distance:.5}},
-  {id:"canopy_walk", segment:"adventure", title:"Canopy Walk Nature Trail", price:35, orig:65, rating:4.7, ratings:"140", loc:"5.5 mi", sold:"80+ booked", photoId:254, attrs:{price:.3,difficulty:.3,outdoor:1,groupFriendly:.6,distance:.5}},
-  {id:"bouldering", segment:"adventure", title:"Bouldering & Rock Scramble Day", price:32, orig:60, rating:4.5, ratings:"110", loc:"2.5 mi", sold:"70+ bought", photoId:343, attrs:{price:.35,difficulty:.65,outdoor:1,groupFriendly:.5,distance:.5}},
-  {id:"misty_boardwalk", segment:"adventure", title:"Misty Forest Boardwalk Adventure Hike", price:27, orig:52, rating:4.6, ratings:"95", loc:"6.0 mi", sold:"50+ booked", photoId:361, attrs:{price:.25,difficulty:.35,outdoor:1,groupFriendly:.6,distance:.6}},
-  {id:"rope_canyon", segment:"adventure", title:"Rope Bridge & Canyon Crossing Trek", price:89, orig:169, rating:4.8, ratings:"60", loc:"8.0 mi", sold:"20+ booked", photoId:378, attrs:{price:.55,difficulty:.75,outdoor:1,groupFriendly:.6,distance:.35}},
-  {id:"slot_canyon", segment:"adventure", title:"Slot Canyon Exploration Tour", price:119, orig:219, rating:4.9, ratings:"45", loc:"10.0 mi", sold:"15+ booked", photoId:564, attrs:{price:.65,difficulty:.7,outdoor:1,groupFriendly:.5,distance:.3}}
+  {id:"canoe_rental", segment:"adventure", title:"Two-Person Canoe Rental, Half-Day", price:29, orig:55, rating:4.6, ratings:"180", loc:"3.5 mi", addr:"3400 North Rockwell Street, Chicago", sold:"110+ booked", photoId:124, attrs:{price:.25,difficulty:.2,outdoor:1,groupFriendly:.7,distance:.5}},
+  {id:"trail_running", segment:"adventure", title:"Forest Trail Running Tour", price:19, orig:40, rating:4.4, ratings:"90", loc:"4.0 mi", addr:"Palos Preserves, Illinois", sold:"60+ booked", photoId:190, attrs:{price:.2,difficulty:.5,outdoor:1,groupFriendly:.4,distance:.5}},
+  {id:"canopy_walk", segment:"adventure", title:"Canopy Walk Nature Trail", price:35, orig:65, rating:4.7, ratings:"140", loc:"5.5 mi", addr:"The Morton Arboretum, Lisle", sold:"80+ booked", photoId:254, attrs:{price:.3,difficulty:.3,outdoor:1,groupFriendly:.6,distance:.5}},
+  {id:"bouldering", segment:"adventure", title:"Bouldering & Rock Scramble Day", price:32, orig:60, rating:4.5, ratings:"110", loc:"2.5 mi", addr:"2734 North Milwaukee Avenue, Chicago", sold:"70+ bought", photoId:343, attrs:{price:.35,difficulty:.65,outdoor:1,groupFriendly:.5,distance:.5}},
+  {id:"misty_boardwalk", segment:"adventure", title:"Misty Forest Boardwalk Adventure Hike", price:27, orig:52, rating:4.6, ratings:"95", loc:"6.0 mi", addr:"Volo Bog State Natural Area, Illinois", sold:"50+ booked", photoId:361, attrs:{price:.25,difficulty:.35,outdoor:1,groupFriendly:.6,distance:.6}},
+  {id:"rope_canyon", segment:"adventure", title:"Rope Bridge & Canyon Crossing Trek", price:89, orig:169, rating:4.8, ratings:"60", loc:"8.0 mi", addr:"Matthiessen State Park, Illinois", sold:"20+ booked", photoId:378, attrs:{price:.55,difficulty:.75,outdoor:1,groupFriendly:.6,distance:.35}},
+  {id:"slot_canyon", segment:"adventure", title:"Slot Canyon Exploration Tour", price:119, orig:219, rating:4.9, ratings:"45", loc:"10.0 mi", addr:"Starved Rock State Park, Illinois", sold:"15+ booked", photoId:564, attrs:{price:.65,difficulty:.7,outdoor:1,groupFriendly:.5,distance:.3}}
 ];
 var DEALS_BY_ID = {};
 DEALS.forEach(function(d){ DEALS_BY_ID[d.id] = d; });
@@ -736,14 +751,24 @@ function cardMatchTag(d, seg){
   return best ? ("🔥 " + (w[best.key]>0 ? best.highLabel : best.lowLabel)) : "⭐ Top rated";
 }
 
+function starBar(rating){
+  var pct = Math.max(0, Math.min(100, (rating/5)*100));
+  return '<span class="stars"><span class="stars-bg">★★★★★</span><span class="stars-fg" style="width:'+pct.toFixed(0)+'%">★★★★★</span></span>';
+}
+function promoPrice(d){ return (d.price*0.9).toFixed(2); }
+function hoursLeft(d){
+  var h = 0;
+  for(var i=0;i<d.id.length;i++){ h += d.id.charCodeAt(i); }
+  return 6 + (h % 18);
+}
+
 function bigCardHtml(d, seg, opts){
   opts = opts || {};
   var pct = off(d);
-  var badge = opts.badge || ("🏷️ -"+pct+"%");
+  var badge = opts.badge || "🎁 Popular Gift";
   var tag = opts.tag || (seg ? cardMatchTag(d, seg) : "📈 Trending");
   var extraClass = opts.extraClass ? (" "+opts.extraClass) : "";
   var liked = state.profile.session.saved.indexOf(d.id) > -1;
-  var segLabel = SEGMENTS[d.segment] ? SEGMENTS[d.segment].label : d.segment;
   return '<div class="big-card'+extraClass+'" data-view="'+d.id+'">'
     + '<div class="photo" style="background:'+photoStyle(d.photoId)+';">'
     +   '<span class="badge-pill">'+badge+'</span>'
@@ -751,15 +776,18 @@ function bigCardHtml(d, seg, opts){
     +   '<span class="tag-pill">'+tag+'</span>'
     + '</div>'
     + '<div class="info">'
-    +   '<span class="cat">'+segLabel+'</span>'
     +   '<span class="title">'+d.title+'</span>'
-    +   '<span class="rating">★ '+d.rating.toFixed(2).replace(/0$/,"")+' ('+d.ratings+') · '+d.loc+'</span>'
-    +   '<span class="price-row"><span class="price">$'+d.price+'</span><span class="orig">$'+d.orig+'</span></span>'
+    +   '<span class="addr-row"><span class="addr">'+d.addr+'</span><span class="dist">▲ '+d.loc+'</span></span>'
+    +   '<span class="rating-row">'+starBar(d.rating)+' <b>'+d.rating.toFixed(1)+'</b> ('+d.ratings+')</span>'
+    +   '<span class="price-ladder">'
+    +     '<span class="tier1"><span class="orig">$'+d.orig+'</span><span class="sale">$'+d.price+'</span><span class="pct-pill">'+pct+'% Off</span></span>'
+    +     '<span class="tier2"><span class="promo">$'+promoPrice(d)+'</span> with promo, '+hoursLeft(d)+' Hours Left</span>'
+    +   '</span>'
     +   '<button class="buy-btn" data-buy="'+d.id+'">Buy this deal</button>'
     + '</div></div>';
 }
 function giftCardHtml(d){
-  return bigCardHtml(d, null, {badge:"🎁 Popular Gift", tag:"🗺️ Map", extraClass:"solo"});
+  return bigCardHtml(d, null, {tag:"🗺️ Map", extraClass:"solo"});
 }
 
 function stackedCardsHtml(deals, forcedTag){
