@@ -192,31 +192,6 @@ a{color:inherit;}
   margin:-2px 14px 0;
 }
 .why-note b{color:var(--text);}
-.list-col{display:flex;flex-direction:column;padding:0 14px;}
-.list-row{
-  display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer;
-}
-.list-row:last-child{border-bottom:none;}
-.list-row .img{
-  width:88px;height:88px;border-radius:10px;flex:none;position:relative;overflow:hidden;
-}
-.list-row .badge{
-  position:absolute;top:5px;left:5px;
-  background:var(--red);color:#fff;font-size:9px;font-weight:700;
-  padding:2px 5px;border-radius:5px;
-}
-.list-row .body{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;justify-content:center;}
-.list-row .cat{font-size:10px;color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:.03em;}
-.list-row .title{
-  font-size:13px;font-weight:600;line-height:1.3;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
-}
-.list-row .rating{font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:3px;}
-.list-row .rating .star{color:var(--gold);}
-.list-row .price-row{display:flex;align-items:baseline;gap:6px;margin-top:1px;}
-.list-row .price{font-family:'Baloo 2';font-size:15px;font-weight:700;color:var(--text);}
-.list-row .orig{font-size:11px;color:var(--text-muted);text-decoration:line-through;}
-.list-row .sold{font-size:10px;color:var(--text-muted);}
 .big-carousel{
   display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;
   padding:0 14px 2px;scrollbar-width:none;
@@ -383,11 +358,6 @@ a{color:inherit;}
 .skel-title{width:150px;height:17px;margin:0 14px;}
 .skel-photo{width:100%;height:190px;border-radius:var(--radius);}
 .skel-line{height:13px;border-radius:6px;}
-.skel-row{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
-.skel-row:last-child{border-bottom:none;}
-.skel-row .skel{flex:none;}
-.skel-row .skel-thumb{width:88px;height:88px;border-radius:10px;}
-.skel-row .skel-lines{flex:1;display:flex;flex-direction:column;gap:8px;justify-content:center;}
 @keyframes fadein{from{opacity:0;}to{opacity:1;}}
 .fade-in{animation:fadein .4s ease;}
 </style>
@@ -792,15 +762,12 @@ function giftCardHtml(d){
   return bigCardHtml(d, null, {badge:"🎁 Popular Gift", tag:"🗺️ Map", extraClass:"solo"});
 }
 
-function smallCardHtml(d){
-  var pct = off(d);
-  var segLabel = SEGMENTS[d.segment] ? SEGMENTS[d.segment].label : d.segment;
-  return '<div class="list-row" data-view="'+d.id+'"><div class="img" style="background:'+photoStyle(d.photoId,200,200)+';"><span class="badge">-'+pct+'%</span></div>'
-    + '<div class="body"><span class="cat">'+segLabel+'</span>'
-    + '<span class="title">'+d.title+'</span>'
-    + '<span class="rating"><span class="star">★</span>'+d.rating.toFixed(2).replace(/0$/,"")+' ('+d.ratings+') · '+d.loc+'</span>'
-    + '<span class="price-row"><span class="price">$'+d.price+'</span><span class="orig">$'+d.orig+'</span></span>'
-    + '</div></div>';
+function stackedCardsHtml(deals, forcedTag){
+  return deals.map(function(d){
+    var opts = {extraClass:"solo"};
+    if(forcedTag) opts.tag = forcedTag;
+    return '<div class="solo-wrap" style="margin-bottom:12px;">'+bigCardHtml(d, d.segment, opts)+'</div>';
+  }).join("");
 }
 
 function bigModuleWhy(seg){
@@ -837,7 +804,7 @@ function recentlyViewedModuleHtml(){
   var deals = ids.map(function(id){ return DEALS_BY_ID[id]; }).filter(Boolean);
   return '<div class="module">'
     + '<div class="module-head"><div><h2>Recently viewed</h2></div><a href="#" class="see-all" data-nolink="1">See all ›</a></div>'
-    + '<div class="list-col">'+deals.map(smallCardHtml).join("")+'</div>'
+    + stackedCardsHtml(deals, "👀 Viewed")
     + '</div>';
 }
 
@@ -845,15 +812,15 @@ function highlyRatedModuleHtml(){
   var deals = DEALS.slice().sort(function(a,b){ return b.rating-a.rating; }).slice(0,12);
   return '<div class="module">'
     + '<div class="module-head"><div><h2>⭐ Highly rated near you</h2></div><a href="#" class="see-all" data-nolink="1">See all ›</a></div>'
-    + '<div class="list-col">'+deals.map(smallCardHtml).join("")+'</div>'
+    + stackedCardsHtml(deals, "⭐ Top rated")
     + '</div>';
 }
 
 function smallRowModuleHtml(title, sub, deals, idx){
-  var cardsHtml = deals.map(smallCardHtml).join("");
   return '<div class="module"><div class="module-head"><div><h2>'+title+'</h2>'+(sub?'<div class="sub">'+sub+'</div>':'')+'</div>'+whyBtn(idx)+'</div>'
     + '<div class="why-note" id="why-'+idx+'" hidden>Ranked the same way as the top picks above, just further down the list.</div>'
-    + '<div class="list-col">'+cardsHtml+'</div></div>';
+    + stackedCardsHtml(deals)
+    + '</div>';
 }
 
 function filterChipsModuleHtml(seg, idx){
@@ -887,15 +854,6 @@ function skeletonSolo(repeat){
   var blocks = "";
   for(var i=0;i<(repeat||1);i++){ blocks += block; }
   return '<div class="module"><div class="module-head"><div><h2 class="skel skel-title">&nbsp;</h2></div></div>' + blocks + '</div>';
-}
-function skeletonList(n){
-  var row = '<div class="skel-row"><div class="skel skel-thumb"></div><div class="skel-lines">'
-    + '<div class="skel skel-line" style="width:35%;"></div>'
-    + '<div class="skel skel-line" style="width:85%;"></div>'
-    + '<div class="skel skel-line" style="width:25%;"></div></div></div>';
-  var rows = "";
-  for(var i=0;i<n;i++){ rows += row; }
-  return '<div class="module"><div class="module-head"><div><h2 class="skel skel-title">&nbsp;</h2></div></div><div class="list-col">'+rows+'</div></div>';
 }
 function lazyWrap(skeletonHtml, realHtml){
   var id = "lz" + (lazyIdCounter++);
@@ -938,7 +896,7 @@ function renderPage(){
     html = heroCarouselHtml(personalized, filler, "Explore");
     html += soloModuleHtml("Trending near you", "Citywide, lightly tuned by your profile", ranked[0], null, 0);
     html += segmentPickerModuleHtml(1);
-    html += lazyWrap(skeletonList(Math.min(rest.length,6)), smallRowModuleHtml("Popular this week", "", rest, 2));
+    html += lazyWrap(skeletonSolo(2), smallRowModuleHtml("Popular this week", "", rest, 2));
   } else {
     var rankedSeg = rankSegment(seg);
     var more = rankedSeg.slice(1,11);
@@ -950,15 +908,15 @@ function renderPage(){
     html = heroCarouselHtml(personalized2, filler2, SEGMENTS[seg].label);
     html += soloModuleHtml("Top picks for you", reason, rankedSeg[0], seg, 0);
     html += filterChipsModuleHtml(seg, 1);
-    html += lazyWrap(skeletonList(Math.min(more.length,6)), smallRowModuleHtml("More for you", "", more, 2));
+    html += lazyWrap(skeletonSolo(2), smallRowModuleHtml("More for you", "", more, 2));
     var discoverDeals = rankSegment(other).slice(0,8);
-    html += lazyWrap(skeletonList(Math.min(discoverDeals.length,6)), smallRowModuleHtml("Discover: " + SEGMENTS[other].label, "Something different, top-rated", discoverDeals, 3));
+    html += lazyWrap(skeletonSolo(2), smallRowModuleHtml("Discover: " + SEGMENTS[other].label, "Something different, top-rated", discoverDeals, 3));
   }
 
   var rvHtml = recentlyViewedModuleHtml();
-  if(rvHtml) html += lazyWrap(skeletonList(3), rvHtml);
+  if(rvHtml) html += lazyWrap(skeletonSolo(1), rvHtml);
   html += lazyWrap(skeletonSolo(2), giftsModuleHtml());
-  html += lazyWrap(skeletonList(6), highlyRatedModuleHtml());
+  html += lazyWrap(skeletonSolo(2), highlyRatedModuleHtml());
 
   document.getElementById("content").innerHTML = html;
   wirePageEvents();
