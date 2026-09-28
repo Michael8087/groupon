@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Groupon | Senior PM, Personalization | Case Study</title>
+<style>
+:root{--g:#00602a;--g2:#00802f;--fg:#1d1d1d;--mut:#666;--line:#dde3df;--soft:#f3f8f4;--warm:#fff7e6}
+*{box-sizing:border-box}
+body{margin:0;background:#fff;color:var(--fg);font-family:"Helvetica Neue",Arial,sans-serif;font-size:16px;line-height:1.6}
+.wrap{max-width:760px;margin:0 auto;padding:32px 16px 56px}
+.eyebrow{color:var(--g2);font-size:12px;letter-spacing:1.2px;font-weight:600}
+h1{font-size:27px;margin:6px 0 2px}
+.meta{color:var(--mut);font-size:13.5px;margin-bottom:22px}
+h2{font-size:14px;letter-spacing:.9px;text-transform:uppercase;color:var(--g);margin:28px 0 8px}
+p{margin:8px 0}
+ul{padding-left:20px;margin:6px 0}li{margin:5px 0}
+.q{font-size:18px;border-left:4px solid var(--g2);padding:6px 0 6px 14px;margin:14px 0}
+ol.tasks{counter-reset:t;list-style:none;padding:0;margin:10px 0}
+ol.tasks>li{counter-increment:t;background:var(--soft);border-radius:6px;padding:12px 16px 12px 52px;margin:10px 0;position:relative}
+ol.tasks>li:before{content:counter(t);position:absolute;left:16px;top:11px;width:24px;height:24px;border-radius:50%;background:var(--g2);color:#fff;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center}
+ol.tasks b.t{display:block;font-size:17px;color:var(--g);margin-bottom:2px}
+ol.tasks li.main{background:#e6f2e9;border:2px solid var(--g2)}
+.pill{display:inline-block;font-size:11px;letter-spacing:.6px;text-transform:uppercase;background:var(--g2);color:#fff;border-radius:10px;padding:1px 8px;margin-left:6px;vertical-align:middle}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:10px 0}
+.rules div{border:1px solid var(--line);border-radius:6px;padding:9px 11px;font-size:14px}
+.rules b{display:block;font-size:11.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--g)}
+.heads{background:var(--warm);border-left:4px solid #d08a00;padding:10px 14px;margin:14px 0}
+.foot{margin-top:34px;color:var(--mut);font-size:12.5px;border-top:1px solid var(--line);padding-top:10px}
+</style></head><body><div class="wrap">
+
+<div class="eyebrow">GROUPON · PERSONALIZATION</div>
+<h1>Senior Product Manager, Personalization</h1>
+<div class="meta">Case study · Confidential · For candidate use only</div>
+
+<h2>The situation</h2>
+<p>Groupon's experience is mostly standardized: every customer sees the same homepage, search, deal pages and checkout. But customers come with different needs, and from different places: the app, the web, search, email.</p>
+<p>Most of the time we don't know what they came for. We tried asking with an onboarding quiz, and few people finish it.</p>
+<ul>
+<li>Millions of customers a month; hundreds of thousands of deals across local services, things to do, travel and goods.</li>
+<li>Your team: 3 engineers, half a data scientist, half a designer.</li>
+<li>Our company goals are <b>growing margin</b>, and getting more customers to <b>buy again within 30 days</b>.</li>
+</ul>
+
+<div class="q">Build the system that decides what each customer sees. Make it smarter every time they come back, and show us how you'd know it's making money.</div>
+
+<h2>Your task</h2>
+<ol class="tasks">
+<li><b class="t">Your customers</b>
+<ul>
+<li>Based on your research, pick the <b>3 segments</b> you would focus on, and explain why.</li>
+<li>For each segment: what do you need to know about these customers? What do you think we already have, what's missing, and how would you find out the missing part?</li>
+<li>Which segment would you start with, and why?</li>
+</ul></li>
+<li class="main"><b class="t">Build a prototype <span class="pill">the main task</span></b>Use AI tools to build something that works, not just pictures of screens.
+<ul>
+<li>Pick <b>one page on mobile</b> to work on: the homepage, search, or a deal page.</li>
+<li>Show what that page looks like for different customers, and explain why each part is there.</li>
+<li>Show the same customer coming back 3 times in a month. What does the prototype learn about them each time, and how does the page change?</li>
+<li>Show how it decides what each customer sees: what it knows about them, and the logic that turns that into the page.</li>
+<li>Show what a customer we know nothing about would see.</li>
+</ul></li>
+<li><b class="t">Draw the system</b>
+<ul>
+<li><b>Draw one diagram</b> of how it would work at Groupon: where the data comes from, how it flows, where decisions are made, and what tools or tech you'd use.</li>
+<li>Walk one customer through it: they open the app. What happens, step by step, until they see the page?</li>
+<li>What would you prioritize in the first 3 months? What would you deliberately <i>not</i> do yet, and why?</li>
+</ul></li>
+<li><b class="t">Prove it works</b>How would you measure success? What would you track, what must not get worse, and what result would make you stop? How would you test it before rolling it out to everyone?</li>
+<li><b class="t">Challenge yourself</b><b>Pre-mortem:</b> it's 6 months later and this failed. What's the most likely reason?<br><b>Contrarian:</b> what does everyone assume about personalization that you think is wrong for Groupon?</li>
+</ol>
+
+<div class="heads"><b>Heads-up:</b> in the interview, we'll ask you to change your system live, on screen, in about 15 minutes. Build it so you can.</div>
+
+<h2>What we expect back</h2>
+<div class="rules">
+<div><b>1 · The live system</b>A link we can open and use.</div>
+<div><b>2 · A presentation</b>Max 8 slides covering all five tasks. You'll present it.</div>
+<div><b>3 · An AI log</b>The tools you used, what for, and one thing they got wrong that you caught.</div>
+</div>
+
+<h2>The rules</h2>
+<div class="rules">
+<div><b>Time</b>No time limit. Spend as much as you want, and tell us how long you spent.</div>
+<div><b>Limits</b>3 segments, one mobile page, max 8 slides.</div>
+<div><b>AI</b>Use any tool you like. That's how we work.</div>
+<div><b>Unclear?</b>Decide, write down your assumption, and move on.</div>
+</div>
+<p><b>How to send it:</b> send everything to your recruiter within 7 days. We'll book your interview once we receive it.</p>
+<p><b>Show your working:</b> what you checked, where you looked, and how you know it's true. We care about how you think and build, not polish.</p>
+
+<div class="foot">Groupon · Confidential. If a disability or circumstance makes this format difficult, tell your recruiter and we'll find another way to assess the same thing.</div>
+</div></body></html>
