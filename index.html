@@ -257,6 +257,7 @@ a{color:inherit;}
 .recent-card{
   flex:none;width:82%;max-width:340px;display:flex;gap:12px;
   background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  box-shadow:var(--shadow);
   padding:10px;scroll-snap-align:start;
 }
 .recent-card .photo{width:118px;height:118px;flex:none;border-radius:10px;position:relative;}
@@ -722,7 +723,7 @@ function freshProfile(){
   return {
     account:{gender:"F", age:40, city:"Prague, CZ", recentLocations:["Prague, CZ"]},
     acquisition:{source:"Facebook login"},
-    session:{engagement:{travel:0,wellness:0,adventure:0}, searched:null, saved:[], purchases:[], log:[], recentlyViewed:[]},
+    session:{engagement:{travel:0,wellness:0,adventure:0}, searched:null, saved:[], purchases:[], log:[], recentlyViewed:["swedish_massage","rome_tour","kayak_tour","hot_stone","zipline"]},
     weights: freshWeights(),
     chipFilters:{}
   };
