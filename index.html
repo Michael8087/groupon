@@ -972,9 +972,6 @@ function smallRowModuleHtml(title, sub, deals, idx){
 
 /* ---------- lazy loading (skeleton -> real content on scroll) ---------- */
 
-var pendingLazy = {};
-var lazyIdCounter = 0;
-
 function skeletonSolo(repeat){
   var block = '<div class="solo-wrap"><div class="skel skel-photo"></div>'
     + '<div class="skel skel-line" style="width:65%;margin:10px 14px 0;"></div>'
@@ -983,39 +980,46 @@ function skeletonSolo(repeat){
   for(var i=0;i<(repeat||1);i++){ blocks += block; }
   return '<div class="module"><div class="module-head"><div><h2 class="skel skel-title">&nbsp;</h2></div></div>' + blocks + '</div>';
 }
-function lazyWrap(skeletonHtml, realHtml){
-  var id = "lz" + (lazyIdCounter++);
-  pendingLazy[id] = realHtml;
-  return '<div class="lazy-slot" data-lazy-id="'+id+'">' + skeletonHtml + '</div>';
+
+/* Lazy modules reveal strictly one at a time: the next module's skeleton
+   isn't even added to the DOM until the previous one has finished loading,
+   so scrolling never shows more than one skeleton on screen at once. */
+var lazyQueue = [];
+var lazyChainQueue = [];
+function queueLazy(realHtml){ lazyQueue.push(realHtml); }
+function startLazyChain(){
+  lazyChainQueue = lazyQueue.slice();
+  revealNextLazy();
 }
-function wireLazyLoading(){
-  var slots = document.querySelectorAll(".lazy-slot[data-lazy-id]");
-  if(!slots.length) return;
+function revealNextLazy(){
+  if(!lazyChainQueue.length) return;
+  var realHtml = lazyChainQueue.shift();
+  var anchor = document.getElementById("lazyAnchor");
+  if(!anchor) return;
+  var wrap = document.createElement("div");
+  wrap.className = "lazy-slot";
+  wrap.innerHTML = skeletonSolo(1);
+  anchor.parentNode.insertBefore(wrap, anchor);
   var contentEl = document.querySelector(".content");
   var io = new IntersectionObserver(function(entries){
     entries.forEach(function(entry){
       if(!entry.isIntersecting) return;
-      var el = entry.target;
-      io.unobserve(el);
-      var id = el.getAttribute("data-lazy-id");
+      io.unobserve(wrap);
       setTimeout(function(){
-        var realHtml = pendingLazy[id];
-        if(realHtml === undefined) return;
-        el.innerHTML = realHtml;
-        el.classList.add("fade-in");
-        delete pendingLazy[id];
-        wirePageEvents(el);
+        wrap.innerHTML = realHtml;
+        wrap.classList.add("fade-in");
+        wirePageEvents(wrap);
+        revealNextLazy();
       }, 450 + Math.random()*350);
     });
   }, {root: contentEl, rootMargin: "120px 0px 120px 0px", threshold: 0.01});
-  slots.forEach(function(el){ io.observe(el); });
+  io.observe(wrap);
 }
 
 function renderPage(){
   var seg = activeSegment();
   var html;
-  var tailHtml = "";
-  pendingLazy = {};
+  lazyQueue = [];
 
   var rvHtml = recentlyViewedModuleHtml();
 
@@ -1028,11 +1032,11 @@ function renderPage(){
     var heroSlides = [personalized].concat(ranked.slice(1,5).map(dealHeroSlide)).concat([filler]);
     html = heroCarouselHtml(heroSlides, "Explore");
     html += soloModuleHtml("Trending in " + cityShort(state.profile.account.city), "Citywide, lightly tuned by your profile", ranked[0], null, 0);
-    html += lazyWrap(skeletonSolo(1), smallRowModuleHtml("Popular this week", "", restFirst, 2));
-    if(rvHtml) html += lazyWrap(skeletonSolo(1), rvHtml);
-    html += lazyWrap(skeletonSolo(1), giftsModuleHtml());
-    html += lazyWrap(skeletonSolo(1), highlyRatedModuleHtml());
-    if(restTail.length) tailHtml = lazyWrap(skeletonSolo(1), smallRowModuleHtml("Popular this week", "", restTail, 4));
+    queueLazy(smallRowModuleHtml("Popular this week", "", restFirst, 2));
+    if(rvHtml) queueLazy(rvHtml);
+    queueLazy(giftsModuleHtml());
+    queueLazy(highlyRatedModuleHtml());
+    if(restTail.length) queueLazy(smallRowModuleHtml("Popular this week", "", restTail, 4));
   } else {
     var rankedSeg = rankSegment(seg);
     var more = rankedSeg.slice(1,11);
@@ -1045,20 +1049,20 @@ function renderPage(){
     var heroSlides2 = [personalized2].concat(rankedSeg.slice(1,5).map(dealHeroSlide)).concat([filler2]);
     html = heroCarouselHtml(heroSlides2, SEGMENTS[seg].label);
     html += soloModuleHtml("Trending in " + cityShort(state.profile.account.city), reason, rankedSeg[0], seg, 0);
-    html += lazyWrap(skeletonSolo(1), smallRowModuleHtml("More for you", "", moreFirst, 2));
-    if(rvHtml) html += lazyWrap(skeletonSolo(1), rvHtml);
-    html += lazyWrap(skeletonSolo(1), giftsModuleHtml());
+    queueLazy(smallRowModuleHtml("More for you", "", moreFirst, 2));
+    if(rvHtml) queueLazy(rvHtml);
+    queueLazy(giftsModuleHtml());
     var discoverDeals = rankSegment(other).slice(0,8);
-    html += lazyWrap(skeletonSolo(1), smallRowModuleHtml("Discover: " + SEGMENTS[other].label, "Something different, top-rated", discoverDeals, 3));
-    html += lazyWrap(skeletonSolo(1), highlyRatedModuleHtml());
-    if(moreTail.length) tailHtml = lazyWrap(skeletonSolo(1), smallRowModuleHtml("More for you", "", moreTail, 4));
+    queueLazy(smallRowModuleHtml("Discover: " + SEGMENTS[other].label, "Something different, top-rated", discoverDeals, 3));
+    queueLazy(highlyRatedModuleHtml());
+    if(moreTail.length) queueLazy(smallRowModuleHtml("More for you", "", moreTail, 4));
   }
 
-  html += tailHtml;
+  html += '<div id="lazyAnchor"></div>';
 
   document.getElementById("content").innerHTML = html;
   wirePageEvents();
-  wireLazyLoading();
+  startLazyChain();
 }
 
 function syncDots(car, dotsEl){
