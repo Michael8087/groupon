@@ -374,12 +374,11 @@ a{color:inherit;}
 @media (min-width:480px){
   .task-panel{
     display:block;
-    position:absolute;top:50%;transform:translateY(-50%);
-    right:min(calc(50% + 245px), calc(100vw - 456px));
-    width:440px;
-    height:min(880px, calc(100vh - 60px));
-    height:min(880px, calc(100dvh - 60px));
-    background:#fff;border-radius:14px;overflow:hidden;
+    position:fixed;top:0;left:0;
+    width:calc(50% - 215px);
+    height:100vh;
+    height:100dvh;
+    background:#fff;
     box-shadow:0 30px 60px -20px rgba(0,0,0,.4);
   }
   .task-panel iframe{width:100%;height:100%;border:none;display:block;}
