@@ -127,6 +127,7 @@ a{color:inherit;}
   font-size:22px;font-weight:700;
 }
 .location-row svg{margin-top:3px;}
+.location-row #cityLabel{border-bottom:2px dashed rgba(255,255,255,.4);padding-bottom:2px;}
 .dashed-divider{
   border:none;border-top:2px dashed rgba(255,255,255,.25);
   margin:0;
@@ -337,7 +338,7 @@ a{color:inherit;}
     --bg:#0d1117; --surface:#161b22; --text:#c9d1d9; --text-muted:#8b949e;
     --border:#30363d; --green:#3fb950; --green-light:#0d2b17; --red:#f85149;
     display:flex;flex-direction:column;
-    position:absolute;top:28px;left:calc(50% + 215px);
+    position:absolute;top:28px;left:min(calc(50% + 215px), calc(100vw - 396px));
     width:380px;
     height:min(844px, calc(100vh - 56px));
     height:min(844px, calc(100dvh - 56px));
@@ -471,7 +472,6 @@ a{color:inherit;}
       <span id="cityLabel">Prague</span>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
     </div>
-    <hr class="dashed-divider">
     <div class="search-bar">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
       <input type="text" placeholder="Search massage, Bali, kayak…" id="searchInput">
@@ -722,11 +722,12 @@ function freshWeights(){
   });
   return w;
 }
+var DEFAULT_RECENT_SEED = ["swedish_massage","rome_tour","kayak_tour","hot_stone","zipline"];
 function freshProfile(){
   return {
     account:{gender:"F", age:40, city:"Prague, CZ", recentLocations:["Prague, CZ"]},
     acquisition:{source:"Facebook login"},
-    session:{engagement:{travel:0,wellness:0,adventure:0}, searched:null, saved:[], purchases:[], log:[], recentlyViewed:["swedish_massage","rome_tour","kayak_tour","hot_stone","zipline"]},
+    session:{engagement:{travel:0,wellness:0,adventure:0}, searched:null, saved:[], purchases:[], log:[], recentlyViewed:DEFAULT_RECENT_SEED.slice()},
     weights: freshWeights(),
     chipFilters:{}
   };
@@ -741,6 +742,11 @@ if(!state.profile) state.profile = freshProfile();
 if(!state.profile.chipFilters) state.profile.chipFilters = {};
 if(!state.profile.account.recentLocations) state.profile.account.recentLocations = [state.profile.account.city];
 if(!state.profile.session.recentlyViewed) state.profile.session.recentlyViewed = [];
+DEFAULT_RECENT_SEED.forEach(function(id){
+  var rv = state.profile.session.recentlyViewed;
+  if(rv.length < 5 && rv.indexOf(id) === -1) rv.push(id);
+});
+saveState();
 if(!state.viewOverride) state.viewOverride = "auto";
 
 /* ---------- scoring engine ---------- */
