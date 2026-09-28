@@ -69,6 +69,7 @@ a{color:inherit;}
   padding-block:0;
   display:flex;
   flex-direction:column;
+  position:relative;
 }
 @media (min-width:480px){
   body{padding-block:28px;}
@@ -141,7 +142,6 @@ a{color:inherit;}
   flex-direction:column;
   gap:26px;
 }
-.section-pad{padding:0 14px;}
 .hero-carousel{
   display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;
   padding:14px 14px 0;scrollbar-width:none;
@@ -246,6 +246,10 @@ a{color:inherit;}
 .big-card .info .price{font-family:'Baloo 2';font-size:17px;font-weight:700;color:var(--text);}
 .big-card .info .orig{font-size:12px;text-decoration:line-through;color:var(--text-muted);}
 .big-card .info .rating{font-size:11.5px;color:var(--text-muted);}
+.big-card .buy-btn{
+  margin-top:4px;align-self:flex-start;background:var(--green);color:#fff;border:none;
+  padding:6px 12px;border-radius:8px;font-size:11.5px;font-weight:700;cursor:pointer;
+}
 .chip-picker{display:flex;flex-wrap:wrap;gap:8px;padding:0 14px;}
 .chip-picker button{
   border:1px solid var(--border);background:var(--surface);color:var(--text);
@@ -269,7 +273,6 @@ a{color:inherit;}
   display:flex;
   padding-bottom:env(safe-area-inset-bottom,0px);
 }
-.desk-wrap{position:relative;}
 .tabbar-slot{height:58px;}
 .tab{
   flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
@@ -322,37 +325,38 @@ a{color:inherit;}
 }
 .persona-btn small{display:block;font-weight:400;color:var(--text-muted);margin-top:2px;font-size:10.5px;}
 .persona-btn.active{border-color:var(--green);background:var(--green-light);}
-.visit-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
-.visit-btn{
-  border:1.5px solid var(--border);background:var(--bg);color:var(--text);
-  width:34px;height:34px;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;font-variant-numeric:tabular-nums;
-}
-.visit-btn.active{background:var(--green);border-color:var(--green);color:#fff;}
 .link-btn{background:none;border:none;color:var(--green);font-weight:700;font-size:12px;cursor:pointer;padding:0;}
 .sig-list{display:flex;flex-direction:column;gap:6px;font-size:12px;}
 .sig-row{display:flex;gap:8px;align-items:flex-start;}
 .sig-tag{flex:none;font-size:10px;font-weight:700;border-radius:5px;padding:1px 6px;margin-top:1px;}
 .sig-tag.have{background:var(--green-light);color:var(--green);}
 .sig-tag.missing{background:var(--red);color:#fff;opacity:.85;}
+.bucket-label{font-size:11px;font-weight:700;color:var(--text);margin-top:6px;}
+.bucket-label:first-child{margin-top:0;}
+.weight-row{display:flex;flex-direction:column;gap:3px;margin-bottom:10px;}
+.weight-row:last-child{margin-bottom:0;}
+.weight-row .lbl{display:flex;justify-content:space-between;font-size:11.5px;color:var(--text-muted);}
+.weight-row input[type=range]{width:100%;accent-color:var(--green);}
+.seg-bar-row{display:flex;flex-direction:column;gap:8px;}
+.seg-bar{height:6px;border-radius:3px;background:var(--border);overflow:hidden;}
+.seg-bar > span{display:block;height:100%;background:var(--green);}
 .trace-list{display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text-muted);}
 .trace-list li{list-style:none;}
 .trace-list b{color:var(--text);}
-.rules-editor textarea{
-  width:100%;min-height:220px;font-family:ui-monospace,Menlo,monospace;font-size:11.5px;
-  background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:10px;
-  resize:vertical;
-}
 .rules-actions{display:flex;gap:8px;flex-wrap:wrap;}
 .btn{
   border:none;border-radius:8px;padding:8px 13px;font-size:12.5px;font-weight:700;cursor:pointer;
 }
 .btn.primary{background:var(--green);color:#fff;}
 .btn.ghost{background:var(--bg);border:1px solid var(--border);color:var(--text);}
-.err-line{color:var(--red);font-size:11.5px;min-height:14px;}
 .select-line{display:flex;gap:8px;align-items:center;font-size:12px;flex-wrap:wrap;}
 .select-line select{
   font-family:inherit;font-size:12px;padding:5px 7px;border-radius:7px;border:1px solid var(--border);
   background:var(--surface);color:var(--text);
+}
+.select-line input[type=text],.select-line input[type=number]{
+  font-family:inherit;font-size:12px;padding:5px 7px;border-radius:7px;border:1px solid var(--border);
+  background:var(--surface);color:var(--text);width:88px;
 }
 .disclaimer{font-size:10.5px;color:var(--text-muted);text-align:center;padding-top:4px;}
 .toast{
@@ -381,13 +385,13 @@ a{color:inherit;}
 
   <header class="app-header">
     <div class="location-row">
-      <span id="cityLabel">Chicago</span>
+      <span id="cityLabel">Prague</span>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
     </div>
     <hr class="dashed-divider">
     <div class="search-bar">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-      <input type="text" placeholder="Search Massage" id="searchInput">
+      <input type="text" placeholder="Search massage, Bali, kayak…" id="searchInput">
     </div>
   </header>
 
@@ -435,39 +439,38 @@ a{color:inherit;}
 
       <div class="d-section">
         <h3>1 · Customer profile</h3>
-        <div class="persona-grid" id="personaGrid"></div>
-        <div class="sig-list" id="signalList"></div>
+        <div class="sig-list" id="acctList"></div>
       </div>
 
       <div class="d-section">
-        <h3>2 · Visit simulator</h3>
-        <div class="visit-row" id="visitRow"></div>
-        <div class="select-line">
-          <span id="visitLabel" style="color:var(--text-muted)"></span>
-          <button class="link-btn" id="resetVisits">Reset visit history</button>
+        <h3>2 · Segment detection</h3>
+        <div class="seg-bar-row" id="segBars"></div>
+        <div class="select-line" id="segReadout" style="color:var(--text-muted)"></div>
+        <div class="persona-grid" id="segGrid"></div>
+      </div>
+
+      <div class="d-section" id="calibrationSection">
+        <h3>3 · Ranking calibration (live)</h3>
+        <div id="weightSliders"></div>
+        <div class="rules-actions">
+          <button class="btn ghost" id="resetWeights">Reset weights for this segment</button>
         </div>
       </div>
 
       <div class="d-section">
-        <h3>3 · Why this page</h3>
+        <h3>4 · Why this page</h3>
         <ul class="trace-list" id="traceList"></ul>
       </div>
 
-      <div class="d-section rules-editor">
-        <h3>4 · Rules (live‑editable)</h3>
-        <div class="select-line">
-          Editing: <select id="ruleScopeSelect"></select>
-        </div>
-        <textarea id="ruleTextarea" spellcheck="false"></textarea>
-        <div class="err-line" id="ruleError"></div>
+      <div class="d-section">
+        <h3>5 · Behavior → updated profile</h3>
+        <ul class="trace-list" id="behaviorLog"></ul>
         <div class="rules-actions">
-          <button class="btn primary" id="applyRules">Apply &amp; re-render</button>
-          <button class="btn ghost" id="revertRules">Revert this block</button>
           <button class="btn ghost" id="resetAllDemo">Reset whole demo</button>
         </div>
       </div>
 
-      <p class="disclaimer">Prototype built for a Groupon PM case study — not an official Groupon product.</p>
+      <p class="disclaimer">Prototype for a Groupon PM case study — not an official Groupon product. Weight values are illustrative starting points ("dummies"); real calibration would be learned from actual behavior.</p>
     </div>
   </div>
 
@@ -480,308 +483,339 @@ a{color:inherit;}
 (function(){
 "use strict";
 
-var CATEGORIES = [
-  {id:"food", label:"Food & Drink", emoji:"🍽️"},
-  {id:"spa", label:"Beauty & Spa", emoji:"💆"},
-  {id:"things", label:"Things To Do", emoji:"🎟️"},
-  {id:"travel", label:"Travel", emoji:"✈️"},
-  {id:"home", label:"Home Services", emoji:"🏠"},
-  {id:"auto", label:"Automotive", emoji:"🚗"},
-  {id:"local", label:"Local", emoji:"📍"},
-  {id:"goods", label:"Goods", emoji:"🛍️"}
-];
+/* ---------- segments & attribute schemas ---------- */
 
-var DEALS = {
-  spa1:{title:"60-Min Swedish Massage",cat:"Beauty & Spa",emoji:"💆",price:39,orig:89,rating:4.8,ratings:"2.1k",loc:"2.1 mi",sold:"500+ bought"},
-  spa2:{title:"Gel Manicure + Pedicure",cat:"Beauty & Spa",emoji:"💅",price:29,orig:60,rating:4.7,ratings:"980",loc:"1.1 mi",sold:"400+ bought"},
-  rest1:{title:"3-Course Dinner for Two",cat:"Food & Drink",emoji:"🍽️",price:35,orig:70,rating:4.6,ratings:"860",loc:"1.4 mi",sold:"300+ bought"},
-  rest2:{title:"All-You-Can-Eat Sushi",cat:"Food & Drink",emoji:"🍣",price:24,orig:40,rating:4.5,ratings:"1.7k",loc:"0.8 mi",sold:"2k+ bought"},
-  thing1:{title:"Escape Room Adventure",cat:"Things To Do",emoji:"🎟️",price:22,orig:45,rating:4.7,ratings:"1.5k",loc:"3.0 mi",sold:"1k+ bought"},
-  thing2:{title:"Sunset Kayak Tour",cat:"Things To Do",emoji:"🚣",price:45,orig:80,rating:4.8,ratings:"220",loc:"4.2 mi",sold:"150+ booked"},
-  travel1:{title:"3-Night Cancún All-Inclusive",cat:"Travel",emoji:"✈️",price:399,orig:899,rating:4.5,ratings:"530",loc:"Nationwide",sold:"90+ booked"},
-  home1:{title:"Deep House Cleaning, 3 Hrs",cat:"Home Services",emoji:"🧹",price:69,orig:150,rating:4.9,ratings:"610",loc:"Local pros",sold:"200+ bought"},
-  auto1:{title:"Full Synthetic Oil Change",cat:"Automotive",emoji:"🚗",price:29,orig:65,rating:4.4,ratings:"390",loc:"2.8 mi",sold:"700+ bought"},
-  goods1:{title:"Wireless Earbuds, 2-Pack",cat:"Goods",emoji:"🎧",price:19,orig:49,rating:4.3,ratings:"2.9k",loc:"Ships free",sold:"5k+ bought"}
-};
-
-function off(d){ return Math.round((1 - d.price/d.orig) * 100); }
-
-var PHOTO_TAGS = {
-  "Beauty & Spa": ["spa,massage", 11],
-  "Food & Drink": ["restaurant,dinner", 22],
-  "Things To Do": ["amusementpark,ferriswheel", 33],
-  "Travel": ["beach,resort", 44],
-  "Home Services": ["cleaning,house", 55],
-  "Automotive": ["mechanic,garage", 66],
-  "Goods": ["earbuds,shopping", 77],
-  "Local": ["city,skyline", 88],
-  "Generic": ["downtown,city", 99]
-};
-var PHOTO_FALLBACK = {
-  "Beauty & Spa": "#a9805c", "Food & Drink": "#bd7a3a", "Things To Do": "#c9642c",
-  "Travel": "#2f8f8a", "Home Services": "#8a9a7c", "Automotive": "#5c6a75",
-  "Goods": "#8a6bad", "Local": "#4d6470", "Generic": "#8a9a7c"
-};
-function photoUrl(cat, w, h){
-  var t = PHOTO_TAGS[cat] || PHOTO_TAGS.Generic;
-  return "https://loremflickr.com/"+w+"/"+h+"/"+t[0]+"?lock="+t[1];
-}
-function photoFor(cat, w, h){
-  var fallback = PHOTO_FALLBACK[cat] || PHOTO_FALLBACK.Generic;
-  return fallback+" url('"+photoUrl(cat, w||800, h||600)+"') center/cover no-repeat";
-}
-
-var PERSONAS = {
-  cold_start:{label:"New / unknown visitor", hint:"No signals yet"},
-  deal_hunter:{label:"Deal Hunter", hint:"Price-first, no category loyalty"},
-  occasion_planner:{label:"Occasion Planner", hint:"Buys ahead of events"},
-  local_regular:{label:"Local Regular", hint:"Repeat buyer, 1–2 local categories"}
-};
-
-var SIGNALS = {
-  cold_start:{have:[],missing:[
-    {label:"Segment", how:"No behavioral or transactional data yet — nothing to infer from."},
-    {label:"Location precision", how:"IP-level city only; ask for precise location or infer from first search."}
-  ]},
-  deal_hunter:{have:[
-    {label:"Referral query", value:"“cheap deals near me”"},
-    {label:"Avg. discount clicked", value:"54%"},
-    {label:"Category loyalty", value:"none detected across 3 categories"}
-  ],missing:[
-    {label:"True price sensitivity vs. curiosity", how:"A/B test conversion at different discount thresholds."},
-    {label:"Household income band", how:"Third-party enrichment or optional profile field."}
-  ]},
-  occasion_planner:{have:[
-    {label:"Search terms", value:"“anniversary dinner”, “date night”"},
-    {label:"Saved / wishlisted deals", value:"1 (Escape Room Adventure)"},
-    {label:"Purchase cadence", value:"low frequency, higher basket"}
-  ],missing:[
-    {label:"The actual occasion date", how:"Optional calendar prompt at checkout (“when's the big day?”) instead of a quiz."},
-    {label:"Who it's for", how:"Infer from gift-wrap / 2-person deal selections."}
-  ]},
-  local_regular:{have:[
-    {label:"Home metro", value:"resolved from delivery/redemption history"},
-    {label:"Repeat category", value:"Beauty & Spa, 4 purchases / 90 days"},
-    {label:"Days since last redemption", value:"19"}
-  ],missing:[
-    {label:"Preferred merchant vs. category", how:"Track redemption-location clicks, not just purchases."},
-    {label:"Churn risk", how:"Model time-since-last-purchase against category median repurchase cycle."}
-  ]}
-};
-
-function dealRow(title, sub, ids, why){
-  return {type:"deals", title:title, sub:sub||"", ids:ids, why:why};
-}
-function heroOf(headline, sub, cta, photo){ return {headline:headline, sub:sub, cta:cta||"See all deals", photo:photo||"Local"}; }
-function nudge(icon, html){ return {type:"nudge", icon:icon, html:html}; }
-function chips(why){ return {type:"chips", why:why}; }
-
-var DEFAULT_RULES = {
-  cold_start:{ "1": {
-    hero: heroOf("Your city, today's best deals","Handpicked top sellers, same for every new visitor","See all deals","Local"),
-    modules:[
-      chips("No signals yet — tapping a category below is the fastest first-party signal we can capture (replaces the old onboarding quiz)."),
-      dealRow("Trending near you", "Citywide top sellers", ["spa1","rest1","thing1","goods1"], "No persona detected yet, so we rank by citywide popularity, identical for everyone."),
-      dealRow("Popular this week", "", ["travel1","auto1","spa2","thing2"], "Generic popularity ranking — not personalized.")
+var SEGMENTS = {
+  travel:{
+    label:"Travel Enthusiasts", icon:"✈️",
+    attrs:[
+      {key:"price", lowLabel:"Budget", highLabel:"Splurge"},
+      {key:"duration", lowLabel:"Weekend", highLabel:"Extended trip"},
+      {key:"overseas", lowLabel:"Domestic", highLabel:"Overseas"},
+      {key:"landmarks", lowLabel:"Low culture/sightseeing", highLabel:"Landmarks & culture"},
+      {key:"beach", lowLabel:"No beach", highLabel:"Beach"},
+      {key:"adventureLevel", lowLabel:"Relaxed", highLabel:"Active"},
+      {key:"food", lowLabel:"Low food focus", highLabel:"Foodie"}
     ]
-  }},
-  deal_hunter:{
-    "1":{
-      hero: heroOf("Biggest discounts, hand-picked","We noticed a “cheap deals near me” search","Shop lowest prices","Goods"),
-      modules:[
-        dealRow("Best % off right now","Whole feed sorted by discount, not category", ["goods1","thing1","auto1","spa1","rest2"], "Referral query matched a price-first search pattern → entire feed re-ranked by discount %."),
-        dealRow("Trending near you","", ["rest1","travel1"], "Fallback generic module while we gather more signal.")
-      ]
-    },
-    "2":{
-      hero: heroOf("Steep discounts on Goods","Because you've been browsing Goods deals","See more like this","Goods"),
-      modules:[
-        dealRow("Because you viewed Goods","3 Goods listings viewed this visit", ["goods1"], "Session click-stream: 3 Goods views this visit → surfaced above the generic discount feed."),
-        dealRow("Best % off right now","", ["thing1","auto1","spa1"], "Discount-first ranking still applies to the rest of the feed."),
-        dealRow("Trending near you","", ["rest1"], "Generic fallback.")
-      ]
-    },
-    "3":{
-      hero: heroOf("Picked for you: unbeatable prices","You saved 61% last time — more like that","Shop your top picks","Goods"),
-      modules:[
-        dealRow("Top picks for you","Curated by discount %, any category", ["goods1","auto1","thing1","spa1","rest2"], "Purchase history + confirmed high price sensitivity → whole feed re-ranked by discount %, ignoring category."),
-        nudge("💸","<b>Come back within 30 days</b> — new drops added daily, and your saved deals expire soon."),
-        dealRow("Trending near you","", ["travel1"], "Generic fallback module kept for discovery.")
-      ]
-    }
   },
-  occasion_planner:{
-    "1":{
-      hero: heroOf("Ideas for your next occasion","Because your search mentioned “anniversary”","Browse Things To Do","Things To Do"),
-      modules:[
-        dealRow("Things To Do near you","", ["thing1","thing2"], "Search intent matched an occasion-planning pattern → Things To Do promoted above generic modules."),
-        dealRow("Popular dinners","", ["rest1","rest2"], "Complementary category for the same occasion."),
-        dealRow("Trending near you","", ["spa1","goods1"], "Generic fallback.")
-      ]
-    },
-    "2":{
-      hero: heroOf("Planning something special?","Saved for later: Escape Room Adventure","Continue planning","Things To Do"),
-      modules:[
-        dealRow("Your saved ideas","1 deal saved this month", ["thing1"], "Explicit save/wishlist action is the strongest available signal — pinned to the top."),
-        dealRow("More date-night ideas","", ["thing2","rest1"], "Related to the saved deal's category and price band."),
-        dealRow("Trending near you","", ["spa2"], "Generic fallback.")
-      ]
-    },
-    "3":{
-      hero: heroOf("Picked for your next occasion","Loved Escape Room Adventure? Here's what's next","See recommendations","Travel"),
-      modules:[
-        dealRow("Top picks for you","Occasion-themed, higher basket", ["thing2","rest1","travel1"], "Purchase confirmed occasion-planner pattern → curated toward higher-basket experiences, not lowest price."),
-        nudge("🎉","<b>Plan your next occasion</b> — deals expire, memories don't. New Things To Do added weekly."),
-        dealRow("Getaways","", ["travel1"], "Adjacent category for bigger occasions (anniversaries, milestones).")
-      ]
-    }
+  wellness:{
+    label:"Body & Wellness Enthusiasts", icon:"💆",
+    attrs:[
+      {key:"price", lowLabel:"Budget", highLabel:"Splurge"},
+      {key:"intensity", lowLabel:"Gentle", highLabel:"High-intensity"},
+      {key:"atHome", lowLabel:"At venue", highLabel:"At home"},
+      {key:"recurring", lowLabel:"One-off", highLabel:"Recurring/membership"},
+      {key:"distance", lowLabel:"Farther ok", highLabel:"Close by"}
+    ]
   },
-  local_regular:{
-    "1":{
-      hero: heroOf("Your neighborhood favorites","Because you're near downtown","See local deals","Local"),
-      modules:[
-        dealRow("Popular near you","", ["spa1","rest1","home1"], "Home metro resolved from redemption history → local modules promoted over nationwide ones."),
-        dealRow("Trending citywide","", ["thing1","goods1"], "Generic fallback while category loyalty is still forming.")
-      ]
-    },
-    "2":{
-      hero: heroOf("More Beauty & Spa near you","Because you keep coming back to Spa deals","See all Spa deals","Beauty & Spa"),
-      modules:[
-        dealRow("Because you love Beauty & Spa","2 repeat views this month", ["spa1","spa2"], "Repeat category views (2 sessions) → Beauty & Spa promoted to the top module."),
-        dealRow("Popular near you","", ["rest1","home1"], "Local ranking continues below the loyal category."),
-        dealRow("Trending citywide","", ["auto1"], "Generic fallback.")
-      ]
-    },
-    "3":{
-      hero: heroOf("Picked for you: your go-to spa","Time for another Swedish Massage?","Book again","Beauty & Spa"),
-      modules:[
-        dealRow("Top picks for you","Beauty & Spa, ranked by your history", ["spa1","spa2"], "Confirmed repeat purchase (2x in 90 days) → single-category feed, ranked by past purchase fit."),
-        nudge("💆","<b>It's been 19 days</b> since your last massage — most Local Regulars rebook within 30."),
-        dealRow("Popular near you","", ["rest1","home1"], "Kept for discovery outside the loyal category.")
-      ]
-    }
+  adventure:{
+    label:"Adventure Seekers", icon:"🧗",
+    attrs:[
+      {key:"price", lowLabel:"Budget", highLabel:"Splurge"},
+      {key:"difficulty", lowLabel:"Easy", highLabel:"Extreme"},
+      {key:"outdoor", lowLabel:"Indoor", highLabel:"Outdoor"},
+      {key:"groupFriendly", lowLabel:"Solo", highLabel:"Group"},
+      {key:"distance", lowLabel:"Farther ok", highLabel:"Close by"}
+    ]
   }
 };
 
-var STORE_KEY = "groupon_proto_v1";
+var RATING_WEIGHT = 0.15;
+var FILTER_STRENGTH = 0.35;
+var LIKE_STRENGTH = 0.3;
+var BUY_STRENGTH = 0.7;
+var SEGMENT_DETECT_THRESHOLD = 2;
+
+var DEMO_PRIOR = {
+  "F_18_29":{travel:.15, adventure:.1},
+  "F_30_49":{wellness:.15, travel:.1},
+  "F_50_plus":{wellness:.2},
+  "M_18_29":{adventure:.15, travel:.05},
+  "M_30_49":{adventure:.1, travel:.1},
+  "M_50_plus":{travel:.1},
+  "U_18_29":{adventure:.08, travel:.08},
+  "U_30_49":{travel:.08, wellness:.08},
+  "U_50_plus":{wellness:.08}
+};
+
+var SEARCH_KEYWORDS = {
+  travel:["travel","trip","vacation","flight","beach","resort","hotel","bali","cancun","rome"],
+  wellness:["massage","spa","facial","yoga","wellness","fitness","bootcamp"],
+  adventure:["hike","hiking","climb","adventure","kayak","zipline","raft","skydiv"]
+};
+
+/* ---------- deal catalog ---------- */
+
+var DEALS = [
+  {id:"weekend_cottage", segment:"travel", title:"Weekend Countryside Cottage Stay", price:129, orig:259, rating:4.7, ratings:"410", loc:"2 hrs away", sold:"80+ booked", photoTags:["cottage,countryside",101], attrs:{price:.25,duration:.3,overseas:0,landmarks:.3,beach:0,adventureLevel:.3,food:.35}},
+  {id:"cancun_beach", segment:"travel", title:"3-Night Cancún All-Inclusive Beach Resort", price:399, orig:899, rating:4.5, ratings:"530", loc:"Nationwide flight", sold:"90+ booked", photoTags:["cancun,beach",102], attrs:{price:.8,duration:.6,overseas:1,landmarks:.1,beach:1,adventureLevel:.2,food:.5}},
+  {id:"rome_tour", segment:"travel", title:"5-Day Rome Highlights & Museums Tour", price:649, orig:1299, rating:4.9, ratings:"310", loc:"Nationwide flight", sold:"60+ booked", photoTags:["rome,landmark",103], attrs:{price:.6,duration:.5,overseas:1,landmarks:1,beach:0,adventureLevel:.1,food:.6}},
+  {id:"ski_lodge", segment:"travel", title:"Mountain Lodge Ski Weekend", price:219, orig:449, rating:4.6, ratings:"270", loc:"3 hrs away", sold:"70+ booked", photoTags:["ski,mountain",104], attrs:{price:.5,duration:.3,overseas:0,landmarks:.1,beach:0,adventureLevel:.8,food:.3}},
+  {id:"prague_break", segment:"travel", title:"Budget City Break: Old Town Hotel, 2 Nights", price:89, orig:179, rating:4.4, ratings:"640", loc:"Domestic", sold:"150+ booked", photoTags:["oldtown,prague",105], attrs:{price:.15,duration:.25,overseas:0,landmarks:.7,beach:0,adventureLevel:.1,food:.4}},
+  {id:"bali_escape", segment:"travel", title:"7-Day Bali Adventure & Beach Escape", price:899, orig:1799, rating:4.8, ratings:"180", loc:"Nationwide flight", sold:"40+ booked", photoTags:["bali,beach",106], attrs:{price:.85,duration:.85,overseas:1,landmarks:.3,beach:.8,adventureLevel:.6,food:.5}},
+  {id:"lisbon_food", segment:"travel", title:"Michelin-Guide Food Tour, Lisbon", price:259, orig:459, rating:4.7, ratings:"140", loc:"Nationwide flight", sold:"35+ booked", photoTags:["lisbon,food",107], attrs:{price:.5,duration:.35,overseas:1,landmarks:.4,beach:.2,adventureLevel:.1,food:1}},
+
+  {id:"swedish_massage", segment:"wellness", title:"60-Min Swedish Massage", price:39, orig:89, rating:4.8, ratings:"2.1k", loc:"2.1 mi", sold:"500+ bought", photoTags:["massage,spa",111], attrs:{price:.3,intensity:.1,atHome:0,recurring:.5,distance:.7}},
+  {id:"mobile_massage", segment:"wellness", title:"Mobile At-Home Deep Tissue Massage", price:69, orig:139, rating:4.7, ratings:"640", loc:"Comes to you", sold:"220+ bought", photoTags:["massage,relax",112], attrs:{price:.45,intensity:.3,atHome:1,recurring:.4,distance:1}},
+  {id:"mani_pedi", segment:"wellness", title:"Gel Manicure + Pedicure", price:29, orig:60, rating:4.7, ratings:"980", loc:"1.1 mi", sold:"400+ bought", photoTags:["manicure,nails",113], attrs:{price:.2,intensity:0,atHome:0,recurring:.6,distance:.8}},
+  {id:"yoga_membership", segment:"wellness", title:"8-Week Unlimited Yoga Membership", price:79, orig:199, rating:4.8, ratings:"310", loc:"1.8 mi", sold:"150+ bought", photoTags:["yoga,studio",114], attrs:{price:.5,intensity:.4,atHome:0,recurring:1,distance:.6}},
+  {id:"bootcamp", segment:"wellness", title:"High-Intensity Bootcamp, 10 Classes", price:59, orig:149, rating:4.5, ratings:"260", loc:"2.4 mi", sold:"180+ bought", photoTags:["bootcamp,fitness",115], attrs:{price:.4,intensity:1,atHome:0,recurring:.8,distance:.5}},
+  {id:"spa_day", segment:"wellness", title:"Luxury Spa Day (Facial + Massage + Sauna)", price:129, orig:299, rating:4.9, ratings:"720", loc:"3.0 mi", sold:"300+ bought", photoTags:["spa,luxury",116], attrs:{price:.8,intensity:.1,atHome:0,recurring:.2,distance:.4}},
+  {id:"athome_facial", segment:"wellness", title:"At-Home Facial & Skincare Session", price:55, orig:110, rating:4.6, ratings:"190", loc:"Comes to you", sold:"90+ bought", photoTags:["facial,skincare",117], attrs:{price:.35,intensity:.05,atHome:1,recurring:.4,distance:1}},
+
+  {id:"kayak_tour", segment:"adventure", title:"Sunset Kayak Tour", price:45, orig:80, rating:4.8, ratings:"220", loc:"4.2 mi", sold:"150+ booked", photoTags:["kayak,lake",121], attrs:{price:.3,difficulty:.3,outdoor:1,groupFriendly:.6,distance:.5}},
+  {id:"rock_climbing", segment:"adventure", title:"Indoor Rock Climbing Day Pass + Gear", price:25, orig:50, rating:4.5, ratings:"310", loc:"1.9 mi", sold:"260+ bought", photoTags:["climbing,gym",122], attrs:{price:.2,difficulty:.5,outdoor:0,groupFriendly:.5,distance:.8}},
+  {id:"zipline", segment:"adventure", title:"Zipline Canopy Adventure", price:59, orig:110, rating:4.9, ratings:"170", loc:"5.0 mi", sold:"90+ booked", photoTags:["zipline,forest",123], attrs:{price:.45,difficulty:.6,outdoor:1,groupFriendly:.7,distance:.4}},
+  {id:"hiking_trip", segment:"adventure", title:"Guided Mountain Hiking Day Trip", price:49, orig:95, rating:4.8, ratings:"140", loc:"6.5 mi", sold:"70+ booked", photoTags:["hiking,mountain",124], attrs:{price:.35,difficulty:.7,outdoor:1,groupFriendly:.8,distance:.3}},
+  {id:"rafting", segment:"adventure", title:"Whitewater Rafting Half-Day", price:79, orig:149, rating:4.9, ratings:"110", loc:"7.2 mi", sold:"50+ booked", photoTags:["rafting,river",125], attrs:{price:.5,difficulty:.8,outdoor:1,groupFriendly:.9,distance:.3}},
+  {id:"escape_room", segment:"adventure", title:"Escape Room Adventure", price:22, orig:45, rating:4.7, ratings:"1.5k", loc:"3.0 mi", sold:"1k+ bought", photoTags:["escaperoom,puzzle",126], attrs:{price:.25,difficulty:.4,outdoor:0,groupFriendly:1,distance:.7}},
+  {id:"skydiving", segment:"adventure", title:"Skydiving Tandem Jump", price:249, orig:399, rating:4.95, ratings:"95", loc:"9.0 mi", sold:"40+ booked", photoTags:["skydiving,parachute",127], attrs:{price:.9,difficulty:1,outdoor:1,groupFriendly:.3,distance:.2}}
+];
+var DEALS_BY_ID = {};
+DEALS.forEach(function(d){ DEALS_BY_ID[d.id] = d; });
+
+function off(d){ return Math.round((1 - d.price/d.orig) * 100); }
+function photoStyle(tags, w, h){
+  w = w||800; h = h||600;
+  return "#8a9a7c url('https://loremflickr.com/"+w+"/"+h+"/"+tags[0]+"?lock="+tags[1]+"') center/cover no-repeat";
+}
+
+/* ---------- state ---------- */
+
+var STORE_KEY = "groupon_proto_v2";
+function freshWeights(){
+  var w = {};
+  Object.keys(SEGMENTS).forEach(function(s){
+    w[s] = {};
+    SEGMENTS[s].attrs.forEach(function(a){ w[s][a.key] = 0; });
+  });
+  return w;
+}
+function freshProfile(){
+  return {
+    account:{gender:"F", age:40, city:"Prague, CZ"},
+    acquisition:{source:"Facebook login"},
+    session:{engagement:{travel:0,wellness:0,adventure:0}, searched:null, saved:[], purchases:[], log:[]},
+    weights: freshWeights(),
+    chipFilters:{}
+  };
+}
 function loadState(){
-  try{
-    var raw = localStorage.getItem(STORE_KEY);
-    if(raw) return JSON.parse(raw);
-  }catch(e){}
-  return {persona:"cold_start", visits:{}, overrides:{}, chipsPicked:[]};
+  try{ var raw = localStorage.getItem(STORE_KEY); if(raw) return JSON.parse(raw); }catch(e){}
+  return {profile: freshProfile(), viewOverride:"auto"};
 }
-function saveState(){
-  try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
-}
+function saveState(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){} }
 var state = loadState();
-if(!state.visits) state.visits = {};
-if(!state.overrides) state.overrides = {};
-if(!state.chipsPicked) state.chipsPicked = [];
+if(!state.profile) state.profile = freshProfile();
+if(!state.profile.chipFilters) state.profile.chipFilters = {};
+if(!state.viewOverride) state.viewOverride = "auto";
 
-function stageFor(persona){
-  if(persona === "cold_start") return "1";
-  var v = state.visits[persona] || 1;
-  if(v > 3) v = 3;
-  return String(v);
+/* ---------- scoring engine ---------- */
+
+function ratingNorm(r){ return Math.max(0, Math.min(1, (r-4.2)/0.8)); }
+function scoreDeal(d, weights){
+  var s = RATING_WEIGHT * ratingNorm(d.rating);
+  var seg = SEGMENTS[d.segment];
+  if(seg){
+    seg.attrs.forEach(function(a){
+      var v = d.attrs[a.key]!==undefined ? d.attrs[a.key] : 0.5;
+      s += (weights[a.key]||0) * v;
+    });
+  }
+  return s;
 }
-function rulesFor(persona, stage){
-  var ov = state.overrides[persona] && state.overrides[persona][stage];
-  if(ov) return ov;
-  return DEFAULT_RULES[persona][stage];
+function rankSegment(seg){
+  var w = state.profile.weights[seg];
+  return DEALS.filter(function(d){ return d.segment===seg; })
+    .map(function(d){ return {d:d, s:scoreDeal(d,w)}; })
+    .sort(function(a,b){ return b.s-a.s; })
+    .map(function(x){ return x.d; });
+}
+function demoTilt(){
+  var p = state.profile.account;
+  var band = p.age<30 ? "18_29" : (p.age<50 ? "30_49" : "50_plus");
+  return DEMO_PRIOR[p.gender+"_"+band] || {};
+}
+function rankColdStart(){
+  var tilt = demoTilt();
+  return DEALS.map(function(d){
+    var s = RATING_WEIGHT*ratingNorm(d.rating) + (tilt[d.segment]||0);
+    return {d:d, s:s};
+  }).sort(function(a,b){ return b.s-a.s; }).map(function(x){ return x.d; });
+}
+function detectSegment(){
+  var eng = state.profile.session.engagement;
+  var best=null, bestV=0;
+  Object.keys(SEGMENTS).forEach(function(s){ if(eng[s]>bestV){ best=s; bestV=eng[s]; } });
+  return bestV>=SEGMENT_DETECT_THRESHOLD ? best : null;
+}
+function activeSegment(){
+  if(state.viewOverride && state.viewOverride!=="auto") return state.viewOverride;
+  return detectSegment();
+}
+function otherSegment(seg){
+  var keys = Object.keys(SEGMENTS);
+  return keys[(keys.indexOf(seg)+1) % keys.length];
+}
+function topAttrPhrase(seg){
+  var w = state.profile.weights[seg];
+  var best=null, bestAbs=0.05;
+  SEGMENTS[seg].attrs.forEach(function(a){
+    var v = w[a.key]||0;
+    if(Math.abs(v)>bestAbs){ bestAbs=Math.abs(v); best={a:a, v:v}; }
+  });
+  return best ? (best.v>0 ? best.a.highLabel : best.a.lowLabel) : null;
+}
+function applyEvidence(d, strength){
+  var w = state.profile.weights[d.segment];
+  SEGMENTS[d.segment].attrs.forEach(function(a){
+    var val = d.attrs[a.key]!==undefined ? d.attrs[a.key] : 0.5;
+    w[a.key] = (w[a.key]||0) + (val-0.5)*strength;
+  });
+}
+function bumpEngagement(seg){
+  state.profile.session.engagement[seg] = (state.profile.session.engagement[seg]||0) + 1;
+}
+function logBehavior(text){
+  state.profile.session.log.unshift({t:Date.now(), text:text});
+  state.profile.session.log = state.profile.session.log.slice(0,12);
 }
 
-var GENERIC_FILLER_SLIDE = {headline:"Fall Favorites Start Here", sub:"Top attractions & experiences, up to 30% off", photo:"Things To Do"};
+/* ---------- page rendering ---------- */
 
 function chevronSvg(){ return '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>'; }
-
-function heroSlide(h, eyebrow){
-  return '<div class="hero-slide" style="background:'+photoFor(h.photo)+';">'
-    + '<div class="scrim"></div>'
-    + '<div class="txt">'
-    +   (eyebrow?'<span class="eyebrow">'+eyebrow+'</span>':'')
-    +   '<h1>'+h.headline+'</h1>'
-    +   '<p>'+h.sub+'</p>'
-    + '</div></div>';
-}
-
-function card(id){
-  var d = DEALS[id];
-  var pct = off(d);
-  return '<div class="card">'
-    + '<div class="img" style="background:'+photoFor(d.cat,400,300)+';">'
-    +   '<span class="badge">-'+pct+'%</span>'
-    + '</div>'
-    + '<div class="body">'
-    +   '<span class="cat">'+d.cat+'</span>'
-    +   '<span class="title">'+d.title+'</span>'
-    +   '<span class="rating"><span class="star">★</span>'+d.rating.toFixed(1)+' ('+d.ratings+') · '+d.loc+'</span>'
-    +   '<span class="price-row"><span class="price">$'+d.price+'</span><span class="orig">$'+d.orig+'</span></span>'
-    +   '<span class="sold">'+d.sold+'</span>'
-    + '</div></div>';
-}
-
-function bigCard(id, tag){
-  var d = DEALS[id];
-  var pct = off(d);
-  return '<div class="big-card">'
-    + '<div class="photo" style="background:'+photoFor(d.cat)+';">'
-    +   '<span class="badge-pill">🏷️ -'+pct+'%</span>'
-    +   '<button class="heart-btn" data-heart="'+id+'" aria-label="Save">♡</button>'
-    +   (tag ? '<span class="tag-pill">'+tag+'</span>' : '')
-    + '</div>'
-    + '<div class="info">'
-    +   '<span class="cat">'+d.cat+'</span>'
-    +   '<span class="title">'+d.title+'</span>'
-    +   '<span class="rating">★ '+d.rating.toFixed(1)+' ('+d.ratings+') · '+d.loc+'</span>'
-    +   '<span class="price-row"><span class="price">$'+d.price+'</span><span class="orig">$'+d.orig+'</span></span>'
-    + '</div></div>';
-}
-
-function renderChipsModule(m, idx){
-  var picked = state.chipsPicked;
-  var chipsHtml = CATEGORIES.map(function(c){
-    var on = picked.indexOf(c.id) > -1;
-    return '<button data-chip="'+c.id+'" class="'+(on?"picked":"")+'">'+c.emoji+' '+c.label+'</button>';
-  }).join("");
-  return '<div class="module">'
-    + '<div class="module-head"><div><h2>What are you into?</h2><div class="sub">Tap a few — no quiz required</div></div>'
-    + whyBtn(idx) + '</div>'
-    + '<div class="why-note" id="why-'+idx+'" hidden>'+m.why+'</div>'
-    + '<div class="chip-picker">'+chipsHtml+'</div>'
-    + '</div>';
-}
-
 function whyBtn(idx){ return '<button class="why-btn" data-why="'+idx+'">i</button>'; }
 
-function renderBigModule(m, idx){
-  var ids = m.ids.slice(0,4);
-  var tag = /trending|popular/i.test(m.title) ? "📈 Trending" : "🔥 "+m.title;
-  var cardsHtml = ids.map(function(id){ return bigCard(id, tag); }).join("");
-  var dotsHtml = ids.map(function(_,i){ return '<span class="dot'+(i===0?" on":"")+'"></span>'; }).join("");
+function heroSlideHtml(h, eyebrow){
+  return '<div class="hero-slide" style="background:'+photoStyle(h.photoTags)+';">'
+    + '<div class="scrim"></div><div class="txt">'
+    + (eyebrow ? '<span class="eyebrow">'+eyebrow+'</span>' : '')
+    + '<h1>'+h.headline+'</h1><p>'+h.sub+'</p></div></div>';
+}
+function heroCarouselHtml(p, f, eyebrow){
+  return '<div class="hero-carousel" data-carousel="hero">'
+    + heroSlideHtml(p, eyebrow) + heroSlideHtml(f, "")
+    + '</div><div class="dots-row" data-dots="hero"><span class="dot on"></span><span class="dot"></span></div>';
+}
+
+function cardMatchTag(d, seg){
+  var w = state.profile.weights[seg];
+  var best=null, bestScore=0;
+  SEGMENTS[seg].attrs.forEach(function(a){
+    var c = (w[a.key]||0) * (d.attrs[a.key]-0.5);
+    if(c>bestScore){ bestScore=c; best=a; }
+  });
+  return best ? ("🔥 " + (w[best.key]>0 ? best.highLabel : best.lowLabel)) : "⭐ Top rated";
+}
+
+function bigCardHtml(d, seg){
+  var pct = off(d);
+  var tag = seg ? cardMatchTag(d, seg) : "📈 Trending";
+  var liked = state.profile.session.saved.indexOf(d.id) > -1;
+  var segLabel = SEGMENTS[d.segment] ? SEGMENTS[d.segment].label : d.segment;
+  return '<div class="big-card">'
+    + '<div class="photo" style="background:'+photoStyle(d.photoTags)+';">'
+    +   '<span class="badge-pill">🏷️ -'+pct+'%</span>'
+    +   '<button class="heart-btn'+(liked?" on":"")+'" data-heart="'+d.id+'" aria-label="Save">'+(liked?"♥":"♡")+'</button>'
+    +   '<span class="tag-pill">'+tag+'</span>'
+    + '</div>'
+    + '<div class="info">'
+    +   '<span class="cat">'+segLabel+'</span>'
+    +   '<span class="title">'+d.title+'</span>'
+    +   '<span class="rating">★ '+d.rating.toFixed(2).replace(/0$/,"")+' ('+d.ratings+') · '+d.loc+'</span>'
+    +   '<span class="price-row"><span class="price">$'+d.price+'</span><span class="orig">$'+d.orig+'</span></span>'
+    +   '<button class="buy-btn" data-buy="'+d.id+'">Buy this deal</button>'
+    + '</div></div>';
+}
+
+function smallCardHtml(d){
+  var pct = off(d);
+  var segLabel = SEGMENTS[d.segment] ? SEGMENTS[d.segment].label : d.segment;
+  return '<div class="card"><div class="img" style="background:'+photoStyle(d.photoTags,400,300)+';"><span class="badge">-'+pct+'%</span></div>'
+    + '<div class="body"><span class="cat">'+segLabel+'</span>'
+    + '<span class="title">'+d.title+'</span>'
+    + '<span class="rating"><span class="star">★</span>'+d.rating.toFixed(2).replace(/0$/,"")+' ('+d.ratings+') · '+d.loc+'</span>'
+    + '<span class="price-row"><span class="price">$'+d.price+'</span><span class="orig">$'+d.orig+'</span></span>'
+    + '<span class="sold">'+d.sold+'</span></div></div>';
+}
+
+function bigModuleWhy(seg){
+  if(!seg) return "No segment detected — ranked by rating plus a small demographic-based tilt only.";
+  var w = state.profile.weights[seg];
+  var parts = SEGMENTS[seg].attrs
+    .filter(function(a){ return Math.abs(w[a.key]||0) > 0.05; })
+    .map(function(a){ var v=w[a.key]; return (v>0?a.highLabel:a.lowLabel)+" (weight "+v.toFixed(2)+")"; });
+  return parts.length ? ("Score = rating + " + parts.join(" + ")) : "Segment detected, but no calibration yet — ranked by rating only until you filter, like, or buy something.";
+}
+
+function bigModuleHtml(title, sub, deals, seg, idx){
+  var cardsHtml = deals.map(function(d){ return bigCardHtml(d, seg); }).join("");
+  var dotsHtml = deals.map(function(_,i){ return '<span class="dot'+(i===0?" on":"")+'"></span>'; }).join("");
   return '<div class="module">'
-    + '<div class="module-head"><div><h2>'+m.title+chevronSvg()+'</h2>'+(m.sub?'<div class="sub">'+m.sub+'</div>':'')+'</div>'
-    + whyBtn(idx) + '</div>'
-    + '<div class="why-note" id="why-'+idx+'" hidden>'+m.why+'</div>'
+    + '<div class="module-head"><div><h2>'+title+chevronSvg()+'</h2>'+(sub?'<div class="sub">'+sub+'</div>':'')+'</div>'+whyBtn(idx)+'</div>'
+    + '<div class="why-note" id="why-'+idx+'" hidden>'+bigModuleWhy(seg)+'</div>'
     + '<div class="big-carousel" data-carousel="big-'+idx+'">'+cardsHtml+'</div>'
     + '<div class="dots-row" data-dots="big-'+idx+'">'+dotsHtml+'</div>'
     + '<hr class="dashed-divider on-light" style="margin:2px 14px 0;">'
     + '</div>';
 }
 
-function renderModule(m, idx, big){
-  if(m.type === "chips") return renderChipsModule(m, idx);
-  if(m.type === "nudge"){
-    return '<div class="module"><div class="nudge"><span class="ico">'+m.icon+'</span><span class="txt">'+m.html+'</span></div></div>';
+function smallRowModuleHtml(title, sub, deals, idx){
+  var cardsHtml = deals.map(smallCardHtml).join("");
+  return '<div class="module"><div class="module-head"><div><h2>'+title+'</h2>'+(sub?'<div class="sub">'+sub+'</div>':'')+'</div>'+whyBtn(idx)+'</div>'
+    + '<div class="why-note" id="why-'+idx+'" hidden>Ranked the same way as the top picks above, just further down the list.</div>'
+    + '<div class="row-scroll">'+cardsHtml+'</div></div>';
+}
+
+function filterChipsModuleHtml(seg, idx){
+  var chipsHtml = SEGMENTS[seg].attrs.map(function(a){
+    var active = (state.profile.chipFilters[seg]||[]).indexOf(a.key) > -1;
+    return '<button data-filterchip="'+a.key+'" data-seg="'+seg+'" class="'+(active?"picked":"")+'">'+a.highLabel+'</button>';
+  }).join("");
+  return '<div class="module"><div class="module-head"><div><h2>Refine for '+SEGMENTS[seg].label+'</h2><div class="sub">Tap what matters to you</div></div>'+whyBtn(idx)+'</div>'
+    + '<div class="why-note" id="why-'+idx+'" hidden>Each tap directly nudges that attribute’s weight in the ranking model — the strongest, most explicit signal we can get, short of a real quiz.</div>'
+    + '<div class="chip-picker">'+chipsHtml+'</div></div>';
+}
+
+function segmentPickerModuleHtml(idx){
+  var chipsHtml = Object.keys(SEGMENTS).map(function(s){
+    return '<button data-segpick="'+s+'">'+SEGMENTS[s].icon+' '+SEGMENTS[s].label+'</button>';
+  }).join("");
+  return '<div class="module"><div class="module-head"><div><h2>What are you into?</h2><div class="sub">Tap one — no quiz required</div></div>'+whyBtn(idx)+'</div>'
+    + '<div class="why-note" id="why-'+idx+'" hidden>No segment detected yet. Tapping directly declares intent — the fastest first-party signal, replacing the old onboarding quiz.</div>'
+    + '<div class="chip-picker">'+chipsHtml+'</div></div>';
+}
+
+function renderPage(){
+  var seg = activeSegment();
+  var html;
+
+  if(!seg){
+    var ranked = rankColdStart();
+    var top4 = ranked.slice(0,4), rest = ranked.slice(4,8);
+    var personalized = {headline:"Your city, today's best deals", sub:"Handpicked top sellers, lightly tuned to what visitors like you tend to browse", photoTags: top4[0].photoTags};
+    var filler = {headline:"Citywide Favorites", sub:"Top-rated across every category this week", photoTags: (ranked[8]||top4[0]).photoTags};
+    html = heroCarouselHtml(personalized, filler, "Explore");
+    html += bigModuleHtml("Trending near you", "Citywide, lightly tuned by your profile", top4, null, 0);
+    html += segmentPickerModuleHtml(1);
+    html += smallRowModuleHtml("Popular this week", "", rest, 2);
+  } else {
+    var rankedSeg = rankSegment(seg);
+    var top4b = rankedSeg.slice(0,4), more = rankedSeg.slice(4,7);
+    var phrase = topAttrPhrase(seg);
+    var reason = phrase ? ("Because you lean toward " + phrase.toLowerCase()) : ("Because you've been exploring " + SEGMENTS[seg].label);
+    var personalized2 = {headline:"Picked for you: " + SEGMENTS[seg].label, sub: reason, photoTags: top4b[0].photoTags};
+    var filler2 = {headline:"Citywide Favorites", sub:"Top-rated across every category this week", photoTags: DEALS[0].photoTags};
+    var other = otherSegment(seg);
+    html = heroCarouselHtml(personalized2, filler2, SEGMENTS[seg].label);
+    html += bigModuleHtml("Top picks for you", reason, top4b, seg, 0);
+    html += filterChipsModuleHtml(seg, 1);
+    html += smallRowModuleHtml("More for you", "", more, 2);
+    html += smallRowModuleHtml("Discover: " + SEGMENTS[other].label, "Something different, top-rated", rankSegment(other).slice(0,4), 3);
   }
-  if(big) return renderBigModule(m, idx);
-  var cardsHtml = m.ids.map(card).join("");
-  return '<div class="module">'
-    + '<div class="module-head"><div><h2>'+m.title+'</h2>'+(m.sub?'<div class="sub">'+m.sub+'</div>':'')+'</div>'
-    + whyBtn(idx) + '</div>'
-    + '<div class="why-note" id="why-'+idx+'" hidden>'+m.why+'</div>'
-    + '<div class="row-scroll">'+cardsHtml+'</div>'
-    + '</div>';
+
+  document.getElementById("content").innerHTML = html;
+  wirePageEvents();
 }
 
 function syncDots(car, dotsEl){
@@ -793,168 +827,221 @@ function syncDots(car, dotsEl){
   for(var i=0;i<dots.length;i++){ dots[i].classList.toggle("on", i===idx); }
 }
 
-function render(){
-  var persona = state.persona;
-  var stage = stageFor(persona);
-  var rules = rulesFor(persona, stage);
-  var heroEyebrow = persona==="cold_start" ? "Explore" : PERSONAS[persona].label+" · visit "+stage;
-
-  var html = '<div class="hero-carousel" data-carousel="hero">'
-    + heroSlide(rules.hero, heroEyebrow)
-    + heroSlide(GENERIC_FILLER_SLIDE, "")
-    + '</div>'
-    + '<div class="dots-row" data-dots="hero"><span class="dot on"></span><span class="dot"></span></div>';
-
-  var bigUsed = false;
-  rules.modules.forEach(function(m, i){
-    var isBig = (m.type === "deals" && !bigUsed);
-    if(isBig) bigUsed = true;
-    html += renderModule(m, i, isBig);
-  });
-
-  document.getElementById("content").innerHTML = html;
-
+function wirePageEvents(){
   document.querySelectorAll("[data-carousel]").forEach(function(car){
     var key = car.getAttribute("data-carousel");
     var dotsEl = document.querySelector('[data-dots="'+key+'"]');
     if(!dotsEl) return;
     car.addEventListener("scroll", function(){ syncDots(car, dotsEl); }, {passive:true});
   });
+
   document.querySelectorAll("[data-heart]").forEach(function(b){
+    var id = b.getAttribute("data-heart");
     b.addEventListener("click", function(e){
       e.stopPropagation();
-      b.classList.toggle("on");
-      b.textContent = b.classList.contains("on") ? "♥" : "♡";
+      var idx = state.profile.session.saved.indexOf(id);
+      if(idx > -1){
+        state.profile.session.saved.splice(idx,1);
+        b.classList.remove("on"); b.textContent = "♡";
+        saveState();
+      } else {
+        state.profile.session.saved.push(id);
+        var d = DEALS_BY_ID[id];
+        applyEvidence(d, LIKE_STRENGTH);
+        bumpEngagement(d.segment);
+        logBehavior("❤️ Liked <b>"+d.title+"</b>");
+        toast("Saved — nudging the " + SEGMENTS[d.segment].label + " model toward this.");
+        b.classList.add("on"); b.textContent = "♥";
+        saveState();
+        renderDrawerDynamic();
+      }
     });
   });
+
+  document.querySelectorAll("[data-buy]").forEach(function(b){
+    b.addEventListener("click", function(e){
+      e.stopPropagation();
+      var id = b.getAttribute("data-buy");
+      var d = DEALS_BY_ID[id];
+      applyEvidence(d, BUY_STRENGTH);
+      bumpEngagement(d.segment);
+      state.profile.session.purchases.push(id);
+      logBehavior("🛒 Bought <b>"+d.title+"</b>");
+      toast("Purchased — the strongest possible signal for next time.");
+      saveState();
+      render();
+    });
+  });
+
   document.querySelectorAll("[data-why]").forEach(function(b){
     b.addEventListener("click", function(){
       var note = document.getElementById("why-"+b.getAttribute("data-why"));
       note.hidden = !note.hidden;
     });
   });
-  document.querySelectorAll("[data-chip]").forEach(function(b){
+
+  document.querySelectorAll("[data-filterchip]").forEach(function(b){
     b.addEventListener("click", function(){
-      var id = b.getAttribute("data-chip");
-      var i = state.chipsPicked.indexOf(id);
-      if(i > -1) state.chipsPicked.splice(i,1); else state.chipsPicked.push(id);
+      var key = b.getAttribute("data-filterchip"), seg = b.getAttribute("data-seg");
+      if(!state.profile.chipFilters[seg]) state.profile.chipFilters[seg] = [];
+      var arr = state.profile.chipFilters[seg];
+      var i = arr.indexOf(key);
+      var w = state.profile.weights[seg];
+      var attrDef = SEGMENTS[seg].attrs.filter(function(a){ return a.key===key; })[0];
+      if(i > -1){ arr.splice(i,1); w[key] = (w[key]||0) - FILTER_STRENGTH; }
+      else { arr.push(key); w[key] = (w[key]||0) + FILTER_STRENGTH; }
+      bumpEngagement(seg);
+      logBehavior("🎚️ Filtered " + SEGMENTS[seg].label + " by <b>" + (attrDef?attrDef.highLabel:key) + "</b>");
       saveState();
       render();
-      if(state.chipsPicked.length === 1){
-        toast("Signal captured — this is exactly what would seed segment detection.");
-      }
     });
   });
 
-  renderDrawerDynamic();
-}
-
-function renderPersonaGrid(){
-  var el = document.getElementById("personaGrid");
-  el.innerHTML = "";
-  Object.keys(PERSONAS).forEach(function(id){
-    var b = document.createElement("button");
-    b.className = "persona-btn" + (state.persona===id ? " active" : "");
-    b.innerHTML = PERSONAS[id].label + "<small>"+PERSONAS[id].hint+"</small>";
+  document.querySelectorAll("[data-segpick]").forEach(function(b){
     b.addEventListener("click", function(){
-      state.persona = id;
-      if(id !== "cold_start" && !state.visits[id]) state.visits[id] = 1;
+      var seg = b.getAttribute("data-segpick");
+      bumpEngagement(seg); bumpEngagement(seg);
+      logBehavior("🧭 Told us: interested in <b>" + SEGMENTS[seg].label + "</b>");
       saveState();
       render();
     });
+  });
+}
+
+/* ---------- drawer rendering ---------- */
+
+function renderAcctList(){
+  var el = document.getElementById("acctList");
+  var p = state.profile;
+  var now = new Date();
+  var days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  var html = "";
+  html += '<div class="bucket-label">Account data</div>';
+  html += '<div class="select-line">Gender <select id="acctGender"><option value="F">F</option><option value="M">M</option><option value="U">Unspecified</option></select> Age <input type="number" id="acctAge" min="16" max="90"> City <input type="text" id="acctCity"></div>';
+  html += '<div class="bucket-label">Device / app context</div>';
+  html += '<div class="sig-row"><span class="sig-tag have">HAVE</span><span>Language: ' + (navigator.language||"en-US") + ' · Device: Mobile · ' + days[now.getDay()] + ' ' + now.getHours() + ':' + (now.getMinutes()<10?"0":"") + now.getMinutes() + '</span></div>';
+  html += '<div class="bucket-label">Acquisition context</div>';
+  html += '<div class="select-line">Source <select id="acqSource"><option>Search</option><option>Email</option><option>Ad</option><option>Referral</option><option>Facebook login</option><option>Direct</option></select></div>';
+  html += '<div class="bucket-label">Session context (this visit)</div>';
+  html += '<div class="sig-row"><span class="sig-tag ' + (p.session.searched?"have":"missing") + '">' + (p.session.searched?"CAPTURED":"NONE YET") + '</span><span>Searched: ' + (p.session.searched||"—") + '</span></div>';
+  html += '<div class="sig-row"><span class="sig-tag ' + (p.session.saved.length?"have":"missing") + '">' + (p.session.saved.length?"CAPTURED":"NONE YET") + '</span><span>Saved: ' + p.session.saved.length + ' deal(s)</span></div>';
+  html += '<div class="sig-row"><span class="sig-tag ' + (p.session.purchases.length?"have":"missing") + '">' + (p.session.purchases.length?"CAPTURED":"NONE YET") + '</span><span>Purchased: ' + p.session.purchases.length + ' deal(s)</span></div>';
+  el.innerHTML = html;
+
+  document.getElementById("acctGender").value = p.account.gender;
+  document.getElementById("acctAge").value = p.account.age;
+  document.getElementById("acctCity").value = p.account.city;
+  document.getElementById("acqSource").value = p.acquisition.source;
+
+  document.getElementById("acctGender").addEventListener("change", function(e){ p.account.gender = e.target.value; saveState(); render(); });
+  document.getElementById("acctAge").addEventListener("change", function(e){ p.account.age = parseInt(e.target.value,10)||30; saveState(); render(); });
+  document.getElementById("acctCity").addEventListener("change", function(e){
+    p.account.city = e.target.value;
+    document.getElementById("cityLabel").textContent = e.target.value.split(",")[0];
+    saveState(); render();
+  });
+  document.getElementById("acqSource").addEventListener("change", function(e){ p.acquisition.source = e.target.value; saveState(); });
+}
+
+function renderSegBars(){
+  var el = document.getElementById("segBars");
+  var eng = state.profile.session.engagement;
+  var max = Math.max(1, eng.travel, eng.wellness, eng.adventure);
+  var html = "";
+  Object.keys(SEGMENTS).forEach(function(s){
+    var pct = Math.round((eng[s]/max)*100);
+    html += '<div><div class="select-line" style="justify-content:space-between;"><span>' + SEGMENTS[s].icon + ' ' + SEGMENTS[s].label + '</span><span style="color:var(--text-muted)">' + eng[s] + '</span></div><div class="seg-bar"><span style="width:' + pct + '%"></span></div></div>';
+  });
+  el.innerHTML = html;
+  var detected = detectSegment();
+  document.getElementById("segReadout").textContent = detected
+    ? ("Detected: " + SEGMENTS[detected].label + " (≥" + SEGMENT_DETECT_THRESHOLD + " interactions)")
+    : ("Not yet detected — showing cold-start default (needs " + SEGMENT_DETECT_THRESHOLD + "+ interactions in one segment).");
+}
+
+function renderSegGrid(){
+  var el = document.getElementById("segGrid");
+  el.innerHTML = "";
+  var opts = [{id:"auto", label:"Auto-detect", hint:"Use real engagement"}].concat(
+    Object.keys(SEGMENTS).map(function(s){ return {id:s, label:SEGMENTS[s].icon+" "+SEGMENTS[s].label, hint:"Force this view"}; })
+  );
+  opts.forEach(function(o){
+    var b = document.createElement("button");
+    b.className = "persona-btn" + (state.viewOverride===o.id ? " active" : "");
+    b.innerHTML = o.label + "<small>" + o.hint + "</small>";
+    b.addEventListener("click", function(){ state.viewOverride = o.id; saveState(); render(); });
     el.appendChild(b);
   });
 }
 
-function renderSignalList(){
-  var el = document.getElementById("signalList");
-  var sig = SIGNALS[state.persona];
-  var html = "";
-  sig.have.forEach(function(s){
-    html += '<div class="sig-row"><span class="sig-tag have">HAVE</span><span><b>'+s.label+'</b>'+(s.value? ": "+s.value : "")+'</span></div>';
-  });
-  sig.missing.forEach(function(s){
-    html += '<div class="sig-row"><span class="sig-tag missing">MISSING</span><span><b>'+s.label+'</b> — '+s.how+'</span></div>';
-  });
-  el.innerHTML = html || '<div class="sig-row" style="color:var(--text-muted)">No data collected yet.</div>';
-}
-
-function renderVisitRow(){
-  var el = document.getElementById("visitRow");
-  var label = document.getElementById("visitLabel");
-  el.innerHTML = "";
-  if(state.persona === "cold_start"){
-    label.textContent = "Unknown visitors always see stage 1 (no history to build on).";
+function renderWeightSliders(){
+  var seg = activeSegment();
+  var el = document.getElementById("weightSliders");
+  if(!seg){
+    el.innerHTML = '<p style="font-size:12px;color:var(--text-muted);margin:0;">No segment detected yet — calibration starts once we see ' + SEGMENT_DETECT_THRESHOLD + '+ signals in one segment (or force a view above).</p>';
     return;
   }
-  [1,2,3].forEach(function(n){
-    var cur = state.visits[state.persona] || 1;
-    var b = document.createElement("button");
-    b.className = "visit-btn" + (cur===n ? " active" : "");
-    b.textContent = n===3 ? "3+" : n;
-    b.addEventListener("click", function(){
-      state.visits[state.persona] = n;
-      saveState();
-      render();
-    });
-    el.appendChild(b);
+  var w = state.profile.weights[seg];
+  var html = "";
+  SEGMENTS[seg].attrs.forEach(function(a){
+    var v = w[a.key]||0;
+    html += '<div class="weight-row"><div class="lbl"><span>' + a.lowLabel + ' ⟷ ' + a.highLabel + '</span><span>' + v.toFixed(2) + '</span></div>'
+      + '<input type="range" min="-1" max="1" step="0.05" value="' + v + '" data-weight="' + a.key + '" data-seg="' + seg + '"></div>';
   });
-  var cur = state.visits[state.persona] || 1;
-  label.textContent = "Visit " + cur + " of this month's simulated visits.";
+  el.innerHTML = html;
+  el.querySelectorAll("[data-weight]").forEach(function(inp){
+    inp.addEventListener("input", function(){
+      var seg2 = inp.getAttribute("data-seg"), key = inp.getAttribute("data-weight");
+      var v = parseFloat(inp.value);
+      state.profile.weights[seg2][key] = v;
+      inp.parentElement.querySelector(".lbl span:last-child").textContent = v.toFixed(2);
+      saveState();
+      renderPage();
+      renderTrace();
+    });
+  });
 }
 
 function renderTrace(){
   var el = document.getElementById("traceList");
-  var persona = state.persona, stage = stageFor(persona);
-  var rules = rulesFor(persona, stage);
+  var seg = activeSegment();
+  var pool = seg ? rankSegment(seg) : rankColdStart();
+  var w = seg ? state.profile.weights[seg] : {};
   var lines = [];
-  lines.push('<li><b>Segment:</b> '+(persona==="cold_start"?"none detected":PERSONAS[persona].label)+'</li>');
-  lines.push('<li><b>Rule matched:</b> '+persona+' × visit '+stage+'</li>');
-  lines.push('<li><b>Modules, in order:</b> '+rules.modules.filter(function(m){return m.title||m.type==="chips"||m.type==="nudge";}).map(function(m){return m.title || (m.type==="chips"?"Signal chips":"Retention nudge");}).join(" → ")+'</li>');
-  rules.modules.forEach(function(m){ if(m.why) lines.push('<li>• '+m.why+'</li>'); });
+  lines.push("<li><b>1. Customer</b> → " + state.profile.account.gender + ", " + state.profile.account.age + ", " + state.profile.account.city + "</li>");
+  lines.push("<li><b>2. Segment</b> → " + (seg ? SEGMENTS[seg].label : "none detected (cold start)") + "</li>");
+  lines.push("<li><b>3. Profile + intent</b> → " + (seg ? ("learned weights on " + SEGMENTS[seg].attrs.length + " attributes") : "demographic prior only") + "</li>");
+  lines.push("<li><b>4. Candidate deals</b> → " + pool.length + " eligible" + (seg?" in "+SEGMENTS[seg].label:" across all segments") + "</li>");
+  lines.push("<li><b>5. Ranking</b> → top: <b>" + pool[0].title + "</b> (score " + scoreDeal(pool[0], w).toFixed(2) + ")</li>");
+  lines.push("<li><b>6. Mobile page</b> → hero + " + (seg?"4":"3") + " modules rendered</li>");
+  lines.push("<li><b>7. Behavior</b> → " + state.profile.session.log.length + " interaction(s) this session</li>");
+  lines.push("<li><b>8. Updated profile</b> → weights persist in this browser; next render re-runs steps 2–6</li>");
   el.innerHTML = lines.join("");
 }
 
-var RULE_SCOPE_LIST = [];
-Object.keys(DEFAULT_RULES).forEach(function(p){
-  Object.keys(DEFAULT_RULES[p]).forEach(function(s){
-    RULE_SCOPE_LIST.push(p+"::"+s);
-  });
-});
-function renderRuleScopeSelect(){
-  var sel = document.getElementById("ruleScopeSelect");
-  if(sel.options.length) return;
-  RULE_SCOPE_LIST.forEach(function(key){
-    var parts = key.split("::");
-    var opt = document.createElement("option");
-    opt.value = key;
-    opt.textContent = PERSONAS[parts[0]].label + " · visit " + parts[1];
-    sel.appendChild(opt);
-  });
-  sel.value = state.persona + "::" + stageFor(state.persona);
-  sel.addEventListener("change", loadRuleTextarea);
-}
-function loadRuleTextarea(){
-  var sel = document.getElementById("ruleScopeSelect");
-  var parts = sel.value.split("::");
-  var data = rulesFor(parts[0], parts[1]);
-  document.getElementById("ruleTextarea").value = JSON.stringify(data, null, 2);
-  document.getElementById("ruleError").textContent = "";
+function renderBehaviorLog(){
+  var el = document.getElementById("behaviorLog");
+  var log = state.profile.session.log;
+  el.innerHTML = log.length
+    ? log.map(function(e){ return "<li>" + e.text + "</li>"; }).join("")
+    : '<li style="color:var(--text-muted)">No interactions yet — tap a filter chip, like a card, or buy a deal on the page.</li>';
 }
 
 function renderDrawerDynamic(){
-  renderPersonaGrid();
-  renderSignalList();
-  renderVisitRow();
+  renderAcctList();
+  renderSegBars();
+  renderSegGrid();
+  renderWeightSliders();
   renderTrace();
-  renderRuleScopeSelect();
-  var sel = document.getElementById("ruleScopeSelect");
-  var current = state.persona + "::" + stageFor(state.persona);
-  if([...sel.options].some(function(o){return o.value===current;})){
-    sel.value = current;
-  }
-  loadRuleTextarea();
+  renderBehaviorLog();
 }
+
+function render(){
+  renderPage();
+  renderDrawerDynamic();
+}
+
+/* ---------- chrome: toast, drawer, tabs, clock, search ---------- */
 
 function toast(msg){
   var t = document.getElementById("toast");
@@ -973,67 +1060,58 @@ function closeDrawer(){
   document.getElementById("drawer").hidden = true;
   document.getElementById("scrim").hidden = true;
 }
-
 document.getElementById("debugFab").addEventListener("click", openDrawer);
 document.getElementById("drawerClose").addEventListener("click", closeDrawer);
 document.getElementById("scrim").addEventListener("click", closeDrawer);
 
-document.getElementById("resetVisits").addEventListener("click", function(){
-  state.visits[state.persona] = 1;
-  saveState();
-  render();
-});
-
-document.getElementById("applyRules").addEventListener("click", function(){
-  var sel = document.getElementById("ruleScopeSelect");
-  var scopeKey = sel.value;
-  var parts = scopeKey.split("::");
-  var errEl = document.getElementById("ruleError");
-  try{
-    var parsed = JSON.parse(document.getElementById("ruleTextarea").value);
-    if(!parsed.hero || !parsed.modules) throw new Error("Expected an object with \"hero\" and \"modules\".");
-    if(!state.overrides[parts[0]]) state.overrides[parts[0]] = {};
-    state.overrides[parts[0]][parts[1]] = parsed;
-    saveState();
-    errEl.textContent = "";
-    toast("Rules updated — page re-rendered.");
-    render();
-    document.getElementById("ruleScopeSelect").value = scopeKey;
-    loadRuleTextarea();
-  }catch(e){
-    errEl.textContent = "Invalid JSON: " + e.message;
-  }
-});
-
-document.getElementById("revertRules").addEventListener("click", function(){
-  var sel = document.getElementById("ruleScopeSelect");
-  var scopeKey = sel.value;
-  var parts = scopeKey.split("::");
-  if(state.overrides[parts[0]]) delete state.overrides[parts[0]][parts[1]];
-  saveState();
-  render();
-  document.getElementById("ruleScopeSelect").value = scopeKey;
-  loadRuleTextarea();
-  toast("Reverted to default for this block.");
+document.getElementById("resetWeights").addEventListener("click", function(){
+  var seg = activeSegment();
+  if(!seg) return;
+  state.profile.weights[seg] = {};
+  SEGMENTS[seg].attrs.forEach(function(a){ state.profile.weights[seg][a.key] = 0; });
+  saveState(); render();
+  toast("Weights reset for " + SEGMENTS[seg].label + ".");
 });
 
 document.getElementById("resetAllDemo").addEventListener("click", function(){
-  state = {persona:"cold_start", visits:{}, overrides:{}, chipsPicked:[]};
+  state = {profile: freshProfile(), viewOverride:"auto"};
   saveState();
-  closeDrawer();
-  render();
+  document.getElementById("cityLabel").textContent = state.profile.account.city.split(",")[0];
+  closeDrawer(); render();
   toast("Demo reset.");
 });
 
 document.querySelectorAll(".tab").forEach(function(t){
   t.addEventListener("click", function(){
     if(t.getAttribute("data-tab") === "explore"){
-      document.querySelectorAll(".tab").forEach(function(x){x.classList.remove("active");});
+      document.querySelectorAll(".tab").forEach(function(x){ x.classList.remove("active"); });
       t.classList.add("active");
       return;
     }
     toast("This prototype covers the Explore homepage only (per the case-study scope).");
   });
+});
+
+document.getElementById("searchInput").addEventListener("keydown", function(e){
+  if(e.key !== "Enter") return;
+  var q = e.target.value.trim();
+  if(!q) return;
+  state.profile.session.searched = q;
+  var lower = q.toLowerCase();
+  var matched = null;
+  Object.keys(SEARCH_KEYWORDS).some(function(s){
+    if(SEARCH_KEYWORDS[s].some(function(k){ return lower.indexOf(k) > -1; })){ matched = s; return true; }
+    return false;
+  });
+  if(matched){
+    bumpEngagement(matched); bumpEngagement(matched);
+    logBehavior("🔎 Searched “" + q + "” → matched " + SEGMENTS[matched].label);
+    toast("Search matched " + SEGMENTS[matched].label + " — segment engagement updated.");
+  } else {
+    logBehavior("🔎 Searched “" + q + "” (no segment match)");
+  }
+  saveState();
+  render();
 });
 
 function tickClock(){
@@ -1045,6 +1123,7 @@ function tickClock(){
 tickClock();
 setInterval(tickClock, 15000);
 
+document.getElementById("cityLabel").textContent = state.profile.account.city.split(",")[0];
 render();
 })();
 </script>
