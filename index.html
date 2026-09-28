@@ -1020,21 +1020,30 @@ function wireLazyLoading(){
 function renderPage(){
   var seg = activeSegment();
   var html;
+  var tailHtml = "";
   pendingLazy = {};
+
+  var rvHtml = recentlyViewedModuleHtml();
 
   if(!seg){
     var ranked = rankColdStart();
     var rest = ranked.slice(1,15);
+    var restFirst = rest.slice(0,5), restTail = rest.slice(5);
     var personalized = {headline:"Your city, today's best deals", sub:"Handpicked top sellers, lightly tuned to what visitors like you tend to browse", photoId: ranked[0].photoId};
     var filler = {headline:"Citywide Favorites", sub:"Top-rated across every category this week", photoId: (ranked[8]||ranked[0]).photoId};
     var heroSlides = [personalized].concat(ranked.slice(1,5).map(dealHeroSlide)).concat([filler]);
     html = heroCarouselHtml(heroSlides, "Explore");
     html += soloModuleHtml("Trending in " + cityShort(state.profile.account.city), "Citywide, lightly tuned by your profile", ranked[0], null, 0);
     html += segmentPickerModuleHtml(1);
-    html += lazyWrap(skeletonSolo(1), smallRowModuleHtml("Popular this week", "", rest, 2));
+    html += lazyWrap(skeletonSolo(1), smallRowModuleHtml("Popular this week", "", restFirst, 2));
+    if(rvHtml) html += lazyWrap(skeletonSolo(1), rvHtml);
+    html += lazyWrap(skeletonSolo(1), giftsModuleHtml());
+    html += lazyWrap(skeletonSolo(1), highlyRatedModuleHtml());
+    if(restTail.length) tailHtml = lazyWrap(skeletonSolo(1), smallRowModuleHtml("Popular this week", "", restTail, 4));
   } else {
     var rankedSeg = rankSegment(seg);
     var more = rankedSeg.slice(1,11);
+    var moreFirst = more.slice(0,5), moreTail = more.slice(5);
     var phrase = topAttrPhrase(seg);
     var reason = phrase ? ("Because you lean toward " + phrase.toLowerCase()) : ("Because you've been exploring " + SEGMENTS[seg].label);
     var personalized2 = {headline:"Picked for you: " + SEGMENTS[seg].label, sub: reason, photoId: rankedSeg[0].photoId};
@@ -1043,15 +1052,16 @@ function renderPage(){
     var heroSlides2 = [personalized2].concat(rankedSeg.slice(1,5).map(dealHeroSlide)).concat([filler2]);
     html = heroCarouselHtml(heroSlides2, SEGMENTS[seg].label);
     html += soloModuleHtml("Trending in " + cityShort(state.profile.account.city), reason, rankedSeg[0], seg, 0);
-    html += lazyWrap(skeletonSolo(1), smallRowModuleHtml("More for you", "", more, 2));
+    html += lazyWrap(skeletonSolo(1), smallRowModuleHtml("More for you", "", moreFirst, 2));
+    if(rvHtml) html += lazyWrap(skeletonSolo(1), rvHtml);
+    html += lazyWrap(skeletonSolo(1), giftsModuleHtml());
     var discoverDeals = rankSegment(other).slice(0,8);
     html += lazyWrap(skeletonSolo(1), smallRowModuleHtml("Discover: " + SEGMENTS[other].label, "Something different, top-rated", discoverDeals, 3));
+    html += lazyWrap(skeletonSolo(1), highlyRatedModuleHtml());
+    if(moreTail.length) tailHtml = lazyWrap(skeletonSolo(1), smallRowModuleHtml("More for you", "", moreTail, 4));
   }
 
-  var rvHtml = recentlyViewedModuleHtml();
-  if(rvHtml) html += lazyWrap(skeletonSolo(1), rvHtml);
-  html += lazyWrap(skeletonSolo(1), giftsModuleHtml());
-  html += lazyWrap(skeletonSolo(1), highlyRatedModuleHtml());
+  html += tailHtml;
 
   document.getElementById("content").innerHTML = html;
   wirePageEvents();
