@@ -60,9 +60,10 @@ body{
   color:var(--text);
   display:flex;
   justify-content:center;
-  height:100vh;
-  height:100dvh;
-  overflow:hidden;
+  min-height:100vh;
+  min-height:100dvh;
+  overflow-y:auto;
+  overflow-x:hidden;
   position:relative;
 }
 img{max-width:100%;}
@@ -70,6 +71,8 @@ img{max-width:100%;}
   font-family:'Baloo 2', system-ui, sans-serif;
 }
 a{color:inherit;}
+.stage{display:flex;flex-direction:column;align-items:center;width:100%;gap:14px;}
+.stage-row{display:flex;justify-content:center;width:100%;}
 .desk-wrap{
   width:100%;
   max-width:430px;
@@ -91,6 +94,23 @@ a{color:inherit;}
     height:min(844px, calc(100dvh - 56px));
   }
 }
+.demo-controls{
+  width:100%;max-width:430px;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:14px 16px;box-shadow:var(--shadow);
+  display:flex;flex-direction:column;gap:12px;
+  font-family:'Work Sans', system-ui, sans-serif;
+}
+.demo-controls-title{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);}
+.demo-group{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.demo-label{font-size:12.5px;font-weight:700;color:var(--text);flex:none;width:60px;}
+.demo-btns{display:flex;gap:6px;flex-wrap:wrap;}
+.demo-btns button{
+  border:1px solid var(--border);background:var(--bg);color:var(--text);
+  padding:7px 13px;border-radius:999px;font-size:12.5px;font-weight:600;cursor:pointer;
+  font-family:inherit;
+}
+.demo-btns button.active{background:var(--navy);border-color:var(--navy);color:#fff;}
 .phone-shell{
   background:var(--bg);
   display:flex;
@@ -454,6 +474,9 @@ a{color:inherit;}
 </head>
 <body>
 
+<div class="stage">
+<div class="stage-row">
+
 <div class="desk-wrap">
 <div class="phone-shell">
 
@@ -583,6 +606,30 @@ a{color:inherit;}
 
     <p class="disclaimer">Prototype for a Groupon PM case study — not an official Groupon product. Weight values are illustrative starting points ("dummies"); real calibration would be learned from actual behavior.</p>
   </div>
+</div>
+
+</div>
+
+<div class="demo-controls">
+  <div class="demo-controls-title">Demo scenarios</div>
+  <div class="demo-group">
+    <span class="demo-label">Customer</span>
+    <div class="demo-btns" id="demoCustomerBtns">
+      <button data-scenario="new">New</button>
+      <button data-scenario="searched">Searched</button>
+      <button data-scenario="redeemed">Redeemed</button>
+    </div>
+  </div>
+  <div class="demo-group">
+    <span class="demo-label">Visit</span>
+    <div class="demo-btns" id="demoVisitBtns">
+      <button data-visit="1">1st</button>
+      <button data-visit="2">2nd</button>
+      <button data-visit="3">3rd</button>
+    </div>
+  </div>
+</div>
+
 </div>
 
 <script>
@@ -1324,7 +1371,99 @@ document.getElementById("resetAllDemo").addEventListener("click", function(){
   saveState();
   document.getElementById("cityLabel").textContent = cityShort(state.profile.account.city);
   render();
+  document.querySelectorAll(".demo-btns button").forEach(function(b){ b.classList.remove("active"); });
   toast("Demo reset.");
+});
+
+/* ---------- demo scenario controls (customer archetypes + repeat visits) ---------- */
+
+function scriptedView(id, strength){
+  var d = DEALS_BY_ID[id];
+  markViewed(id);
+  applyEvidence(d, strength);
+  bumpEngagement(d.segment);
+  logBehavior("👀 Viewed <b>"+d.title+"</b>");
+}
+function scriptedLike(id){
+  var d = DEALS_BY_ID[id];
+  state.profile.session.saved.push(id);
+  markViewed(id);
+  applyEvidence(d, LIKE_STRENGTH);
+  bumpEngagement(d.segment);
+  logBehavior("❤️ Liked <b>"+d.title+"</b>");
+}
+function scriptedBuy(id){
+  var d = DEALS_BY_ID[id];
+  markViewed(id);
+  applyEvidence(d, BUY_STRENGTH);
+  bumpEngagement(d.segment);
+  state.profile.session.purchases.push(id);
+  logBehavior("🛒 Bought <b>"+d.title+"</b>");
+}
+function scriptedSearch(seg, query){
+  state.profile.session.searched = query;
+  bumpEngagement(seg); bumpEngagement(seg);
+  logBehavior("🔎 Searched “"+query+"” → matched " + SEGMENTS[seg].label);
+}
+
+var CUSTOMER_SCENARIOS = {
+  "new": function(){
+    /* fresh profile, no signals at all — the customer we know nothing about */
+  },
+  "searched": function(){
+    scriptedSearch("wellness", "spa day");
+  },
+  "redeemed": function(){
+    scriptedSearch("wellness", "spa day");
+    scriptedView("swedish_massage", VIEW_STRENGTH);
+    scriptedLike("hot_stone");
+    scriptedBuy("spa_day");
+  }
+};
+
+function applyCustomerScenario(kind){
+  state = {profile: freshProfile(), viewOverride:"auto"};
+  if(CUSTOMER_SCENARIOS[kind]) CUSTOMER_SCENARIOS[kind]();
+  saveState();
+  document.getElementById("cityLabel").textContent = cityShort(state.profile.account.city);
+  render();
+  setActiveDemoBtn("demoCustomerBtns", "data-scenario", kind);
+  toast("Loaded a “" + kind + "” customer.");
+}
+
+var VISIT_STEPS = [
+  function(){ scriptedView("kayak_tour", VIEW_STRENGTH); },
+  function(){ scriptedView("rock_climbing", VIEW_STRENGTH); scriptedLike("kayak_tour"); },
+  function(){ scriptedBuy("zipline"); }
+];
+
+function applyVisitScenario(n){
+  state = {profile: freshProfile(), viewOverride:"auto"};
+  for(var i=0; i<n && i<VISIT_STEPS.length; i++){ VISIT_STEPS[i](); }
+  saveState();
+  document.getElementById("cityLabel").textContent = cityShort(state.profile.account.city);
+  render();
+  setActiveDemoBtn("demoVisitBtns", "data-visit", String(n));
+  toast("Simulated visit " + n + " for a returning Adventure Seeker.");
+}
+
+function setActiveDemoBtn(groupId, attr, value){
+  var otherGroupId = groupId === "demoCustomerBtns" ? "demoVisitBtns" : "demoCustomerBtns";
+  document.querySelectorAll("#"+otherGroupId+" button").forEach(function(b){ b.classList.remove("active"); });
+  document.querySelectorAll("#"+groupId+" button").forEach(function(b){
+    b.classList.toggle("active", b.getAttribute(attr) === value);
+  });
+}
+
+document.getElementById("demoCustomerBtns").addEventListener("click", function(e){
+  var b = e.target.closest("[data-scenario]");
+  if(!b) return;
+  applyCustomerScenario(b.getAttribute("data-scenario"));
+});
+document.getElementById("demoVisitBtns").addEventListener("click", function(e){
+  var b = e.target.closest("[data-visit]");
+  if(!b) return;
+  applyVisitScenario(parseInt(b.getAttribute("data-visit"), 10));
 });
 
 document.querySelectorAll(".tab").forEach(function(t){
