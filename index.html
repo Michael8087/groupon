@@ -372,6 +372,23 @@ a{color:inherit;}
   padding:9px 14px;border-radius:14px;z-index:40;text-align:center;
 }
 [hidden]{display:none!important;}
+@keyframes shimmer{0%{background-position:-300px 0;}100%{background-position:300px 0;}}
+.skel{
+  background:linear-gradient(90deg, var(--border) 25%, var(--surface) 37%, var(--border) 63%);
+  background-size:300px 100%;
+  animation:shimmer 1.3s ease-in-out infinite;
+  border-radius:8px;
+}
+.skel-title{width:150px;height:17px;margin:0 14px;}
+.skel-photo{width:100%;height:190px;border-radius:var(--radius);}
+.skel-line{height:13px;border-radius:6px;}
+.skel-row{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+.skel-row:last-child{border-bottom:none;}
+.skel-row .skel{flex:none;}
+.skel-row .skel-thumb{width:88px;height:88px;border-radius:10px;}
+.skel-row .skel-lines{flex:1;display:flex;flex-direction:column;gap:8px;justify-content:center;}
+@keyframes fadein{from{opacity:0;}to{opacity:1;}}
+.fade-in{animation:fadein .4s ease;}
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Work+Sans:wght@400;500;600;700&display=swap">
 </head>
@@ -857,9 +874,60 @@ function segmentPickerModuleHtml(idx){
     + '<div class="chip-picker">'+chipsHtml+'</div></div>';
 }
 
+/* ---------- lazy loading (skeleton -> real content on scroll) ---------- */
+
+var pendingLazy = {};
+var lazyIdCounter = 0;
+
+function skeletonSolo(repeat){
+  var block = '<div class="solo-wrap"><div class="skel skel-photo"></div>'
+    + '<div class="skel skel-line" style="width:65%;margin:10px 14px 0;"></div>'
+    + '<div class="skel skel-line" style="width:35%;margin:8px 14px 0;"></div></div>';
+  var blocks = "";
+  for(var i=0;i<(repeat||1);i++){ blocks += block; }
+  return '<div class="module"><div class="module-head"><div><h2 class="skel skel-title">&nbsp;</h2></div></div>' + blocks + '</div>';
+}
+function skeletonList(n){
+  var row = '<div class="skel-row"><div class="skel skel-thumb"></div><div class="skel-lines">'
+    + '<div class="skel skel-line" style="width:35%;"></div>'
+    + '<div class="skel skel-line" style="width:85%;"></div>'
+    + '<div class="skel skel-line" style="width:25%;"></div></div></div>';
+  var rows = "";
+  for(var i=0;i<n;i++){ rows += row; }
+  return '<div class="module"><div class="module-head"><div><h2 class="skel skel-title">&nbsp;</h2></div></div><div class="list-col">'+rows+'</div></div>';
+}
+function lazyWrap(skeletonHtml, realHtml){
+  var id = "lz" + (lazyIdCounter++);
+  pendingLazy[id] = realHtml;
+  return '<div class="lazy-slot" data-lazy-id="'+id+'">' + skeletonHtml + '</div>';
+}
+function wireLazyLoading(){
+  var slots = document.querySelectorAll(".lazy-slot[data-lazy-id]");
+  if(!slots.length) return;
+  var contentEl = document.querySelector(".content");
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(!entry.isIntersecting) return;
+      var el = entry.target;
+      io.unobserve(el);
+      var id = el.getAttribute("data-lazy-id");
+      setTimeout(function(){
+        var realHtml = pendingLazy[id];
+        if(realHtml === undefined) return;
+        el.innerHTML = realHtml;
+        el.classList.add("fade-in");
+        delete pendingLazy[id];
+        wirePageEvents(el);
+      }, 450 + Math.random()*350);
+    });
+  }, {root: contentEl, rootMargin: "120px 0px 120px 0px", threshold: 0.01});
+  slots.forEach(function(el){ io.observe(el); });
+}
+
 function renderPage(){
   var seg = activeSegment();
   var html;
+  pendingLazy = {};
 
   if(!seg){
     var ranked = rankColdStart();
@@ -869,7 +937,7 @@ function renderPage(){
     html = heroCarouselHtml(personalized, filler, "Explore");
     html += soloModuleHtml("Trending near you", "Citywide, lightly tuned by your profile", ranked[0], null, 0);
     html += segmentPickerModuleHtml(1);
-    html += smallRowModuleHtml("Popular this week", "", rest, 2);
+    html += lazyWrap(skeletonList(Math.min(rest.length,6)), smallRowModuleHtml("Popular this week", "", rest, 2));
   } else {
     var rankedSeg = rankSegment(seg);
     var more = rankedSeg.slice(1,11);
@@ -881,16 +949,19 @@ function renderPage(){
     html = heroCarouselHtml(personalized2, filler2, SEGMENTS[seg].label);
     html += soloModuleHtml("Top picks for you", reason, rankedSeg[0], seg, 0);
     html += filterChipsModuleHtml(seg, 1);
-    html += smallRowModuleHtml("More for you", "", more, 2);
-    html += smallRowModuleHtml("Discover: " + SEGMENTS[other].label, "Something different, top-rated", rankSegment(other).slice(0,8), 3);
+    html += lazyWrap(skeletonList(Math.min(more.length,6)), smallRowModuleHtml("More for you", "", more, 2));
+    var discoverDeals = rankSegment(other).slice(0,8);
+    html += lazyWrap(skeletonList(Math.min(discoverDeals.length,6)), smallRowModuleHtml("Discover: " + SEGMENTS[other].label, "Something different, top-rated", discoverDeals, 3));
   }
 
-  html += recentlyViewedModuleHtml();
-  html += giftsModuleHtml();
-  html += highlyRatedModuleHtml();
+  var rvHtml = recentlyViewedModuleHtml();
+  if(rvHtml) html += lazyWrap(skeletonList(3), rvHtml);
+  html += lazyWrap(skeletonSolo(2), giftsModuleHtml());
+  html += lazyWrap(skeletonList(6), highlyRatedModuleHtml());
 
   document.getElementById("content").innerHTML = html;
   wirePageEvents();
+  wireLazyLoading();
 }
 
 function syncDots(car, dotsEl){
@@ -902,15 +973,16 @@ function syncDots(car, dotsEl){
   for(var i=0;i<dots.length;i++){ dots[i].classList.toggle("on", i===idx); }
 }
 
-function wirePageEvents(){
-  document.querySelectorAll("[data-carousel]").forEach(function(car){
+function wirePageEvents(root){
+  root = root || document;
+  root.querySelectorAll("[data-carousel]").forEach(function(car){
     var key = car.getAttribute("data-carousel");
     var dotsEl = document.querySelector('[data-dots="'+key+'"]');
     if(!dotsEl) return;
     car.addEventListener("scroll", function(){ syncDots(car, dotsEl); }, {passive:true});
   });
 
-  document.querySelectorAll("[data-view]").forEach(function(el){
+  root.querySelectorAll("[data-view]").forEach(function(el){
     el.addEventListener("click", function(){
       var id = el.getAttribute("data-view");
       var d = DEALS_BY_ID[id];
@@ -924,14 +996,14 @@ function wirePageEvents(){
     });
   });
 
-  document.querySelectorAll("[data-nolink]").forEach(function(el){
+  root.querySelectorAll("[data-nolink]").forEach(function(el){
     el.addEventListener("click", function(e){
       e.preventDefault();
       toast("This prototype covers the Explore homepage only (per the case-study scope).");
     });
   });
 
-  document.querySelectorAll("[data-heart]").forEach(function(b){
+  root.querySelectorAll("[data-heart]").forEach(function(b){
     var id = b.getAttribute("data-heart");
     b.addEventListener("click", function(e){
       e.stopPropagation();
@@ -955,7 +1027,7 @@ function wirePageEvents(){
     });
   });
 
-  document.querySelectorAll("[data-buy]").forEach(function(b){
+  root.querySelectorAll("[data-buy]").forEach(function(b){
     b.addEventListener("click", function(e){
       e.stopPropagation();
       var id = b.getAttribute("data-buy");
@@ -971,14 +1043,14 @@ function wirePageEvents(){
     });
   });
 
-  document.querySelectorAll("[data-why]").forEach(function(b){
+  root.querySelectorAll("[data-why]").forEach(function(b){
     b.addEventListener("click", function(){
       var note = document.getElementById("why-"+b.getAttribute("data-why"));
       note.hidden = !note.hidden;
     });
   });
 
-  document.querySelectorAll("[data-filterchip]").forEach(function(b){
+  root.querySelectorAll("[data-filterchip]").forEach(function(b){
     b.addEventListener("click", function(){
       var key = b.getAttribute("data-filterchip"), seg = b.getAttribute("data-seg");
       if(!state.profile.chipFilters[seg]) state.profile.chipFilters[seg] = [];
@@ -995,7 +1067,7 @@ function wirePageEvents(){
     });
   });
 
-  document.querySelectorAll("[data-segpick]").forEach(function(b){
+  root.querySelectorAll("[data-segpick]").forEach(function(b){
     b.addEventListener("click", function(){
       var seg = b.getAttribute("data-segpick");
       bumpEngagement(seg); bumpEngagement(seg);
