@@ -362,6 +362,66 @@ a{color:inherit;}
   width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;
 }
 /* floating map button */
+.nlp-chip{
+  flex:none;border:none;border-radius:999px;cursor:pointer;color:#fff;font-family:inherit;
+  background:linear-gradient(90deg,#7b3fb0,#4a6be0);font-size:11.5px;font-weight:700;
+  padding:6px 10px;display:flex;align-items:center;gap:5px;white-space:nowrap;
+}
+.nlp-chip i{font-style:normal;font-size:8.5px;background:rgba(255,255,255,.28);border-radius:4px;padding:1px 4px;letter-spacing:.06em;}
+.nlp-chip.off{background:none;color:#7b3fb0;box-shadow:inset 0 0 0 1.5px #7b3fb0;}
+.nlp-chip.off i{background:rgba(123,63,176,.15);}
+/* search view (opens from the search bar) */
+.search-view{
+  position:absolute;left:0;right:0;bottom:0;top:var(--dd-top,0px);
+  background:var(--surface);z-index:53;display:flex;flex-direction:column;
+  transform:translateY(100%);visibility:hidden;
+  transition:transform .3s ease, visibility 0s .3s;
+}
+.search-view.open{transform:none;visibility:visible;transition:transform .3s ease;}
+.sv-top{display:flex;gap:10px;align-items:flex-start;padding:10px 14px 8px;}
+.sv-top .dd-round{margin-top:2px;flex:none;}
+.sv-field{
+  flex:1;min-width:0;display:flex;align-items:center;gap:8px;border:1.5px solid var(--border);
+  border-radius:999px;padding:0 8px 0 14px;min-height:46px;color:var(--text-muted);
+}
+.sv-field:focus-within{border-color:#7b3fb0;}
+.sv-field textarea{
+  flex:1;min-width:0;border:none;outline:none;resize:none;background:none;font-family:inherit;font-size:16px;
+  color:var(--text);height:24px;padding:0;line-height:24px;overflow:hidden;
+}
+.sv-field.nlp{border-radius:20px;flex-wrap:wrap;align-items:flex-start;padding:12px 10px 10px 14px;}
+.sv-field.nlp svg{margin-top:2px;}
+.sv-field.nlp textarea{height:78px;line-height:1.35;flex:1 1 calc(100% - 30px);}
+.sv-field.nlp .nlp-chip{margin-left:auto;}
+.sv-loc{
+  margin:2px 14px 4px;background:var(--tint);border-radius:14px;padding:12px 14px;
+  display:flex;justify-content:space-between;align-items:center;font-size:15px;color:var(--text);
+}
+.sv-loc u{color:var(--text-muted);cursor:pointer;font-size:14px;}
+.sv-body{flex:1;overflow-y:auto;padding:4px 14px 12px;}
+.sv-label{color:var(--text-muted);font-size:14px;margin:12px 0 6px;}
+.sv-chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 2px;}
+.sv-chip{font-size:12px;font-weight:600;background:rgba(123,63,176,.12);color:#7b3fb0;border-radius:999px;padding:4px 10px;}
+.sv-example{font-size:13px;border:1px solid var(--border);border-radius:999px;padding:6px 12px;cursor:pointer;background:var(--surface);color:var(--text);font-family:inherit;text-align:left;}
+.sv-empty{color:var(--text-muted);font-size:14px;padding:18px 0;}
+.sv-row{display:flex;gap:12px;padding:9px 0;cursor:pointer;}
+.sv-row .th{width:98px;height:88px;border-radius:12px;flex:none;}
+.sv-row .info{min-width:0;display:flex;flex-direction:column;gap:2px;}
+.sv-row .t{font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sv-row .m{font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sv-row .rr{font-size:12px;color:var(--text-muted);display:flex;align-items:center;gap:5px;}
+.sv-row .rr b{color:var(--text);}
+.sv-row .p1{display:flex;align-items:baseline;gap:6px;}
+.sv-row .p1 s{font-size:12px;color:var(--text-muted);}
+.sv-row .p1 b{font-family:'Baloo 2', system-ui, sans-serif;font-size:15px;color:var(--green);}
+.sv-row .p1 em{font-style:normal;font-size:10.5px;font-weight:700;background:var(--green-light);color:var(--green);padding:1px 6px;border-radius:5px;}
+.sv-row .p2{font-size:11.5px;color:#7b3fb0;}
+.sv-row .p2 b{font-family:'Baloo 2', system-ui, sans-serif;font-size:15px;}
+.sv-foot{padding:10px 14px 14px;border-top:1px solid var(--border);}
+.sv-go{
+  width:100%;height:50px;border:none;border-radius:999px;background:var(--green);color:#fff;font-size:16px;font-weight:600;
+  display:flex;align-items:center;justify-content:center;gap:9px;cursor:pointer;font-family:inherit;
+}
 .promo-bar{
   position:absolute;left:0;right:0;bottom:58px;z-index:52;
   background:linear-gradient(90deg, #5b2a86 0%, #1d3a6e 100%);color:#fff;
@@ -682,7 +742,8 @@ a{color:inherit;}
     </div>
     <div class="search-bar">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-      <input type="text" placeholder="Search sushi, spa, Bali…" id="searchInput">
+      <input type="text" placeholder="Search sushi, spa, trips…" id="searchInput" readonly>
+      <button class="nlp-chip" id="nlpChip" aria-label="Just ask, beta">✨ Just ask <i>BETA</i></button>
     </div>
   </header>
 
@@ -730,6 +791,7 @@ a{color:inherit;}
 
   <div id="toast" class="toast" hidden></div>
 
+  <div class="search-view" id="searchView"></div>
   <div class="set-page" id="setPage"></div>
   <div class="deal-detail" id="dealDetail"></div>
   <div class="replay-shield" id="replayShield" hidden></div>
@@ -908,7 +970,7 @@ var SEGMENTS = {
     tokens:["destination","destination_type","trip_type","accommodation_type","star_rating","board_type","season","family_friendly","couples_friendly","flight_included","spa_or_pool","cancellation_flexibility"]
   },
   wellness:{
-    label:"Beauty & Wellness Seekers", cat:"Beauty & Wellness", icon:"💆", flair:"💅 For you beauty lovers",
+    label:"Beauty & Wellness Seekers", cat:"Beauty & Wellness", icon:"💆", flair:"😉 For those who love beauty",
     dims:[
       priceDim(),
       {key:"intensity", src:"treatment_type", lowLabel:"Pampering", highLabel:"Active", value:function(d){ var v = INTENSITY[d.f.treatment_type]; return v===undefined ? null : v; }},
@@ -972,6 +1034,7 @@ var SEARCH_LEXICON = [
   {words:["tea"], cat:"food", tokens:["meal_type=afternoon_tea"]},
   {words:["dessert","cake","cookies","pastry"], cat:"food", tokens:["meal_type=dessert"]},
   {words:["dinner","lunch","restaurant","food","eat"], cat:"food", tokens:[]},
+  {words:["romantic","anniversary","date night","honeymoon"], cat:null, tokens:["occasion=date","trip_type=romantic","couples_friendly=yes"]},
   {words:["gift","present","mom","mother","mum","birthday","dárek","darek","maminka","maminku","mámu","mamku"], cat:null, tokens:[], gift:true}
 ];
 
@@ -1324,6 +1387,8 @@ function explainDeal(d){
       if(d.tok.tokens.indexOf(t) > -1) add("intent", "search → " + tokFeat(t), tokVal(t), "current intent", MODEL.intentToken, "🔎 " + tokVal(t));
     });
     if(it.gift && d.giftable) add("intent", "search → gift", "giftable", "current intent", MODEL.giftIntent, "🎁 Gift idea");
+    if(it.budget && px.effective > it.budget) add("intent", "search → budget", "over " + money(it.budget), "current intent", -1.2, null);
+    if(it.people === 2 && (d.f.couples_friendly === true || d.f.group_size === 2)) add("intent", "search → for two", "couples / 2 people", "current intent", 0.4, "👫 For two");
   }
 
   var r = PRICE_RANGE[c];
@@ -1493,18 +1558,65 @@ function parseQuery(q){
   Object.keys(votes).forEach(function(c){ if(!out.category || votes[c] > votes[out.category]) out.category = c; });
   return out;
 }
+// "Just ask" (beta): rule-based reading of a whole sentence: the usual keywords plus a budget and a party size.
+// Production would use an LLM to fill the same structure; the ranking model only sees this structure.
+function parseNLP(q){
+  var it = parseQuery(q), lower = q.toLowerCase(), m;
+  it.nlp = true;
+  m = /(?:under|below|less than|max(?:imum)?|up to|within|<)\s*\$?\s*(\d{2,4})/.exec(lower) || /\$\s*(\d{2,4})/.exec(lower);
+  if(m) it.budget = parseInt(m[1], 10);
+  if(/\b(for two|for 2|two of us|couple|couples|date night)\b/.test(lower)) it.people = 2;
+  else if((m = /\bfor (\d+)\b/.exec(lower))) it.people = parseInt(m[1], 10);
+  return it;
+}
+var STOP_WORDS = "the and for with under near some want looking something good best nice that this are you can please find get need have cheap below than less into from mom two one three four".split(" ");
+function tokChip(t){
+  var f = tokFeat(t);
+  if(f==="couples_friendly") return "Couples-friendly";
+  if(f==="family_friendly") return "Family";
+  return upFirst(tokVal(t));
+}
+function understoodChips(it){
+  var out = [];
+  function add(x){ if(out.indexOf(x) < 0) out.push(x); }
+  if(it.category) add(SEGMENTS[it.category].cat);
+  it.tokens.forEach(function(t){ add(tokChip(t)); });
+  if(it.gift) add("Gift");
+  if(it.budget) add("Under " + money(it.budget));
+  if(it.people) add("For " + it.people);
+  return out;
+}
+// deals that answer the search (main) and the rest of the matched category (more), best score first
+function searchMatches(q, it){
+  var words = q.toLowerCase().split(/[^a-z0-9]+/).filter(function(w){ return w.length >= 3 && STOP_WORDS.indexOf(w) < 0 && !/^\d+$/.test(w); });
+  var rows = getRanking().rows.filter(function(r){ return !it.budget || r.px.effective <= it.budget; });
+  var main = [], more = [];
+  rows.forEach(function(r){
+    var d = r.d, text = (d.title + " " + d.merchant + " " + d.subcategory + " " + d.addr).toLowerCase();
+    var tok = it.tokens.some(function(t){ return d.tok.tokens.indexOf(t) > -1; });
+    var txt = words.some(function(w){ return text.indexOf(w) > -1; });
+    var cat = !!it.category && d.category === it.category;
+    var gift = it.gift && d.giftable && (!it.category || cat);
+    if(it.category && !cat) return;                       // a recognised category keeps the results inside it
+    if(tok || txt || gift || (cat && !it.tokens.length)) main.push(r);
+    else if(cat) more.push(r);
+  });
+  return {main:main, more:more};
+}
 function describeIntent(it){
   if(!it) return "none";
   var parts = [];
   if(it.category) parts.push(SEGMENTS[it.category].cat);
   it.tokens.forEach(function(t){ parts.push(prettyTok(t)); });
   if(it.gift) parts.push("gift (one-off)");
+  if(it.budget) parts.push("≤ $" + it.budget);
+  if(it.people) parts.push("for " + it.people);
   return "“" + esc(it.query) + "” → " + (parts.length ? parts.join(", ") : "no match in catalog");
 }
 
-function actSearch(q){
+function actSearch(q, nlp){
   recordEvent("🔎", "", function(){
-    var p = state.profile, it = parseQuery(q), note = "";
+    var p = state.profile, it = nlp ? parseNLP(q) : parseQuery(q), note = "";
     p.visit.intent = it;
     p.visit.searches.push(q);
     // the same (non-gift) need searched in an earlier visit becomes a long-term preference
@@ -1523,7 +1635,7 @@ function actSearch(q){
       note = "Current intent for this visit only (expires at visit end unless repeated).";
     }
     p.searchHistory.push({q:q, visit:p.visit.n, day:p.visit.day, category:it.category, tokens:it.tokens, gift:it.gift});
-    return {text:"Searched " + describeIntent(it), note:note};
+    return {text:(nlp ? "Asked (Just ask) " : "Searched ") + describeIntent(it), note:note};
   });
 }
 function actView(d){
@@ -2393,6 +2505,96 @@ function viewDeal(d){
   openDetail(d.id);
 }
 
+/* ---------- search view: opens from the search bar; "Just ask" (beta) = natural-language search ---------- */
+
+var sv = {open:false, nlp:false, mode:"type", q:""};
+var NLP_EXAMPLES = ["Romantic dinner for two under $80", "Relaxing spa day, gift for my mom", "Weekend trip for two under $400", "Japanese food near me"];
+function svRowHtml(r){
+  var d = r.d, px = r.px;
+  return '<div class="sv-row" data-sv-view="'+d.id+'"><div class="th" style="background:'+photoStyle(d.photoId, 300, 260)+';"></div><div class="info">'
+    + '<span class="t">'+esc(d.title)+'</span><span class="m">'+esc(d.merchant)+'</span>'
+    + '<span class="rr">'+starBar(d.rating)+' <b>'+d.rating.toFixed(1)+'</b> ('+reviewsLabel(d.review_count)+')</span>'
+    + '<span class="p1"><s>$'+d.regular_price+'</s><b>$'+d.deal_price+'</b><em>'+off(d)+'% Off</em></span>'
+    + (px.promo ? '<span class="p2"><b>'+money(px.effective)+'</b> with promo, Limited time</span>' : '')
+    + '</div></div>';
+}
+function svChipsHtml(it){
+  var chips = understoodChips(it);
+  return chips.length ? '<div class="sv-chips">'+chips.map(function(c){ return '<span class="sv-chip">'+esc(c)+'</span>'; }).join("")+'</div>' : "";
+}
+function svRender(){
+  if(!sv.open) return;
+  var input = document.getElementById("svInput"), body = document.getElementById("svBody"), q = input.value.trim();
+  document.getElementById("svFoot").hidden = sv.mode === "results";
+  var h = "";
+  if(sv.mode === "results"){
+    var it = state.profile.visit.intent, m = searchMatches(sv.q, it);
+    h += (sv.nlp ? svChipsHtml(it) : "");
+    h += '<div class="sv-label">'+m.main.length+(m.main.length===1 ? " result" : " results")+' for “'+esc(sv.q)+'”</div>';
+    h += m.main.map(svRowHtml).join("");
+    if(m.more.length) h += '<div class="sv-label">More in '+esc(SEGMENTS[it.category].cat)+'</div>' + m.more.slice(0, 6).map(svRowHtml).join("");
+    if(!m.main.length && !m.more.length) h += '<div class="sv-empty">No matches'+(it.budget ? " under "+money(it.budget) : "")+'. Try “massage”, “sushi” or “weekend trip”.</div>';
+  } else if(q.length >= 2){
+    var it2 = sv.nlp ? parseNLP(q) : parseQuery(q), m2 = searchMatches(q, it2);
+    h += (sv.nlp ? svChipsHtml(it2) : "");
+    h += '<div class="sv-label">Top matches</div>' + (m2.main.length ? m2.main.slice(0, 6).map(svRowHtml).join("") : '<div class="sv-empty">No matches yet. Keep typing.</div>');
+  } else {
+    if(sv.nlp) h += '<div class="sv-label">Try asking</div><div class="sv-chips">'+NLP_EXAMPLES.map(function(x){ return '<button class="sv-example">'+esc(x)+'</button>'; }).join("")+'</div>';
+    var ids = state.profile.recentlyViewed;
+    if(ids.length) h += '<div class="sv-label">Last viewed deals</div>' + ids.map(function(id){ return DEALS_BY_ID[id]; }).filter(Boolean).map(function(d){ return svRowHtml(rowFor(d)); }).join("");
+  }
+  body.innerHTML = h;
+  body.querySelectorAll("[data-sv-view]").forEach(function(row){
+    row.addEventListener("click", function(){ viewDeal(DEALS_BY_ID[row.getAttribute("data-sv-view")]); });
+  });
+  body.querySelectorAll(".sv-example").forEach(function(b){
+    b.addEventListener("click", function(){ input.value = b.textContent; sv.mode = "type"; svRender(); });
+  });
+}
+function svApplyMode(){
+  var field = document.getElementById("svField"), input = document.getElementById("svInput");
+  field.classList.toggle("nlp", sv.nlp);
+  document.getElementById("svNlp").classList.toggle("off", !sv.nlp);
+  input.placeholder = sv.nlp ? "Tell us what you're after, e.g. romantic dinner for two under $80" : "Search Groupon";
+}
+function svSubmit(){
+  var input = document.getElementById("svInput"), q = input.value.trim();
+  if(!q){ input.focus(); return; }
+  runSearch(q, true, sv.nlp);
+  sv.q = q; sv.mode = "results";
+  document.getElementById("searchInput").value = q;
+  svRender();
+}
+function openSearchView(nlp){
+  var el = document.getElementById("searchView");
+  sv.open = true; sv.nlp = !!nlp; sv.mode = "type"; sv.q = "";
+  el.style.setProperty("--dd-top", document.querySelector(".statusbar").offsetHeight + "px");
+  el.innerHTML = '<div class="sv-top"><button class="dd-round" id="svBack" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>'
+    + '<div class="sv-field" id="svField"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2" style="flex:none"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><textarea id="svInput" rows="1" spellcheck="false"></textarea>'
+    + '<button class="nlp-chip" id="svNlp" aria-label="Just ask, beta">✨ Just ask <i>BETA</i></button></div></div>'
+    + '<div class="sv-loc"><span>📍 '+esc(cityShort(state.profile.account.city))+'</span><u id="svLoc">Change location</u></div>'
+    + '<div class="sv-body" id="svBody"></div>'
+    + '<div class="sv-foot" id="svFoot"><button class="sv-go" id="svGo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg> Show all results</button></div>';
+  var input = el.querySelector("#svInput");
+  el.querySelector("#svBack").addEventListener("click", closeSearchView);
+  el.querySelector("#svGo").addEventListener("click", svSubmit);
+  el.querySelector("#svLoc").addEventListener("click", openLocationModal);
+  el.querySelector("#svNlp").addEventListener("click", function(){ sv.nlp = !sv.nlp; sv.mode = "type"; svApplyMode(); svRender(); input.focus(); });
+  input.addEventListener("input", function(){ sv.mode = "type"; svRender(); });
+  input.addEventListener("keydown", function(e){ if(e.key === "Enter"){ e.preventDefault(); svSubmit(); } });
+  svApplyMode();
+  svRender();
+  void el.offsetWidth;
+  el.classList.add("open");
+  if(!replay.running) setTimeout(function(){ input.focus(); }, 60);
+}
+function closeSearchView(){
+  sv.open = false;
+  document.getElementById("searchView").classList.remove("open");
+}
+document.getElementById("searchInput").addEventListener("click", function(){ openSearchView(false); });
+document.getElementById("nlpChip").addEventListener("click", function(e){ e.stopPropagation(); openSearchView(true); });
+
 /* ---------- promo bar (the RELAX campaign, closable) ---------- */
 
 var promoBarClosed = false;
@@ -2419,38 +2621,69 @@ function setRows(k){
   if(k.kind==="tok") rows = rows.filter(function(r){ return r.d.tok.tokens.indexOf(k.val) > -1; });
   return rows;
 }
+function svgChevronR(){ return '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>'; }
+function dealCountText(n, pers){ return n + (n===1 ? " deal" : " deals") + (pers ? ", ranked for you" : ", popular near you"); }
+// broad tile (a whole category): sections per sub-category, each a horizontal row of deals
+// narrow tile (a sub-category or a learned/searched feature): one simple vertical list of deals
+function setBodyHtml(k, label, rows, pers){
+  if(k.kind !== "cat"){
+    return '<div class="module" id="spSection"><div class="module-head"><div><h2>'+esc(label)+' deals</h2><div class="sub">'+dealCountText(rows.length, pers)+'</div></div></div>'
+      + rows.map(function(r){ return '<div class="solo-wrap" style="margin-bottom:12px;">'+bigCardHtml(r, {extraClass:"solo", tag:cardTag(r)})+'</div>'; }).join("")
+      + '</div>';
+  }
+  var groups = {};
+  rows.forEach(function(r){ (groups[r.d.subcategory] = groups[r.d.subcategory] || []).push(r); });
+  var list = Object.keys(groups).map(function(name){
+    var sum = 0;
+    groups[name].slice(0, 3).forEach(function(r){ sum += r.score; });
+    return {name:name, rows:groups[name], score:sum};
+  }).sort(function(a, b){ return b.score - a.score; });
+  function section(title, items, key, first){
+    return '<div class="module"'+(first ? ' id="spSection"' : '')+'>'
+      + '<div class="module-head"'+(key ? ' data-set="'+esc(key)+'" style="cursor:pointer"' : '')+'><div><h2>'+esc(title)+'</h2><div class="sub">'+items.length+(items.length===1 ? " deal" : " deals")+'</div></div>'+(key ? svgChevronR() : '')+'</div>'
+      + '<div class="big-carousel" data-carousel="sp-'+esc(title)+'">'+items.map(function(r){ return bigCardHtml(r, {tag:cardTag(r)}); }).join("")+'</div></div>';
+  }
+  return section(pers ? "Top picks for you" : "Popular picks", rows.slice(0, 6), null, true)
+    + list.map(function(g){ return section(g.name, g.rows, "sub|"+k.cat+"|"+g.name, false); }).join("");
+}
 function setPageHtml(key){
   var k = parseSetKey(key), label = setLabel(k), rows = setRows(k), pers = isPersonalized();
   var it = state.profile.visit.intent;
   var sub = k.kind==="tok" && it && it.tokens.indexOf(k.val) > -1 ? "Deals matching “" + it.query + "”"
     : k.kind==="tok" ? "Because you like this"
+    : k.kind==="cat" ? "Explore everything in " + label
     : "The best of " + label + ", for less.";
-  var cards = rows.map(function(r){ return bigCardHtml(r, {tag:cardTag(r)}); }).join("");
   return '<div class="sp-top"><button class="dd-round" id="spBack" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>'
     + '<div class="sp-search"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><span>Search '+esc(label)+'</span><u>'+esc(cityShort(state.profile.account.city))+'</u></div></div>'
     + '<div class="sp-banner" style="background:'+photoStyle(rows[0].d.photoId, 900, 600)+';"><div class="sp-scrim"></div><div class="txt">'
     +   '<h1>'+esc(label)+'</h1><p>'+esc(sub)+'</p><button class="sp-find" id="spFind">Find deals →</button></div></div>'
     + '<h2 class="sp-title">'+esc(label)+'</h2>'
-    + '<div class="module" id="spSection"><div class="module-head"><div><h2>'+esc(label)+' deals</h2>'
-    +   '<div class="sub">'+rows.length+(rows.length===1 ? ' deal' : ' deals')+(pers ? ', ranked for you' : ', popular near you')+'</div></div>'
-    +   '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></div>'
-    +   '<div class="big-carousel" data-carousel="setcards">'+cards+'</div></div>';
+    + setBodyHtml(k, label, rows, pers);
+}
+var setStack = [];                              // page we came from (category → sub-category)
+function showSetPage(key){
+  var el = document.getElementById("setPage");
+  setKey = key;
+  el.innerHTML = setPageHtml(key);
+  el.scrollTop = 0;
+  wireSetPage();
 }
 function openSetPage(key){
   var el = document.getElementById("setPage");
   if(!setRows(parseSetKey(key)).length) return;
-  setKey = key;
+  if(setKey && setKey !== key) setStack.push(setKey);
   el.style.setProperty("--dd-top", document.querySelector(".statusbar").offsetHeight + "px");
-  el.innerHTML = setPageHtml(key);
-  el.scrollTop = 0;
-  wireSetPage();
+  showSetPage(key);
   void el.offsetWidth;
   el.classList.add("open");
 }
 function wireSetPage(){
   var el = document.getElementById("setPage");
   wirePageEvents(el);
-  el.querySelector("#spBack").addEventListener("click", closeSetPage);
+  el.querySelector("#spBack").addEventListener("click", function(){
+    if(setStack.length) showSetPage(setStack.pop());
+    else closeSetPage();
+  });
   el.querySelector("#spFind").addEventListener("click", function(){
     var sec = el.querySelector("#spSection");
     el.scrollTo({top: sec.offsetTop - 70, behavior:"smooth"});
@@ -2459,15 +2692,15 @@ function wireSetPage(){
 function refreshSetPage(){
   var el = document.getElementById("setPage");
   if(!setKey || !setRows(parseSetKey(setKey)).length) return;
-  var top = el.scrollTop, car = el.querySelector(".big-carousel"), left = car ? car.scrollLeft : 0;
+  var top = el.scrollTop, lefts = [].map.call(el.querySelectorAll(".big-carousel"), function(c){ return c.scrollLeft; });
   el.innerHTML = setPageHtml(setKey);
   wireSetPage();
   el.scrollTop = top;
-  var car2 = el.querySelector(".big-carousel");
-  if(car2) car2.scrollLeft = left;
+  el.querySelectorAll(".big-carousel").forEach(function(c, i){ c.scrollLeft = lefts[i] || 0; });
 }
 function closeSetPage(){
   setKey = null;
+  setStack = [];
   document.getElementById("setPage").classList.remove("open");
 }
 
@@ -2594,6 +2827,7 @@ function endReplayUI(){
 }
 function cancelReplay(){
   closeSetPage();
+  closeSearchView();
   replay.run++;
   replay.running = false;
   if(replay.wake) replay.wake();
@@ -2637,11 +2871,19 @@ async function scrollDetailTo(el, id){
 async function animSearch(q, id){
   var input = document.getElementById("searchInput");
   await tapTo(input, id);
-  input.value = "";
-  for(var i=0; i<q.length; i++){ input.value = q.slice(0, i+1); await sleep(75, id); }
-  await sleep(350, id);
-  runSearch(q);
-  await sleep(1100, id);
+  input.click();
+  await sleep(600, id);
+  var f = document.getElementById("svInput");
+  for(var i=0; i<q.length; i++){ f.value = q.slice(0, i+1); svRender(); await sleep(75, id); }
+  await sleep(400, id);
+  var go = document.getElementById("svGo");
+  await tapTo(go, id);
+  go.click();
+  await sleep(1500, id);
+  var back = document.getElementById("svBack");
+  await tapTo(back, id);
+  back.click();
+  await sleep(450, id);
 }
 async function animView(d, id){
   await openViaCard(d, id);
@@ -2695,8 +2937,8 @@ function nextVisitInstant(){
   renderDrawerDynamic();
 }
 
-function runSearch(q, quiet){
-  actSearch(q);
+function runSearch(q, quiet, nlp){
+  actSearch(q, nlp);
   var it = state.profile.visit.intent;
   if(!quiet) toast(it.category || it.gift || it.tokens.length ? "Search understood: " + describeIntent(it).replace(/<[^>]+>/g, "") : "No matching category: ranking unchanged.");
   renderPage({instant:true, top:true});
@@ -2731,6 +2973,7 @@ async function runStep(st, next, id){
 
 async function playScript(steps, label){
   closeSetPage();
+  closeSearchView();
   var id = ++replay.run;
   replay.running = true;
   replay.skip = false;
@@ -2822,13 +3065,6 @@ document.querySelectorAll(".tab").forEach(function(t){
     }
     toast("This prototype covers the Explore homepage only (per the case-study scope).");
   });
-});
-
-document.getElementById("searchInput").addEventListener("keydown", function(e){
-  if(e.key !== "Enter") return;
-  var q = e.target.value.trim();
-  if(!q) return;
-  runSearch(q);
 });
 
 function tickClock(){
