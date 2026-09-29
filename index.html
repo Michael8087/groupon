@@ -10,7 +10,9 @@
   --green-dark:#2b5f0c;
   --green-light:#e8f4dd;
   --bg-desk:#e4e6e0;
-  --bg:#f6f7f3;
+  --bg:#ffffff;
+  --hdr-top:#1f2c4d;
+  --hdr-bot:#111a2e;
   --surface:#ffffff;
   --text:#16190f;
   --text-muted:#666f5c;
@@ -104,7 +106,7 @@ a{color:inherit;}
 }
 /* status bar */
 .statusbar{
-  background:var(--navy);
+  background:var(--hdr-top);
   color:#fff;
   display:flex;
   align-items:center;
@@ -118,20 +120,22 @@ a{color:inherit;}
 .statusbar .icons{display:flex;gap:6px;align-items:center;}
 /* header */
 .app-header{
-  background:var(--navy);
+  background:linear-gradient(180deg, var(--hdr-top) 0%, var(--hdr-bot) 100%);
+  border-radius:0 0 26px 26px;
+  position:relative;z-index:2;
   color:#fff;
-  padding:6px 16px 14px;
+  padding:6px 16px 18px;
   display:flex;
   flex-direction:column;
   gap:12px;
 }
 .location-row{
-  display:flex;align-items:center;gap:6px;
+  display:flex;align-items:center;gap:6px;align-self:flex-start;
+  border-bottom:2px dashed rgba(255,255,255,.4);padding-bottom:2px;
   font-family:'Baloo 2', system-ui, sans-serif;
   font-size:22px;font-weight:700;
 }
 .location-row svg{margin-top:3px;}
-.location-row #cityLabel{border-bottom:2px dashed rgba(255,255,255,.4);padding-bottom:2px;}
 .dashed-divider{
   border:none;border-top:2px dashed rgba(255,255,255,.25);
   margin:0;
@@ -186,7 +190,8 @@ a{color:inherit;}
 .dot.on{background:var(--text);width:14px;border-radius:4px;}
 .module{display:flex;flex-direction:column;gap:10px;}
 .module-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 14px;}
-.module-head h2{font-size:15px;margin:0;font-weight:700;display:flex;align-items:center;gap:3px;}
+.module-head h2{font-family:'Baloo 2', system-ui, sans-serif;font-size:21px;margin:0;font-weight:700;display:flex;align-items:center;gap:4px;}
+.module-head h2.city-title{width:fit-content;border-bottom:2px dashed var(--border);padding-bottom:3px;cursor:pointer;}
 .module-head .sub{font-size:12px;color:var(--text-muted);margin-top:2px;}
 .why-btn{
   background:none;border:1px solid var(--border);color:var(--text-muted);
@@ -208,14 +213,14 @@ a{color:inherit;}
 }
 .big-carousel::-webkit-scrollbar{display:none;}
 .big-card{
-  flex:none;width:78%;border-radius:var(--radius);
-  overflow:hidden;box-shadow:var(--shadow);
-  background:var(--surface);border:1px solid var(--border);
+  flex:none;width:78%;border-radius:22px;
+  overflow:hidden;box-shadow:none;
+  background:transparent;border:none;
   scroll-snap-align:start;display:flex;flex-direction:column;
 }
 .big-card.solo{width:100%;}
 .solo-wrap{padding:0 14px;}
-.big-card .photo{height:190px;position:relative;flex:none;}
+.big-card .photo{height:190px;position:relative;flex:none;border-radius:22px;}
 .big-card .badge-pill{
   position:absolute;top:12px;left:12px;background:var(--pink);color:#fff;
   font-size:11.5px;font-weight:700;padding:5px 10px;border-radius:999px;
@@ -231,8 +236,8 @@ a{color:inherit;}
   position:absolute;bottom:10px;left:12px;background:rgba(255,255,255,.95);color:var(--text);
   font-size:11px;font-weight:700;padding:4px 9px;border-radius:8px;display:flex;align-items:center;gap:5px;
 }
-.big-card .info{padding:12px 14px 14px;display:flex;flex-direction:column;gap:5px;}
-.big-card .info .title{font-family:'Baloo 2';font-size:15.5px;line-height:1.3;}
+.big-card .info{padding:12px 2px 6px;display:flex;flex-direction:column;gap:5px;}
+.big-card .info .title{font-family:'Work Sans', system-ui, sans-serif;font-weight:600;font-size:17px;line-height:1.28;}
 .big-card .info .addr-row{
   display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--text-muted);
 }
@@ -301,14 +306,15 @@ a{color:inherit;}
 .feat-wrap .big-card .info{padding:12px 2px 2px;}
 .feat-wrap .buy-btn{display:none;}
 .feat-wrap .tag-pill{gap:6px;}
-.hero-slide.tile{cursor:pointer;}
-.hero-slide.tile h1{font-size:21px;-webkit-line-clamp:2;}
-.hero-slide.tile p{font-size:13px;}
+.hero-slide.tile{cursor:pointer;width:64%;height:246px;border-radius:22px;}
+.hero-slide.tile .txt{padding:18px;gap:5px;}
+.hero-slide.tile h1{font-size:23px;line-height:1.15;-webkit-line-clamp:2;}
+.hero-slide.tile p{font-size:13.5px;}
 .hero-slide.tile .eyebrow{font-size:9.5px;}
 /* set page (what a top tile opens) */
 .set-page{
   position:absolute;left:0;right:0;bottom:58px;top:var(--dd-top,0px);
-  background:var(--surface);z-index:50;overflow-y:auto;padding-bottom:40px;
+  background:var(--surface);z-index:50;overflow-y:auto;padding-bottom:110px;
   transform:translateY(100%);visibility:hidden;
   transition:transform .38s ease, visibility 0s .38s;
 }
@@ -323,7 +329,7 @@ a{color:inherit;}
 .sp-banner h1{font-family:'Baloo 2', system-ui, sans-serif;font-size:27px;line-height:1.05;margin:0;}
 .sp-banner p{margin:0;font-size:14px;opacity:.95;}
 .sp-find{align-self:flex-start;background:var(--green);color:#fff;border:none;border-radius:999px;padding:9px 16px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;}
-.sp-title{text-align:center;font-size:17px;font-weight:600;margin:16px 14px 6px;}
+.sp-title{text-align:center;font-size:20px;font-weight:600;margin:16px 14px 6px;}
 .set-page .module{margin-top:18px;}
 .nudge{
   background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
@@ -356,6 +362,18 @@ a{color:inherit;}
   width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;
 }
 /* floating map button */
+.promo-bar{
+  position:absolute;left:0;right:0;bottom:58px;z-index:52;
+  background:linear-gradient(90deg, #5b2a86 0%, #1d3a6e 100%);color:#fff;
+  display:flex;align-items:center;gap:12px;padding:12px 14px;
+}
+.promo-bar .msg{flex:1;font-size:13px;font-weight:700;line-height:1.3;}
+.promo-bar u{font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer;}
+.promo-close{
+  flex:none;width:36px;height:36px;border-radius:50%;background:none;border:1.5px solid rgba(255,255,255,.4);
+  color:#fff;font-size:20px;line-height:1;cursor:pointer;padding:0;
+}
+.map-fab-layer.raised{bottom:132px;}
 .map-fab-layer{
   position:fixed;left:0;right:0;bottom:74px;max-width:430px;margin:0 auto;
   display:flex;justify-content:center;pointer-events:none;z-index:20;
@@ -612,6 +630,7 @@ a{color:inherit;}
 .loc-modal-head h2{font-size:17px;font-weight:700;margin:0;color:var(--text);}
 .loc-close{position:absolute;left:16px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:22px;line-height:1;color:var(--text);cursor:pointer;padding:4px;}
 .loc-search-bar{
+  background:var(--tint);
   display:flex;align-items:center;gap:8px;background:var(--bg);border-radius:999px;
   margin:10px 16px 6px;padding:12px 14px;color:var(--text-muted);
 }
@@ -696,7 +715,13 @@ a{color:inherit;}
     </button>
   </nav>
 
-  <div class="map-fab-layer">
+  <div class="promo-bar" id="promoBar" hidden>
+    <span class="msg">Recharge your body. Spa &amp; fitness, extra 10% off</span>
+    <u id="promoUse">Use code RELAX</u>
+    <button class="promo-close" id="promoClose" aria-label="Close">&times;</button>
+  </div>
+
+  <div class="map-fab-layer" id="mapLayer">
     <button class="map-fab" id="mapFab" aria-label="Map view">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 4l-6 2v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>
       Map
@@ -1717,9 +1742,9 @@ function driversText(r, n){
 }
 function scoreLine(r){ return "P(purchase) " + pct1(r.P) + " × margin " + pct(r.m.rate) + " = <b>" + r.score.toFixed(3) + "</b>"; }
 
-function dealsModuleHtml(title, sub, rows, idx, whyLead){
+function dealsModuleHtml(title, sub, rows, idx, whyLead, cityTitle){
   var lines = rows.map(function(r){ return "#"+r.rank+" "+esc(r.d.title)+": "+r.score.toFixed(3)+" ("+driversText(r, 2)+")"; }).join("<br>");
-  return '<div class="module"><div class="module-head"><div><h2>'+title+chevronSvg()+'</h2>'+(sub?'<div class="sub">'+sub+'</div>':'')+'</div>'+whyBtn(idx)+'</div>'
+  return '<div class="module"><div class="module-head"><div><h2'+(cityTitle ? ' class="city-title" data-city-open="1"' : '')+'>'+title+(cityTitle ? chevronSvg() : '')+'</h2>'+(sub?'<div class="sub">'+sub+'</div>':'')+'</div>'+whyBtn(idx)+'</div>'
     + '<div class="why-note" id="why-'+idx+'" hidden>'+whyLead+'<br>'+lines+'</div>'
     + stackedCardsHtml(rows)
     + '</div>';
@@ -1854,7 +1879,7 @@ function renderPage(opts){
 
   var html = heroCarouselHtml(heroSets(8));
   html += dealsModuleHtml(pers ? "Deals for you" : "Trending in " + city, reason, top, 0,
-    pers ? "Personalised: ranks #1–#5 by score = P(purchase) × margin." : "Cold start: ranks #1–#5 from the estimated segment mix + deal quality, price and margin only.");
+    pers ? "Personalised: ranks #1–#5 by score = P(purchase) × margin." : "Cold start: ranks #1–#5 from the estimated segment mix + deal quality, price and margin only.", !pers);
   var modules = [recentlyViewedModuleHtml(), giftsModuleHtml(gifts, featured, pers)].filter(Boolean);
 
   var content = document.getElementById("content");
@@ -1886,6 +1911,7 @@ function syncDots(car, dotsEl){
 function afterInteraction(){
   renderPage({instant:true});
   renderDrawerDynamic();
+  renderPromoBar();
   if(setKey) refreshSetPage();
 }
 
@@ -1904,6 +1930,10 @@ function wirePageEvents(root){
       if(!d) return;
       viewDeal(d);
     });
+  });
+
+  scope.querySelectorAll("[data-city-open]").forEach(function(el){
+    el.addEventListener("click", openLocationModal);
   });
 
   scope.querySelectorAll("[data-set]").forEach(function(el){
@@ -2187,6 +2217,7 @@ function renderDrawerDynamic(){
 function render(){
   renderPage();
   renderDrawerDynamic();
+  renderPromoBar();
 }
 
 /* ---------- chrome: toast, tabs, clock, search ---------- */
@@ -2217,6 +2248,7 @@ document.getElementById("resetWeights").addEventListener("click", function(){
 
 function resetDemo(blank){
   cancelReplay();
+  promoBarClosed = false;
   state = {profile: freshProfile({blank:blank}), viewOverride:"auto"};
   sliderFocus = "auto";
   openExplain = null;
@@ -2361,6 +2393,17 @@ function viewDeal(d){
   openDetail(d.id);
 }
 
+/* ---------- promo bar (the RELAX campaign, closable) ---------- */
+
+var promoBarClosed = false;
+function renderPromoBar(){
+  var on = state.profile.promo.RELAX && !promoBarClosed;
+  document.getElementById("promoBar").hidden = !on;
+  document.getElementById("mapLayer").classList.toggle("raised", on);
+}
+document.getElementById("promoClose").addEventListener("click", function(){ promoBarClosed = true; renderPromoBar(); });
+document.getElementById("promoUse").addEventListener("click", function(){ toast("RELAX is applied automatically at checkout in this prototype."); });
+
 /* ---------- set page: what a top-carousel tile opens ---------- */
 
 var setKey = null;
@@ -2388,8 +2431,9 @@ function setPageHtml(key){
     + '<div class="sp-banner" style="background:'+photoStyle(rows[0].d.photoId, 900, 600)+';"><div class="sp-scrim"></div><div class="txt">'
     +   '<h1>'+esc(label)+'</h1><p>'+esc(sub)+'</p><button class="sp-find" id="spFind">Find deals →</button></div></div>'
     + '<h2 class="sp-title">'+esc(label)+'</h2>'
-    + '<div class="module" id="spSection"><div class="module-head"><div><h2>'+esc(label)+' deals'+'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></h2>'
-    +   '<div class="sub">'+rows.length+(rows.length===1 ? ' deal' : ' deals')+(pers ? ', ranked for you' : ', popular near you')+'</div></div></div>'
+    + '<div class="module" id="spSection"><div class="module-head"><div><h2>'+esc(label)+' deals</h2>'
+    +   '<div class="sub">'+rows.length+(rows.length===1 ? ' deal' : ' deals')+(pers ? ', ranked for you' : ', popular near you')+'</div></div>'
+    +   '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></div>'
     +   '<div class="big-carousel" data-carousel="setcards">'+cards+'</div></div>';
 }
 function openSetPage(key){
