@@ -524,7 +524,8 @@ a{color:inherit;}
 .drawer-scroll{overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:16px;font-size:12.5px;}
 .d-section{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;}
 .d-section h3{margin:0;font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);}
-.persona-grid{display:flex;flex-wrap:wrap;gap:8px;}
+.persona-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+.persona-grid .persona-auto{grid-column:1 / -1;}
 .persona-btn{
   border:1.5px solid var(--border);background:var(--bg);color:var(--text);
   padding:8px 11px;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;text-align:left;flex:1 1 130px;
@@ -573,6 +574,14 @@ a{color:inherit;}
 .promo-line input{margin:2px 0 0;accent-color:var(--green);}
 .promo-line b{color:var(--text);}
 .log-sub{font-size:11px;color:var(--text-muted);margin-top:2px;padding-left:12px;}
+.xp summary{cursor:pointer;font-size:12px;font-weight:700;color:var(--text);padding:6px 0;}
+.xp[open] summary{margin-bottom:6px;}
+.xp-body{font-size:11px;color:var(--text-muted);line-height:1.5;display:flex;flex-direction:column;gap:8px;}
+.xp-body b{color:var(--text);}
+.mt{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;}
+.mt th{font-weight:700;color:var(--text);text-align:right;padding:2px 4px;border-bottom:1px solid var(--border);}
+.mt td{text-align:right;padding:2px 4px;}
+.mt th:first-child,.mt td:first-child{text-align:left;}
 .why-scroll{max-height:250px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding-right:6px;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
 .why-scroll.open{max-height:520px;}
 .rank-table{display:flex;flex-direction:column;gap:1px;font-size:11px;}
@@ -871,6 +880,7 @@ a{color:inherit;}
       <div class="seg-bar-row" id="segBars"></div>
       <div class="select-line" id="segReadout" style="color:var(--text-muted)"></div>
       <div class="persona-grid" id="segGrid"></div>
+      <details class="xp" id="segMath"><summary>How this estimate is made</summary><div class="xp-body" id="segMathBody"></div></details>
     </div>
 
     <div class="d-section" id="calibrationSection">
@@ -908,10 +918,8 @@ a{color:inherit;}
 
     <div class="d-section">
       <h3>5 · Why this page</h3>
-      <div class="why-scroll" id="whyScroll">
-        <ul class="trace-list" id="traceList"></ul>
-        <div class="rank-table" id="rankTable"></div>
-      </div>
+      <ul class="trace-list" id="traceList"></ul>
+      <details class="xp" id="scoresBox"><summary>Deal scores (P × margin)</summary><div class="rank-table" id="rankTable"></div></details>
     </div>
 
     <p class="disclaimer">Prototype for a Groupon PM case study — not an official Groupon product. All deals, merchants, margins, promo campaigns, segment priors and model coefficients are synthetic demo data, not Groupon data. The model is a hand-set, explainable logistic score; in production the coefficients would be learned from real behaviour.</p>
@@ -2161,6 +2169,22 @@ function renderAcctList(){
   });
 }
 
+function renderSegMath(){
+  var a = state.profile.account, t = categoryTotals(), mix = segmentMix(), pw = priorWeight();
+  var override = state.viewOverride !== "auto";
+  var row = SEGMENT_MIX_PRIOR[a.gender + "_" + ageBand(a.age)] ? a.gender + "_" + ageBand(a.age) : "U";
+  var h = '<div><b>1 · Prior mix.</b> ' + (override
+    ? 'Demo override: 100% ' + SEGMENTS[state.viewOverride].label + '.'
+    : 'Account says ' + (a.gender === "U" ? "unspecified" : a.gender) + ', ' + a.age + ' → table row <b>' + row + '</b> (demo numbers, not Groupon data).') + '</div>';
+  h += '<div><b>2 · Prior logit</b> = mix × ' + MODEL.priorOwn + ' + (1 − mix) × ' + MODEL.priorOther + '. <b>3 · Weight</b> = 1 / (1 + signals / ' + MODEL.priorShrink + ') = <b>' + pw.toFixed(2) + '</b> (' + state.profile.nSignals + ' signals' + (override ? '; override forces 1.00' : '') + '). <b>4 · Share</b> = softmax(prior × weight + learned + intent).</div>';
+  h += '<table class="mt"><tr><th>segment</th><th>mix</th><th>prior</th><th>× w</th><th>learned</th><th>intent</th><th>share</th></tr>'
+    + CATS.map(function(c){
+        var x = t[c];
+        return '<tr><td>' + SEGMENTS[c].icon + ' ' + SEGMENTS[c].cat + '</td><td>' + pct(mix[c]) + '</td><td>' + fmtW(priorLogit(c)) + '</td><td>' + fmtW(x.prior) + '</td><td>' + fmtW(x.learned) + '</td><td>' + fmtW(x.intent) + '</td><td><b>' + pct(x.share) + '</b></td></tr>';
+      }).join("") + '</table>';
+  h += '<div>Not used yet: acquisition source, device, time of day, location. These are the next cheap priors to add.</div>';
+  document.getElementById("segMathBody").innerHTML = h;
+}
 function renderSegBars(){
   var el = document.getElementById("segBars");
   var t = categoryTotals(), mix = segmentMix(), a = state.profile.account;
@@ -2175,6 +2199,7 @@ function renderSegBars(){
   else if(!isPersonalized()) txt = "Cold start: prior from " + (a.gender==="U" ? "population" : a.gender + " " + ageBandLabel(a.age)) + " (demo mix), weight " + pw.toFixed(2) + ". No learned preferences yet.";
   else txt = "Learned personalisation: " + state.profile.nSignals + " signals, prior weight shrunk to " + pw.toFixed(2) + ". Multi-interest: every category stays in the ranking.";
   document.getElementById("segReadout").textContent = txt;
+  renderSegMath();
 }
 
 function renderSegGrid(){
@@ -2185,7 +2210,7 @@ function renderSegGrid(){
   );
   opts.forEach(function(o){
     var b = document.createElement("button");
-    b.className = "persona-btn" + (state.viewOverride===o.id ? " active" : "");
+    b.className = "persona-btn" + (o.id==="auto" ? " persona-auto" : "") + (state.viewOverride===o.id ? " active" : "");
     b.innerHTML = o.label + "<small>" + o.hint + "</small>";
     b.addEventListener("click", function(){ state.viewOverride = o.id; sliderFocus = "auto"; saveState(); afterInteraction(); });
     el.appendChild(b);
@@ -2322,7 +2347,6 @@ function renderTrace(){
     h += '<div class="rank-row open" data-explain="'+r2.d.id+'"><span class="n">'+r2.rank+'</span>'+moveBadge(r2.d.id, r2.rank)+'<span class="t">'+r2.d.title+'</span><span class="s">'+r2.score.toFixed(3)+'</span></div>' + explainHtml(r2);
   }
   tb.innerHTML = h;
-  document.getElementById("whyScroll").classList.toggle("open", !!openExplain);
   tb.querySelectorAll("[data-explain]").forEach(function(row){
     row.addEventListener("click", function(){
       var id = row.getAttribute("data-explain");
