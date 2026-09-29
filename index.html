@@ -1002,8 +1002,6 @@ var LEARNING = {
 
 /* ---------- segments: cold-start priors over deal categories, not identities ---------- */
 
-var INTENSITY = {nails:0, facial:0.05, pool_day:0.05, spa_package:0.1, massage:0.15, detox_program:0.2, nutrition:0.3, yoga:0.5, fitness:1};
-var OCCASION_LEVEL = {everyday:0, friends:0.3, explore:0.3, weekend:0.4, gift:0.7, date:1, celebration:1};
 
 function priceDim(){
   return {key:"price", src:"effective_price", lowLabel:"Budget", highLabel:"Splurge", value:function(d, px){ return priceLevel(d, px); }};
@@ -1019,8 +1017,6 @@ var SEGMENTS = {
       priceDim(),
       {key:"duration", src:"duration", lowLabel:"Day trip", highLabel:"Long stay", value:function(d){ return isKnown(d.f.duration) ? clamp01((d.f.duration-1)/6) : null; }},
       {key:"far", src:"travel_distance", lowLabel:"Close to home", highLabel:"Far away", value:function(d){ var v = {drive:0, short_haul:0.5, long_haul:1}[d.f.travel_distance]; return v===undefined ? null : v; }},
-      {key:"culture", src:"trip_type", lowLabel:"Relax", highLabel:"Culture & sights", value:function(d){ var t = d.f.trip_type; if(!isKnown(t)) return null; return has(t,"cultural") ? 1 : (has(t,"relax") ? 0 : 0.5); }},
-      {key:"beach", src:"destination_type", lowLabel:"No beach", highLabel:"Beach", value:function(d){ return isKnown(d.f.destination_type) ? (d.f.destination_type==="beach" ? 1 : 0) : null; }}
     ],
     tokens:["destination","destination_type","trip_type","accommodation_type","star_rating","board_type","season","family_friendly","couples_friendly","flight_included","spa_or_pool","cancellation_flexibility"]
   },
@@ -1028,19 +1024,15 @@ var SEGMENTS = {
     label:"Beauty & Wellness Seekers", cat:"Beauty & Wellness", icon:"💆", flair:"For those who love beauty 😉",
     dims:[
       priceDim(),
-      {key:"intensity", src:"treatment_type", lowLabel:"Pampering", highLabel:"Active", value:function(d){ var v = INTENSITY[d.f.treatment_type]; return v===undefined ? null : v; }},
-      {key:"at_home", src:"facility_type", lowLabel:"At a venue", highLabel:"Comes to you", value:function(d){ return isKnown(d.f.facility_type) ? (d.f.facility_type==="mobile" ? 1 : 0) : null; }},
       {key:"premium", src:"service_level", lowLabel:"Standard", highLabel:"Luxury", value:function(d){ var v = {standard:0, premium:0.6, luxury:1}[d.f.service_level]; return v===undefined ? null : v; }},
       closeDim()
     ],
-    tokens:["treatment_type","treatment_area","facility_type","facilities","indoor_outdoor","individual_or_group","couples_friendly","service_level","brand_or_product","appointment_flexibility"]
+    tokens:["treatment_type","treatment_area","facility_type","facilities","indoor_outdoor","individual_or_group","couples_friendly","brand_or_product","appointment_flexibility"]
   },
   food:{
     label:"Food & Drink Seekers", cat:"Food & Drink", icon:"🍽️", flair:"🍴 For you foodies",
     dims:[
       priceDim(),
-      {key:"special", src:"occasion", lowLabel:"Everyday", highLabel:"Special occasion", value:function(d){ var o = d.f.occasion; if(!isKnown(o)) return null; var s = 0; o.forEach(function(x){ s = Math.max(s, OCCASION_LEVEL[x]||0); }); return s; }},
-      {key:"experience", src:"menu_type", lowLabel:"Just the meal", highLabel:"Class / tour / tasting", value:function(d){ return isKnown(d.f.menu_type) ? (has(["class","tour","tasting"], d.f.menu_type) ? 1 : 0) : null; }},
       {key:"group", src:"group_size", lowLabel:"Solo / couple", highLabel:"Group", value:function(d){ return isKnown(d.f.group_size) ? clamp01((d.f.group_size-2)/6) : null; }},
       closeDim()
     ],
@@ -1284,7 +1276,7 @@ function freshProfile(opts){
     acquisition:{source:"Facebook login"},
     subs:{},                                    // learned interest per sub-category ("wellness|Massage"), drives "X for you" tiles
     interest:{travel:0, wellness:0, food:0},   // learned long-term category preference (logit)
-    dims:dims,                                  // learned weights on the 5 calibrated attributes per category, −1…1
+    dims:dims,                                  // learned weights on the ordered attributes (price, duration, distance…) per category, −1…1
     tokens:tokens,                              // learned weights on categorical deal features, e.g. cuisine_type=japanese
     nSignals:0,                                 // behavioural evidence count; shrinks the cold-start prior
     visit:{n:1, day:VISIT_DAYS[0], exposed:{}, engaged:{}, intent:null, searches:[]},
@@ -2323,7 +2315,7 @@ function renderWeightSliders(){
   var autoCat = state.viewOverride !== "auto" ? state.viewOverride : detectedCategory();
   var html = '<div class="select-line">Segment <select id="focusSel"><option value="auto">'+SEGMENTS[autoCat].cat+' (auto)</option>'
     + CATS.map(function(k){ return '<option value="'+k+'">'+SEGMENTS[k].label+'</option>'; }).join("") + '</select></div>';
-  html += '<div class="weight-row"><span class="src">5 learned attribute weights for '+seg.label+'. Effect on a deal = weight × (attribute − 0.5) × 2 × '+MODEL.dimGain+' logit; unknown attribute = no effect.</span></div>';
+  html += '<div class="weight-row"><span class="src">'+seg.dims.length+' learned attribute weights for '+seg.label+'. Effect on a deal = weight × (attribute − 0.5) × 2 × '+MODEL.dimGain+' logit; unknown attribute = no effect.</span></div>';
   seg.dims.forEach(function(dm){
     var v = w[dm.key] || 0;
     html += '<div class="weight-row"><div class="lbl"><span>' + dm.lowLabel + ' ⟷ ' + dm.highLabel + '</span><span>' + v.toFixed(2) + '</span></div>'
@@ -2414,7 +2406,7 @@ function renderTrace(){
     : ("learned → page leads with " + SEGMENTS[prim].label + " (" + leadStats().n[prim] + " of top 6) · category shares " + CATS.map(function(c){ return SEGMENTS[c].cat + " " + pct(t[c].share); }).join(" / ") + " · prior weight " + priorWeight().toFixed(2)));
   lines.push("<li><b>2. Segment</b> → " + segTxt + "</li>");
   var learned = CATS.filter(function(c){ return Math.abs(p.interest[c]) >= 0.01; }).map(function(c){ return SEGMENTS[c].cat + " " + fmtW(p.interest[c]); });
-  lines.push("<li><b>3. Profile + intent</b> → learned: " + (learned.length ? learned.join(", ") + " · learned weights on 5 attributes/segment + feature prefs" : "nothing yet") + " · intent: " + describeIntent(p.visit.intent) + "</li>");
+  lines.push("<li><b>3. Profile + intent</b> → learned: " + (learned.length ? learned.join(", ") + " · learned weights on 3 ordered axes/segment + feature-value prefs" : "nothing yet") + " · intent: " + describeIntent(p.visit.intent) + "</li>");
   var promoN = rows.filter(function(r){ return r.px.promo; }).length;
   lines.push("<li><b>4. Candidate deals</b> → " + rows.length + " of " + DEALS.length + " eligible" + (R.excluded.length ? " (" + R.excluded.length + " bought → excluded)" : "") + " · promo applies to " + promoN + "</li>");
   lines.push("<li><b>5. Ranking</b> → score = P(purchase) × margin · #1 <b>" + top.d.title + "</b>: " + pct1(top.P) + " × " + pct(top.m.rate) + " = " + top.score.toFixed(3) + "</li>");
