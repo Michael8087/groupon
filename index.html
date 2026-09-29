@@ -428,6 +428,13 @@ a{color:inherit;}
 .sv-loc u{color:var(--text-muted);cursor:pointer;font-size:14px;}
 .sv-body{flex:1;overflow-y:auto;padding:4px 14px 12px;}
 .sv-label{color:var(--text-muted);font-size:14px;margin:12px 0 6px;}
+.sv-map{background:rgba(123,63,176,.07);border:1px solid rgba(123,63,176,.25);border-radius:14px;padding:10px 12px;margin:10px 0 4px;display:flex;flex-direction:column;gap:5px;font-size:12.5px;}
+.sv-map-h{font-weight:700;color:#7b3fb0;font-size:12px;margin-top:2px;}
+.sv-map-h em{font-style:normal;font-weight:400;color:var(--text-muted);margin-left:4px;}
+.sv-map-row{display:flex;gap:6px;align-items:baseline;line-height:1.35;}
+.sv-map-row .w{font-weight:700;color:var(--text);flex:none;}
+.sv-map-row .a{color:#7b3fb0;flex:none;}
+.sv-map-row .f{color:var(--text);}
 .sv-chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 2px;}
 .sv-chip{font-size:12px;font-weight:600;background:rgba(123,63,176,.12);color:#7b3fb0;border-radius:999px;padding:4px 10px;}
 .sv-example{font-size:13px;border:1px solid var(--border);border-radius:999px;padding:6px 12px;cursor:pointer;background:var(--surface);color:var(--text);font-family:inherit;text-align:left;}
@@ -981,7 +988,8 @@ var LEARNING = {
   view: 0.15, save: 0.4, buy: 0.7,   // signal strength: clicks are weak, purchases strong
   repeatSearch: 0.3,                   // a search repeated in a later visit becomes a long-term preference
   giftContext: 0.3,                    // behaviour under a gift intent says less about the customer's own taste
-  interestRate: 0.4, dimRate: 0.35, tokenRate: 0.4
+  interestRate: 0.4, dimRate: 0.35, tokenRate: 0.4,
+  nlpDeclare: 0.2                      // a "Just ask" sentence also nudges the long-term profile by this much
 };
 
 /* ---------- segments: cold-start priors over deal categories, not identities ---------- */
@@ -1072,7 +1080,9 @@ var SEARCH_LEXICON = [
   {words:["coffee","latte"], cat:"food", tokens:["meal_type=coffee"]},
   {words:["tea"], cat:"food", tokens:["meal_type=afternoon_tea"]},
   {words:["dessert","cake","cookies","pastry"], cat:"food", tokens:["meal_type=dessert"]},
-  {words:["dinner","lunch","restaurant","food","eat"], cat:"food", tokens:[]},
+  {words:["dinner"], cat:"food", tokens:["meal_type=dinner"]},
+  {words:["lunch"], cat:"food", tokens:["meal_type=lunch"]},
+  {words:["restaurant","food","eat"], cat:"food", tokens:[]},
   {words:["romantic","anniversary","date night","honeymoon"], cat:null, tokens:["occasion=date","trip_type=romantic","couples_friendly=yes"]},
   {words:["gift","present","mom","mother","mum","birthday","dárek","darek","maminka","maminku","mámu","mamku"], cat:null, tokens:[], gift:true}
 ];
@@ -1543,7 +1553,7 @@ function flatLabel(k){
     var dm = seg.dims.filter(function(x){ return x.key===a[2]; })[0];
     return seg.cat + " · " + dm.lowLabel + "⟷" + dm.highLabel;
   }
-  return prettyTok(a.slice(2).join("."));
+  return seg.cat + " · " + prettyTok(a.slice(2).join("."));
 }
 function diffFlat(a, b){
   var keys = {}, out = [];
@@ -1586,10 +1596,12 @@ function recordEvent(icon, text, fn){
 }
 
 function parseQuery(q){
-  var lower = " " + q.toLowerCase() + " ", out = {query:q, category:null, tokens:[], gift:false};
+  var lower = " " + q.toLowerCase() + " ", out = {query:q, category:null, tokens:[], gift:false, trace:[]};
   var votes = {};
   SEARCH_LEXICON.forEach(function(e){
-    if(!e.words.some(function(w){ return lower.indexOf(w) > -1; })) return;
+    var hit = e.words.filter(function(w){ return lower.indexOf(w) > -1; })[0];
+    if(!hit) return;
+    out.trace.push({word:hit.trim(), cat:e.cat, feats:e.tokens.slice(), gift:!!e.gift});
     if(e.gift) out.gift = true;
     if(e.cat) votes[e.cat] = (votes[e.cat] || 0) + 1;
     e.tokens.forEach(function(t){ if(out.tokens.indexOf(t) < 0) out.tokens.push(t); });
@@ -1603,9 +1615,9 @@ function parseNLP(q){
   var it = parseQuery(q), lower = q.toLowerCase(), m;
   it.nlp = true;
   m = /(?:under|below|less than|max(?:imum)?|up to|within|<)\s*\$?\s*(\d{2,4})/.exec(lower) || /\$\s*(\d{2,4})/.exec(lower);
-  if(m) it.budget = parseInt(m[1], 10);
-  if(/\b(for two|for 2|two of us|couple|couples|date night)\b/.test(lower)) it.people = 2;
-  else if((m = /\bfor (\d+)\b/.exec(lower))) it.people = parseInt(m[1], 10);
+  if(m){ it.budget = parseInt(m[1], 10); it.trace.push({word:m[0].trim(), cat:null, feats:[], note:"effective price ≤ $" + it.budget}); }
+  if((m = /\b(for two|for 2|two of us|couple|couples|date night)\b/.exec(lower))){ it.people = 2; it.trace.push({word:m[1], cat:null, feats:[], note:"party of 2 (couples-friendly / group size 2)"}); }
+  else if((m = /\bfor (\d+)\b/.exec(lower))){ it.people = parseInt(m[1], 10); it.trace.push({word:m[0], cat:null, feats:[], note:"party of " + it.people}); }
   return it;
 }
 var STOP_WORDS = "the and for with under near some want looking something good best nice that this are you can please find get need have cheap below than less into from mom two one three four".split(" ");
@@ -1653,6 +1665,24 @@ function describeIntent(it){
   return "“" + esc(it.query) + "” → " + (parts.length ? parts.join(", ") : "no match in catalog");
 }
 
+// features the sentence states (same schema as the deal listings) written into the long-term profile, weakly
+function declareFromNLP(it){
+  var p = state.profile;
+  it.tokens.forEach(function(tk){
+    CATS.forEach(function(c){
+      if(SEGMENTS[c].tokens.indexOf(tokFeat(tk)) < 0) return;
+      p.tokens[c][tk] = clamp((p.tokens[c][tk] || 0) + LEARNING.nlpDeclare, -1.5, 1.5);
+    });
+  });
+  if(it.category){
+    p.interest[it.category] = clamp(p.interest[it.category] + LEARNING.nlpDeclare/2, -1.5, 2.5);
+    if(it.budget){                                 // a stated budget says something about the price attribute
+      var r = PRICE_RANGE[it.category], level = clamp01((Math.log(it.budget) - r.lnMin)/(r.lnMax - r.lnMin));
+      p.dims[it.category].price = clamp((p.dims[it.category].price || 0) + LEARNING.dimRate*LEARNING.nlpDeclare*(level - 0.5)*2, -1, 1);
+    }
+  }
+  p.nSignals++;
+}
 function actSearch(q, nlp){
   recordEvent("🔎", "", function(){
     var p = state.profile, it = nlp ? parseNLP(q) : parseQuery(q), note = "";
@@ -1672,6 +1702,11 @@ function actSearch(q, nlp){
       note = "Gift intent: boosts giftable deals this visit only; behaviour under it counts " + pct(LEARNING.giftContext) + " toward the customer's own taste.";
     } else if(it.category){
       note = "Current intent for this visit only (expires at visit end unless repeated).";
+    }
+    if(nlp && !it.gift && (it.tokens.length || it.category)){
+      declareFromNLP(it);
+      note = "Mapped to deal features: " + (it.tokens.length ? it.tokens.map(prettyTok).join(", ") : SEGMENTS[it.category].cat)
+        + (it.budget ? ", budget ≤ $" + it.budget : "") + ". Full strength for this visit; also written as a weak long-term preference (×" + LEARNING.nlpDeclare + ")." + (repeated ? " Repeated from an earlier visit, so it counts more." : "");
     }
     p.searchHistory.push({q:q, visit:p.visit.n, day:p.visit.day, category:it.category, tokens:it.tokens, gift:it.gift});
     return {text:(nlp ? "Asked (Just ask) " : "Searched ") + describeIntent(it), note:note};
@@ -2573,7 +2608,7 @@ function viewDeal(d){
 
 /* ---------- search view: opens from the search bar; "Just ask" (beta) = natural-language search ---------- */
 
-var sv = {open:false, nlp:false, mode:"type", q:""};
+var sv = {open:false, nlp:false, mode:"type", q:"", deltas:null};
 var NLP_EXAMPLES = ["Romantic dinner for two under $80", "Relaxing spa day, gift for my mom", "Weekend trip for two under $400", "Japanese food near me"];
 function svRowHtml(r){
   var d = r.d, px = r.px;
@@ -2583,6 +2618,25 @@ function svRowHtml(r){
     + '<span class="p1"><s>$'+d.regular_price+'</s><b>$'+d.deal_price+'</b><em>'+off(d)+'% Off</em></span>'
     + (px.promo ? '<span class="p2"><b>'+money(px.effective)+'</b> with promo, Limited time</span>' : '')
     + '</div></div>';
+}
+function featsText(e){
+  var out = [];
+  if(e.cat) out.push("category: " + SEGMENTS[e.cat].cat);
+  e.feats.forEach(function(t){ out.push(prettyTok(t)); });
+  if(e.gift) out.push("gift intent (one-off)");
+  if(e.note) out.push(e.note);
+  return out.join(" · ");
+}
+function svMapHtml(it, deltas){
+  var rows = (it.trace || []).map(function(e){ return '<div class="sv-map-row"><span class="w">“'+esc(e.word)+'”</span><span class="a">→</span><span class="f">'+esc(featsText(e))+'</span></div>'; }).join("");
+  if(!rows) rows = '<div class="sv-map-row"><span class="f">Nothing matched the deal features yet.</span></div>';
+  var h = '<div class="sv-map"><div class="sv-map-h">How we read it <em>mapped to the same features deals are tagged with</em></div>' + rows;
+  if(deltas){
+    h += '<div class="sv-map-h">Added to your profile <em>weak, long-term (×'+LEARNING.nlpDeclare+')</em></div>';
+    h += deltas.length ? deltas.map(function(x){ return '<div class="sv-map-row"><span class="f">'+esc(x.label)+' <b>'+fmtW(x.from)+' → '+fmtW(x.to)+'</b></span></div>'; }).join("")
+      : '<div class="sv-map-row"><span class="f">No change (gift searches stay one-off).</span></div>';
+  }
+  return h + '</div>';
 }
 function svChipsHtml(it){
   var chips = understoodChips(it);
@@ -2595,14 +2649,14 @@ function svRender(){
   var h = "";
   if(sv.mode === "results"){
     var it = state.profile.visit.intent, m = searchMatches(sv.q, it);
-    h += (sv.nlp ? svChipsHtml(it) : "");
+    h += (sv.nlp ? svMapHtml(it, sv.deltas) : "");
     h += '<div class="sv-label">'+m.main.length+(m.main.length===1 ? " result" : " results")+' for “'+esc(sv.q)+'”</div>';
     h += m.main.map(svRowHtml).join("");
     if(m.more.length) h += '<div class="sv-label">More in '+esc(SEGMENTS[it.category].cat)+'</div>' + m.more.slice(0, 6).map(svRowHtml).join("");
     if(!m.main.length && !m.more.length) h += '<div class="sv-empty">No matches'+(it.budget ? " under "+money(it.budget) : "")+'. Try “massage”, “sushi” or “weekend trip”.</div>';
   } else if(q.length >= 2){
     var it2 = sv.nlp ? parseNLP(q) : parseQuery(q), m2 = searchMatches(q, it2);
-    h += (sv.nlp ? svChipsHtml(it2) : "");
+    h += (sv.nlp ? svMapHtml(it2, null) : "");
     h += '<div class="sv-label">Top matches</div>' + (m2.main.length ? m2.main.slice(0, 6).map(svRowHtml).join("") : '<div class="sv-empty">No matches yet. Keep typing.</div>');
   } else {
     if(sv.nlp) h += '<div class="sv-label">Try asking</div><div class="sv-chips">'+NLP_EXAMPLES.map(function(x){ return '<button class="sv-example">'+esc(x)+'</button>'; }).join("")+'</div>';
@@ -2626,7 +2680,9 @@ function svApplyMode(){
 function svSubmit(){
   var input = document.getElementById("svInput"), q = input.value.trim();
   if(!q){ input.focus(); return; }
+  var before = flatProfile();
   runSearch(q, true, sv.nlp);
+  sv.deltas = diffFlat(before, flatProfile()).filter(function(x){ return x.label !== "cold-start prior weight"; }).slice(0, 6);
   sv.q = q; sv.mode = "results";
   document.getElementById("searchInput").value = q;
   svRender();
