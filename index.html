@@ -845,7 +845,7 @@ function closeDim(){
 
 var SEGMENTS = {
   travel:{
-    label:"Travel Seekers", cat:"Travel", icon:"✈️",
+    label:"Travel Seekers", cat:"Travel", icon:"✈️", flair:"✈️ For you wanderers",
     dims:[
       priceDim(),
       {key:"duration", src:"duration", lowLabel:"Day trip", highLabel:"Long stay", value:function(d){ return isKnown(d.f.duration) ? clamp01((d.f.duration-1)/6) : null; }},
@@ -856,7 +856,7 @@ var SEGMENTS = {
     tokens:["destination","destination_type","trip_type","accommodation_type","star_rating","board_type","season","family_friendly","couples_friendly","flight_included","spa_or_pool","cancellation_flexibility"]
   },
   wellness:{
-    label:"Beauty & Wellness Seekers", cat:"Beauty & Wellness", icon:"💆",
+    label:"Beauty & Wellness Seekers", cat:"Beauty & Wellness", icon:"💆", flair:"💅 For you beauty lovers",
     dims:[
       priceDim(),
       {key:"intensity", src:"treatment_type", lowLabel:"Pampering", highLabel:"Active", value:function(d){ var v = INTENSITY[d.f.treatment_type]; return v===undefined ? null : v; }},
@@ -867,7 +867,7 @@ var SEGMENTS = {
     tokens:["treatment_type","treatment_area","facility_type","facilities","indoor_outdoor","individual_or_group","couples_friendly","service_level","brand_or_product","appointment_flexibility"]
   },
   food:{
-    label:"Food & Drink Seekers", cat:"Food & Drink", icon:"🍽️",
+    label:"Food & Drink Seekers", cat:"Food & Drink", icon:"🍽️", flair:"🍴 For you foodies",
     dims:[
       priceDim(),
       {key:"special", src:"occasion", lowLabel:"Everyday", highLabel:"Special occasion", value:function(d){ var o = d.f.occasion; if(!isKnown(o)) return null; var s = 0; o.forEach(function(x){ s = Math.max(s, OCCASION_LEVEL[x]||0); }); return s; }},
@@ -1242,7 +1242,7 @@ function explainDeal(d){
   add("prior", "segment prior", seg.label + " " + pct(mix[c]), "×" + pw.toFixed(2) + (state.viewOverride!=="auto" ? " (override)" : ""), priorLogit(c)*pw,
       state.viewOverride===c ? seg.icon + " " + seg.cat : null);
 
-  if(p.interest[c]) add("learned", "category interest", seg.cat, fmtW(p.interest[c]), p.interest[c], "❤️ You like " + seg.cat);
+  if(p.interest[c]) add("learned", "category interest", seg.cat, fmtW(p.interest[c]), p.interest[c], seg.flair);
 
   seg.dims.forEach(function(dm){
     var x = dm.value(d, px);
@@ -1599,7 +1599,7 @@ function heroSets(n){
       });
       var toks = p.tokens[c];
       Object.keys(toks).filter(function(tk){ return toks[tk] >= 0.15; }).sort(function(a, b){ return toks[b] - toks[a]; }).slice(0, 2)
-        .forEach(function(tk){ add(c, "learned", upFirst(tokVal(tk)), inCat.filter(function(r){ return r.d.tok.tokens.indexOf(tk) > -1; }), "🔥 You like this"); });
+        .forEach(function(tk){ add(c, "learned", upFirst(tokVal(tk)), inCat.filter(function(r){ return r.d.tok.tokens.indexOf(tk) > -1; }), "🔥 For you"); });
       subList.forEach(function(x){ add(c, "sub", x.k, x.rows, SEGMENTS[c].cat); });
       add(c, "cat", SEGMENTS[c].cat, inCat, catEyebrow);
     } else {
