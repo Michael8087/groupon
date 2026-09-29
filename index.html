@@ -301,11 +301,30 @@ a{color:inherit;}
 .feat-wrap .big-card .info{padding:12px 2px 2px;}
 .feat-wrap .buy-btn{display:none;}
 .feat-wrap .tag-pill{gap:6px;}
-.hero-slide.tile{width:37%;height:150px;cursor:pointer;}
-.hero-slide.tile .txt{padding:12px;gap:2px;}
-.hero-slide.tile h1{font-size:16px;-webkit-line-clamp:2;}
-.hero-slide.tile p{font-size:11px;text-decoration:none;opacity:.9;}
-.hero-slide.tile .eyebrow{font-size:9px;}
+.hero-slide.tile{cursor:pointer;}
+.hero-slide.tile h1{font-size:21px;-webkit-line-clamp:2;}
+.hero-slide.tile p{font-size:13px;}
+.hero-slide.tile .eyebrow{font-size:9.5px;}
+/* set page (what a top tile opens) */
+.set-page{
+  position:absolute;left:0;right:0;bottom:58px;top:var(--dd-top,0px);
+  background:var(--surface);z-index:50;overflow-y:auto;padding-bottom:40px;
+  transform:translateY(100%);visibility:hidden;
+  transition:transform .38s ease, visibility 0s .38s;
+}
+.set-page.open{transform:none;visibility:visible;transition:transform .38s ease;}
+.sp-top{position:sticky;top:0;z-index:4;background:var(--surface);display:flex;gap:10px;align-items:center;padding:10px 14px;}
+.sp-search{flex:1;min-width:0;display:flex;align-items:center;gap:8px;border:1px solid var(--border);border-radius:999px;padding:0 16px;height:40px;font-size:14px;color:var(--text);}
+.sp-search span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.sp-search u{color:var(--text-muted);flex:none;font-size:13px;}
+.sp-banner{position:relative;margin:6px 14px 0;height:190px;border-radius:14px;overflow:hidden;display:flex;align-items:center;}
+.sp-scrim{position:absolute;inset:0;background:linear-gradient(90deg, rgba(74,36,108,.92) 8%, rgba(74,36,108,.55) 50%, rgba(0,0,0,0) 85%);}
+.sp-banner .txt{position:relative;padding:18px;color:#fff;display:flex;flex-direction:column;gap:8px;max-width:72%;}
+.sp-banner h1{font-family:'Baloo 2', system-ui, sans-serif;font-size:27px;line-height:1.05;margin:0;}
+.sp-banner p{margin:0;font-size:14px;opacity:.95;}
+.sp-find{align-self:flex-start;background:var(--green);color:#fff;border:none;border-radius:999px;padding:9px 16px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;}
+.sp-title{text-align:center;font-size:17px;font-weight:600;margin:16px 14px 6px;}
+.set-page .module{margin-top:18px;}
 .nudge{
   background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
   padding:14px;display:flex;gap:12px;align-items:center;margin:0 14px;
@@ -686,6 +705,7 @@ a{color:inherit;}
 
   <div id="toast" class="toast" hidden></div>
 
+  <div class="set-page" id="setPage"></div>
   <div class="deal-detail" id="dealDetail"></div>
   <div class="replay-shield" id="replayShield" hidden></div>
   <div class="replay-caption" id="replayCaption" hidden></div>
@@ -1550,10 +1570,11 @@ var GPS_CITY = "Chicago, US";
 function whyBtn(idx){ return '<button class="why-btn" data-why="'+idx+'">i</button>'; }
 
 function heroTileHtml(t){
-  return '<div class="hero-slide tile" data-nolink="1" style="background:'+photoStyle(t.rows[0].d.photoId, 500, 500)+';">'
+  var from = Math.min.apply(null, t.rows.map(function(r){ return r.px.effective; }));
+  return '<div class="hero-slide tile" data-set="'+esc(t.key)+'" style="background:'+photoStyle(t.rows[0].d.photoId, 700, 500)+';">'
     + '<div class="scrim"></div><div class="txt">'
     + '<span class="eyebrow">'+esc(t.eyebrow)+'</span>'
-    + '<h1>'+esc(t.label)+'</h1><p>'+t.rows.length+(t.rows.length===1 ? ' deal' : ' deals')+'</p></div></div>';
+    + '<h1>'+esc(t.label)+'</h1><p>'+t.rows.length+(t.rows.length===1 ? ' deal' : ' deals')+' · from '+money(from)+'</p></div></div>';
 }
 function heroCarouselHtml(tiles){
   var dotsHtml = tiles.map(function(_, i){ return '<span class="dot'+(i===0?" on":"")+'"></span>'; }).join("");
@@ -1586,11 +1607,11 @@ function heroSets(n){
     list.slice(0, 3).forEach(function(r){ sum += r.score; });
     return sum;
   }
-  function add(c, kind, label, list, eyebrow){
-    var key = label.toLowerCase();
-    if(!list.length || seen[key]) return;
-    seen[key] = 1;
-    cands[c].push({kind:kind, cat:c, label:label, rows:list, eyebrow:eyebrow, score:meanTop(list)});
+  function add(c, kind, label, list, eyebrow, key){
+    var dup = label.toLowerCase();
+    if(!list.length || seen[dup]) return;
+    seen[dup] = 1;
+    cands[c].push({kind:kind, cat:c, label:label, rows:list, eyebrow:eyebrow, score:meanTop(list), key:key});
   }
   CATS.forEach(function(c){
     cands[c] = [];
@@ -1602,16 +1623,16 @@ function heroSets(n){
     var catEyebrow = pers && it && it.category===c ? "🔎 Your search" : "Category";
     if(pers){
       if(it && it.category===c) it.tokens.forEach(function(tk){
-        add(c, "intent", upFirst(tokVal(tk)), inCat.filter(function(r){ return r.d.tok.tokens.indexOf(tk) > -1; }), "🔎 Your search");
+        add(c, "intent", upFirst(tokVal(tk)), inCat.filter(function(r){ return r.d.tok.tokens.indexOf(tk) > -1; }), "🔎 Your search", "tok|"+c+"|"+tk);
       });
       var toks = p.tokens[c];
       Object.keys(toks).filter(function(tk){ return toks[tk] >= 0.15; }).sort(function(a, b){ return toks[b] - toks[a]; }).slice(0, 2)
-        .forEach(function(tk){ add(c, "learned", upFirst(tokVal(tk)), inCat.filter(function(r){ return r.d.tok.tokens.indexOf(tk) > -1; }), "🔥 For you"); });
-      subList.forEach(function(x){ add(c, "sub", x.k, x.rows, SEGMENTS[c].cat); });
-      add(c, "cat", SEGMENTS[c].cat, inCat, catEyebrow);
+        .forEach(function(tk){ add(c, "learned", upFirst(tokVal(tk)), inCat.filter(function(r){ return r.d.tok.tokens.indexOf(tk) > -1; }), "🔥 For you", "tok|"+c+"|"+tk); });
+      subList.forEach(function(x){ add(c, "sub", x.k, x.rows, SEGMENTS[c].cat, "sub|"+c+"|"+x.k); });
+      add(c, "cat", SEGMENTS[c].cat, inCat, catEyebrow, "cat|"+c);
     } else {
-      add(c, "cat", SEGMENTS[c].cat, inCat, catEyebrow);
-      subList.forEach(function(x){ add(c, "sub", x.k, x.rows, SEGMENTS[c].cat); });
+      add(c, "cat", SEGMENTS[c].cat, inCat, catEyebrow, "cat|"+c);
+      subList.forEach(function(x){ add(c, "sub", x.k, x.rows, SEGMENTS[c].cat, "sub|"+c+"|"+x.k); });
     }
   });
   var order = CATS.slice().sort(function(a, b){ return t[b].share - t[a].share; }), out = [];
@@ -1865,6 +1886,7 @@ function syncDots(car, dotsEl){
 function afterInteraction(){
   renderPage({instant:true});
   renderDrawerDynamic();
+  if(setKey) refreshSetPage();
 }
 
 function wirePageEvents(root){
@@ -1882,6 +1904,10 @@ function wirePageEvents(root){
       if(!d) return;
       viewDeal(d);
     });
+  });
+
+  scope.querySelectorAll("[data-set]").forEach(function(el){
+    el.addEventListener("click", function(){ openSetPage(el.getAttribute("data-set")); });
   });
 
   scope.querySelectorAll("[data-nolink]").forEach(function(el){
@@ -2335,6 +2361,72 @@ function viewDeal(d){
   openDetail(d.id);
 }
 
+/* ---------- set page: what a top-carousel tile opens ---------- */
+
+var setKey = null;
+function parseSetKey(key){ var a = key.split("|"); return {kind:a[0], cat:a[1], val:a.slice(2).join("|")}; }
+function setLabel(k){
+  if(k.kind==="cat") return SEGMENTS[k.cat].cat;
+  if(k.kind==="sub") return k.val;
+  return upFirst(tokVal(k.val));
+}
+function setRows(k){
+  var rows = getRanking().rows.filter(function(r){ return r.d.category===k.cat; });
+  if(k.kind==="sub") rows = rows.filter(function(r){ return r.d.subcategory===k.val; });
+  if(k.kind==="tok") rows = rows.filter(function(r){ return r.d.tok.tokens.indexOf(k.val) > -1; });
+  return rows;
+}
+function setPageHtml(key){
+  var k = parseSetKey(key), label = setLabel(k), rows = setRows(k), pers = isPersonalized();
+  var it = state.profile.visit.intent;
+  var sub = k.kind==="tok" && it && it.tokens.indexOf(k.val) > -1 ? "Deals matching “" + it.query + "”"
+    : k.kind==="tok" ? "Because you like this"
+    : "The best of " + label + ", for less.";
+  var cards = rows.map(function(r){ return bigCardHtml(r, {tag:cardTag(r)}); }).join("");
+  return '<div class="sp-top"><button class="dd-round" id="spBack" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>'
+    + '<div class="sp-search"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><span>Search '+esc(label)+'</span><u>'+esc(cityShort(state.profile.account.city))+'</u></div></div>'
+    + '<div class="sp-banner" style="background:'+photoStyle(rows[0].d.photoId, 900, 600)+';"><div class="sp-scrim"></div><div class="txt">'
+    +   '<h1>'+esc(label)+'</h1><p>'+esc(sub)+'</p><button class="sp-find" id="spFind">Find deals →</button></div></div>'
+    + '<h2 class="sp-title">'+esc(label)+'</h2>'
+    + '<div class="module" id="spSection"><div class="module-head"><div><h2>'+esc(label)+' deals'+'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></h2>'
+    +   '<div class="sub">'+rows.length+(rows.length===1 ? ' deal' : ' deals')+(pers ? ', ranked for you' : ', popular near you')+'</div></div></div>'
+    +   '<div class="big-carousel" data-carousel="setcards">'+cards+'</div></div>';
+}
+function openSetPage(key){
+  var el = document.getElementById("setPage");
+  if(!setRows(parseSetKey(key)).length) return;
+  setKey = key;
+  el.style.setProperty("--dd-top", document.querySelector(".statusbar").offsetHeight + "px");
+  el.innerHTML = setPageHtml(key);
+  el.scrollTop = 0;
+  wireSetPage();
+  void el.offsetWidth;
+  el.classList.add("open");
+}
+function wireSetPage(){
+  var el = document.getElementById("setPage");
+  wirePageEvents(el);
+  el.querySelector("#spBack").addEventListener("click", closeSetPage);
+  el.querySelector("#spFind").addEventListener("click", function(){
+    var sec = el.querySelector("#spSection");
+    el.scrollTo({top: sec.offsetTop - 70, behavior:"smooth"});
+  });
+}
+function refreshSetPage(){
+  var el = document.getElementById("setPage");
+  if(!setKey || !setRows(parseSetKey(setKey)).length) return;
+  var top = el.scrollTop, car = el.querySelector(".big-carousel"), left = car ? car.scrollLeft : 0;
+  el.innerHTML = setPageHtml(setKey);
+  wireSetPage();
+  el.scrollTop = top;
+  var car2 = el.querySelector(".big-carousel");
+  if(car2) car2.scrollLeft = left;
+}
+function closeSetPage(){
+  setKey = null;
+  document.getElementById("setPage").classList.remove("open");
+}
+
 /* ---------- replay: scripted user clicks played on the phone ---------- */
 
 var CANCEL = {};
@@ -2457,6 +2549,7 @@ function endReplayUI(){
   document.getElementById("tapDot").classList.remove("show", "tap");
 }
 function cancelReplay(){
+  closeSetPage();
   replay.run++;
   replay.running = false;
   if(replay.wake) replay.wake();
@@ -2593,6 +2686,7 @@ async function runStep(st, next, id){
 }
 
 async function playScript(steps, label){
+  closeSetPage();
   var id = ++replay.run;
   replay.running = true;
   replay.skip = false;
