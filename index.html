@@ -178,7 +178,7 @@ a{color:inherit;}
   background:linear-gradient(to top, rgba(0,0,0,.72) 10%, rgba(0,0,0,.15) 55%, rgba(0,0,0,0) 80%);
 }
 .hero-slide .txt{position:relative;padding:16px;color:#fff;display:flex;flex-direction:column;gap:4px;}
-.hero-slide h1{font-family:'Baloo 2';font-size:19px;margin:0;line-height:1.2;text-wrap:balance;}
+.hero-slide h1{font-family:'Baloo 2';font-size:19px;margin:0;line-height:1.2;text-wrap:balance;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
 .hero-slide p{margin:0;font-size:12.5px;text-decoration:underline;text-underline-offset:2px;opacity:.95;max-width:92%;}
 .hero-slide .eyebrow{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;opacity:.85;}
 .dots-row{display:flex;gap:5px;justify-content:center;padding-top:2px;}
@@ -292,6 +292,9 @@ a{color:inherit;}
 .recent-card .info .price-ladder .pct-pill{font-size:10px;padding:1px 6px;}
 .recent-card .info .price-ladder .tier2{font-size:10px;}
 .recent-card .info .price-ladder .promo{font-size:13px;}
+.sponsored-tag{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text-muted);}
+.module.featured{margin:6px 0 18px;}
+.hero-slide{cursor:pointer;}
 .nudge{
   background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
   padding:14px;display:flex;gap:12px;align-items:center;margin:0 14px;
@@ -1535,20 +1538,44 @@ var KNOWN_CITIES = ["Chicago, US","Praha, TX","New York, US","Los Angeles, US","
 var GPS_CITY = "Chicago, US";
 function whyBtn(idx){ return '<button class="why-btn" data-why="'+idx+'">i</button>'; }
 
-function heroSlideHtml(h, eyebrow){
-  return '<div class="hero-slide" style="background:'+photoStyle(h.photoId)+';">'
+function heroSlideHtml(item){
+  var d = item.r.d, px = item.r.px;
+  return '<div class="hero-slide" data-view="'+d.id+'" style="background:'+photoStyle(d.photoId)+';">'
     + '<div class="scrim"></div><div class="txt">'
-    + (eyebrow ? '<span class="eyebrow">'+eyebrow+'</span>' : '')
-    + '<h1>'+h.headline+'</h1><p>'+h.sub+'</p></div></div>';
+    + '<span class="eyebrow">'+esc(item.eyebrow)+'</span>'
+    + '<h1>'+esc(d.title)+'</h1><p>'+money(px.effective)+' · '+pct(px.effectiveDiscount)+' off · '+esc(d.addr)+'</p></div></div>';
 }
-function heroCarouselHtml(slides, eyebrow){
-  var slidesHtml = slides.map(function(s, i){ return heroSlideHtml(s, i===0 ? eyebrow : ""); }).join("");
-  var dotsHtml = slides.map(function(_, i){ return '<span class="dot'+(i===0?" on":"")+'"></span>'; }).join("");
-  return '<div class="hero-carousel" data-carousel="hero">' + slidesHtml + '</div>'
+function heroCarouselHtml(items){
+  var dotsHtml = items.map(function(_, i){ return '<span class="dot'+(i===0?" on":"")+'"></span>'; }).join("");
+  return '<div class="hero-carousel" data-carousel="hero">' + items.map(heroSlideHtml).join("") + '</div>'
     + '<div class="dots-row" data-dots="hero">' + dotsHtml + '</div>';
 }
-function dealHeroSlide(r){
-  return {headline: r.d.title, sub: money(r.px.effective)+" · "+pct(r.px.effectiveDiscount)+" off · "+r.d.addr, photoId: r.d.photoId};
+// n individual deals. Slots per category follow the category shares (segment prior at cold start,
+// prior + learned + intent afterwards); every category with a real share keeps at least one slot.
+function heroItems(n){
+  var rows = getRanking().rows, t = categoryTotals(), pers = isPersonalized();
+  var quota = {}, sum = 0;
+  CATS.forEach(function(c){ quota[c] = Math.floor(t[c].share*n); sum += quota[c]; });
+  CATS.slice().sort(function(a, b){ return (t[b].share*n - quota[b]) - (t[a].share*n - quota[a]); })
+    .forEach(function(c){ if(sum < n){ quota[c]++; sum++; } });
+  CATS.forEach(function(c){
+    if(t[c].share >= 0.12 && quota[c]===0){
+      var big = CATS.slice().sort(function(a, b){ return quota[b] - quota[a]; })[0];
+      if(quota[big] > 1){ quota[big]--; quota[c]++; }
+    }
+  });
+  var order = CATS.slice().sort(function(a, b){ return t[b].share - t[a].share; }), picks = {};
+  CATS.forEach(function(c){ picks[c] = rows.filter(function(r){ return r.d.category===c; }).slice(0, quota[c]); });
+  var out = [];
+  for(var k=0; out.length<n && k<n; k++){
+    order.forEach(function(c){
+      var r = picks[c][k];
+      if(!r) return;
+      var why = topReason(r);
+      out.push({r:r, cat:c, eyebrow: why ? why.tag : (pers && t[c].share < 0.25 ? "✨ Try something new" : SEGMENTS[c].cat)});
+    });
+  }
+  return out;
 }
 
 // strongest personal reason (learned preference or current intent) behind a deal's rank
@@ -1621,31 +1648,14 @@ function driversText(r, n){
 }
 function scoreLine(r){ return "P(purchase) " + pct1(r.P) + " × margin " + pct(r.m.rate) + " = <b>" + r.score.toFixed(3) + "</b>"; }
 
-function soloModuleHtml(title, sub, r, idx){
-  return '<div class="module">'
-    + '<div class="module-head"><div><h2>'+title+chevronSvg()+'</h2>'+(sub?'<div class="sub">'+sub+'</div>':'')+'</div>'+whyBtn(idx)+'</div>'
-    + '<div class="why-note" id="why-'+idx+'" hidden>#1 of '+getRanking().rows.length+' by score = P(purchase) × expected margin rate. '+scoreLine(r)+'. Biggest drivers: '+driversText(r)+'.</div>'
-    + '<div class="solo-wrap">'+bigCardHtml(r, {extraClass:"solo"})+'</div>'
-    + '<hr class="dashed-divider on-light" style="margin:2px 14px 0;">'
-    + '</div>';
-}
-function smallRowModuleHtml(title, sub, rows, idx, whyLead){
-  if(!rows.length) return "";
-  var lines = rows.map(function(r){ return "#"+r.rank+" "+r.d.title+": "+r.score.toFixed(3)+" ("+driversText(r, 2)+")"; }).join("<br>");
-  return '<div class="module"><div class="module-head"><div><h2>'+title+'</h2>'+(sub?'<div class="sub">'+sub+'</div>':'')+'</div>'+whyBtn(idx)+'</div>'
-    + '<div class="why-note" id="why-'+idx+'" hidden>'+(whyLead||"Next in the same ranking (score = P × margin).")+'<br>'+lines+'</div>'
+function dealsModuleHtml(title, sub, rows, idx, whyLead){
+  var lines = rows.map(function(r){ return "#"+r.rank+" "+esc(r.d.title)+": "+r.score.toFixed(3)+" ("+driversText(r, 2)+")"; }).join("<br>");
+  return '<div class="module"><div class="module-head"><div><h2>'+title+chevronSvg()+'</h2>'+(sub?'<div class="sub">'+sub+'</div>':'')+'</div>'+whyBtn(idx)+'</div>'
+    + '<div class="why-note" id="why-'+idx+'" hidden>'+whyLead+'<br>'+lines+'</div>'
     + stackedCardsHtml(rows)
     + '</div>';
 }
-function giftsModuleHtml(){
-  var rows = getRanking().rows.filter(function(r){ return r.d.giftable; }).slice(0, 8);
-  var cardsHtml = rows.map(function(r){ return '<div class="solo-wrap" style="margin-bottom:12px;">'+bigCardHtml(r, {extraClass:"solo"})+'</div>'; }).join("");
-  return '<div class="module">'
-    + '<div class="module-head tinted"><div><h2>🎁 Trending gifts</h2></div><a href="#" class="see-all" data-nolink="1">See all ›</a></div>'
-    + cardsHtml
-    + '</div>';
-}
-function recentCardHtml(r){
+function recentCardHtml(r, sponsored){
   var d = r.d;
   var liked = state.profile.saved.indexOf(d.id) > -1;
   return '<div class="recent-card" data-view="'+d.id+'">'
@@ -1653,6 +1663,7 @@ function recentCardHtml(r){
     +   '<button class="heart-btn'+(liked?" on":"")+'" data-heart="'+d.id+'" aria-label="Save">'+(liked?"♥":"♡")+'</button>'
     + '</div>'
     + '<div class="info">'
+    +   (sponsored ? '<span class="sponsored-tag">Sponsored</span>' : '')
     +   '<span class="title">'+d.title+'</span>'
     +   '<span class="addr">'+d.addr+'</span>'
     +   '<span class="rating-row">'+starBar(d.rating)+' <b>'+d.rating.toFixed(1)+'</b> ('+reviewsLabel(d.review_count)+')</span>'
@@ -1668,11 +1679,25 @@ function recentlyViewedModuleHtml(){
     + '<div class="recent-carousel" data-carousel="recent">'+cardsHtml+'</div>'
     + '</div>';
 }
-function highlyRatedModuleHtml(){
-  var rows = getRanking().rows.slice().sort(function(a, b){ return (b.d.rating - a.d.rating) || (b.score - a.score); }).slice(0, 8);
+// featured (sponsored) deals: horizontal like recently viewed, placed in the middle of the gifts
+function featuredModuleHtml(rows, idx){
+  var lines = rows.map(function(r){ return "#"+r.rank+" "+esc(r.d.title)+": "+r.score.toFixed(3); }).join("<br>");
+  return '<div class="module featured">'
+    + '<div class="module-head"><div><h2>Featured deals</h2><div class="sub">Sponsored</div></div>'+whyBtn(idx)+'</div>'
+    + '<div class="why-note" id="why-'+idx+'" hidden>Sponsored placement (demo): the next-best deals by score that are not already shown above. The real app fills this slot with paid placements.<br>'+lines+'</div>'
+    + '<div class="recent-carousel" data-carousel="featured">'+rows.map(function(r){ return recentCardHtml(r, true); }).join("")+'</div>'
+    + '</div>';
+}
+function giftsModuleHtml(rows, featured, pers){
+  var cards = rows.map(function(r){ return '<div class="solo-wrap" style="margin-bottom:12px;">'+bigCardHtml(r, {extraClass:"solo"})+'</div>'; });
+  var mid = Math.ceil(cards.length/2);
+  var lines = rows.map(function(r){ return "#"+r.rank+" "+esc(r.d.title)+": "+r.score.toFixed(3)+" ("+driversText(r, 2)+")"; }).join("<br>");
   return '<div class="module">'
-    + '<div class="module-head"><div><h2>⭐ Highly rated near you</h2></div><a href="#" class="see-all" data-nolink="1">See all ›</a></div>'
-    + stackedCardsHtml(rows, "⭐ Top rated")
+    + '<div class="module-head tinted"><div><h2>🎁 '+(pers ? "Gifts for you" : "Trending gifts")+'</h2></div>'+whyBtn(1)+'</div>'
+    + '<div class="why-note" id="why-1" hidden>Giftable deals in the same ranking (score = P × margin); a gift search boosts them.<br>'+lines+'</div>'
+    + cards.slice(0, mid).join("")
+    + (featured.length ? featuredModuleHtml(featured, 2) : "")
+    + cards.slice(mid).join("")
     + '</div>';
 }
 
@@ -1739,42 +1764,26 @@ function observeExposures(root){
 function renderPage(opts){
   opts = opts || {};
   var R = getRanking(), rows = R.rows, p = state.profile;
-  var pers = isPersonalized(), primary = primaryCategory(), seg = SEGMENTS[primary];
-  var city = cityShort(p.account.city);
-  var modules = [];
-  var html;
+  var pers = isPersonalized(), city = cityShort(p.account.city);
 
   if(exposureIO){ exposureIO.disconnect(); }
   lazyGen++;
 
   var lead = topReason(rows[0]);
-  if(pers){
-    var reason = p.visit.intent ? ("Because you searched “" + esc(p.visit.intent.query) + "”")
-      : (lead && lead.feat !== "category interest" && lead.grp === "learned" ? ("Because you lean toward " + lead.tag.replace(/^\S+\s/, "").toLowerCase())
-      : ("Because you've been exploring " + SEGMENTS[rows[0].d.category].cat));
-    html = heroCarouselHtml([{headline:"Picked for you: " + seg.label, sub:reason, photoId:rows[0].d.photoId}]
-      .concat(rows.slice(1, 5).map(dealHeroSlide))
-      .concat([{headline:"Citywide Favorites", sub:"Top-rated across every category this week", photoId:(rows[8]||rows[0]).d.photoId}]), seg.label);
-    html += soloModuleHtml("Trending in " + city, reason, rows[0], 0);
-    modules.push(smallRowModuleHtml("More for you", "", rows.slice(1, 6), 2, "Ranks #2–#6 of the same personalised ranking."));
-  } else {
-    html = heroCarouselHtml([{headline:"Your city, today's best deals", sub:"Top sellers, tuned only by a demographic prior until we learn more", photoId:rows[0].d.photoId}]
-      .concat(rows.slice(1, 5).map(dealHeroSlide))
-      .concat([{headline:"Citywide Favorites", sub:"Top-rated across every category this week", photoId:(rows[8]||rows[0]).d.photoId}]), "Explore");
-    html += soloModuleHtml("Trending in " + city, "Citywide, lightly tuned by your profile", rows[0], 0);
-    modules.push(smallRowModuleHtml("Popular this week", "", rows.slice(1, 6), 2, "Cold start: ranked by the segment prior + deal quality, price and margin only."));
-  }
-  var rv = recentlyViewedModuleHtml();
-  if(rv) modules.push(rv);
-  modules.push(giftsModuleHtml());
-  if(pers){
-    var dc = discoverCategory(), shownTop = rows.slice(0, 6).map(function(r){ return r.d.id; });
-    var disc = rows.filter(function(r){ return r.d.category===dc && shownTop.indexOf(r.d.id) < 0; }).slice(0, 4);
-    modules.push(smallRowModuleHtml("Discover: " + SEGMENTS[dc].label, "Something different, still ranked for you", disc, 3, "Exploration slot: the category with the lowest current share, best deals by score."));
-  }
-  modules.push(highlyRatedModuleHtml());
-  modules.push(smallRowModuleHtml(pers ? "More for you" : "Popular this week", "", rows.slice(6, 11), 4, "Ranks #7–#11."));
-  modules = modules.filter(Boolean);
+  var reason = !pers ? "Popular in your city, tuned to your estimated interests"
+    : (p.visit.intent ? ("Because you searched “" + esc(p.visit.intent.query) + "”")
+    : (lead && lead.feat !== "category interest" && lead.grp === "learned" ? ("Because you lean toward " + lead.tag.replace(/^\S+\s/, "").toLowerCase())
+    : ("Because you've been exploring " + SEGMENTS[rows[0].d.category].cat)));
+  var top = rows.slice(0, 5);
+  var gifts = rows.filter(function(r){ return r.d.giftable; }).slice(0, 8);
+  var shown = {};
+  top.concat(gifts).forEach(function(r){ shown[r.d.id] = true; });
+  var featured = rows.filter(function(r){ return !shown[r.d.id]; }).slice(0, 6);
+
+  var html = heroCarouselHtml(heroItems(6));
+  html += dealsModuleHtml(pers ? "Deals for you" : "Trending in " + city, reason, top, 0,
+    pers ? "Personalised: ranks #1–#5 by score = P(purchase) × margin." : "Cold start: ranks #1–#5 from the estimated segment mix + deal quality, price and margin only.");
+  var modules = [recentlyViewedModuleHtml(), giftsModuleHtml(gifts, featured, pers)].filter(Boolean);
 
   var content = document.getElementById("content");
   var keepTop = content.scrollTop;
@@ -2041,7 +2050,9 @@ function renderTrace(){
   var promoN = rows.filter(function(r){ return r.px.promo; }).length;
   lines.push("<li><b>4. Candidate deals</b> → " + rows.length + " of " + DEALS.length + " eligible" + (R.excluded.length ? " (" + R.excluded.length + " bought → excluded)" : "") + " · promo applies to " + promoN + "</li>");
   lines.push("<li><b>5. Ranking</b> → score = P(purchase) × margin · #1 <b>" + top.d.title + "</b>: " + pct1(top.P) + " × " + pct(top.m.rate) + " = " + top.score.toFixed(3) + "</li>");
-  lines.push("<li><b>6. Mobile page</b> → Trending = #1, " + (pers ? "More for you" : "Popular this week") + " = #2–6, gifts & highly rated re-use the same scores" + (pers ? ", discover = " + SEGMENTS[discoverCategory()].cat : "") + "</li>");
+  var hero = heroItems(6), hc = {};
+  hero.forEach(function(h){ hc[h.cat] = (hc[h.cat]||0) + 1; });
+  lines.push("<li><b>6. Mobile page</b> → hero " + hero.length + " deals: " + CATS.filter(function(c){ return hc[c]; }).map(function(c){ return hc[c] + " " + SEGMENTS[c].cat; }).join(" / ") + " · " + (pers ? "Deals for you" : "Trending") + " = #1–5 · " + (pers ? "Gifts for you" : "Trending gifts") + " with Featured deals in the middle</li>");
   var thisVisit = p.log.filter(function(e){ return e.visit===p.visit.n && e.icon!=="🚪"; }).length;
   lines.push("<li><b>7. Behavior</b> → " + thisVisit + " event(s) this visit · " + Object.keys(p.visit.exposed).length + " deals seen</li>");
   lines.push("<li><b>8. Updated profile</b> → " + p.nSignals + " signal(s), stored in this browser; ▲▼ below = rank change since this visit started</li>");
