@@ -331,6 +331,21 @@ a{color:inherit;}
 .sp-find{align-self:flex-start;background:var(--green);color:#fff;border:none;border-radius:999px;padding:9px 16px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;}
 .sp-title{text-align:center;font-size:20px;font-weight:600;margin:16px 14px 6px;}
 .set-page .module{margin-top:18px;}
+/* campaign page: two broad tiles open this (banner + headline + blurbed sideways rows) */
+.set-page.campaign .sp-banner{height:172px;border-radius:14px;}
+.sp-banner.camp{background-position:right center !important;background-size:cover !important;}
+.sp-banner.camp .txt{max-width:66%;padding:16px;gap:6px;}
+.sp-banner .brand{font-size:11px;font-weight:800;letter-spacing:.04em;opacity:.95;}
+.sp-banner.camp h1{font-family:Georgia,'Times New Roman',serif;font-weight:700;font-size:25px;line-height:1.05;}
+.sp-banner.camp p{font-size:12.5px;line-height:1.3;}
+.sp-banner .code{font-size:10.5px;font-weight:700;letter-spacing:.14em;display:flex;align-items:center;gap:8px;}
+.sp-banner .code b{background:var(--green);border-radius:999px;padding:5px 12px;font-size:11px;letter-spacing:.16em;}
+.set-page.campaign .sp-title{font-size:21px;margin:18px 14px 4px;}
+.set-page.campaign .module-head h2{font-family:'Work Sans', system-ui, sans-serif;font-size:20px;font-weight:700;}
+.set-page.campaign .module-head .sub{font-size:14px;line-height:1.4;margin-top:4px;}
+.set-page.campaign .big-carousel .big-card{width:84%;}
+.set-page.campaign .big-carousel .big-card .photo{height:196px;border-radius:16px;}
+.set-page.campaign .big-carousel .big-card .info .title{font-size:17px;font-weight:700;}
 /* deal cards in the sub-category rows: compact */
 .set-page .big-carousel .big-card{width:70%;}
 .set-page .big-carousel .big-card .photo{height:140px;}
@@ -2629,6 +2644,43 @@ function setRows(k){
 }
 function svgChevronR(){ return '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>'; }
 function dealCountText(n, pers){ return n + (n===1 ? " deal" : " deals") + (pers ? ", ranked for you" : ", popular near you"); }
+// Two broad tiles open a "campaign" page (banner, headline, sub-category sections with a blurb, sideways rows);
+// other broad tiles open the plain sectioned page. Copy is demo content.
+var CAMPAIGN_PAGES = {
+  wellness:{
+    title:"Recharge your Body", sub:"Extra savings on fitness & recovery, this week only!", code:"RELAX",
+    pageTitle:"Fall Recharge: Self-Care Deals", grad:"linear-gradient(100deg, #34104a 0%, #5b2a86 48%, rgba(70,30,110,.1) 100%)",
+    sections:{
+      "Massage":{title:"Massage & Bodywork", desc:"Melt the stress away: massage, couples & aromatherapy at sale prices."},
+      "Facials":{title:"Facials & Skincare", desc:"Glow up with facials and skin treatments, at the salon or at home."},
+      "Nails":{title:"Nails & Polish", desc:"Fresh manis and pedis for fall."},
+      "Fitness":{title:"Fitness & Movement", desc:"Classes, memberships & bootcamps to keep you moving."},
+      "Day spa":{title:"Spa Days & Escapes", desc:"Sauna, pool and pampering, all in one day."},
+      "Health coaching":{title:"Nutrition & Coaching", desc:"Meal prep, cleanses and coaching to feel your best."}
+    }
+  },
+  food:{
+    title:"Fall Flavors", sub:"Tastings, tours & set menus, this week only!", code:"WELCOME15",
+    pageTitle:"Fall Flavors: Eat, Drink & Be Merry", grad:"linear-gradient(100deg, #4a1a0c 0%, #8a3a12 48%, rgba(140,60,20,.1) 100%)",
+    sections:{
+      "Fine dining":{title:"Fine Dining & Tasting Menus", desc:"Chef's menus and omakase for a special night."},
+      "Casual dining":{title:"Casual Eats", desc:"Easy dinners for two, for less."},
+      "Food tours":{title:"Food Tours", desc:"Eat your way through the city with a guide."},
+      "Cooking classes":{title:"Classes & Workshops", desc:"Roll pasta, pour latte art, learn something tasty."},
+      "Bars & tastings":{title:"Bars & Tastings", desc:"Wine, cheese and craft beer flights."},
+      "Brunch & cafés":{title:"Brunch & Cafés", desc:"Bottomless brunch, afternoon tea and café lunches."},
+      "Treats & takeaway":{title:"Treats to Go", desc:"Bakery boxes and patisserie sweets to gift or nibble."}
+    }
+  }
+};
+function campaignFor(k){ return k.kind === "cat" ? CAMPAIGN_PAGES[k.cat] || null : null; }
+// the promo code is only advertised while that campaign really applies to this customer
+function campaignCode(camp){
+  var pc = PROMO_CAMPAIGNS.filter(function(c){ return c.code === camp.code; })[0];
+  if(!pc || !state.profile.promo[pc.code]) return null;
+  if(pc.audience === "first_purchase" && state.profile.purchases.length) return null;
+  return pc.code;
+}
 // broad tile (a whole category): sections per sub-category, each a horizontal row of deals
 // narrow tile (a sub-category or a learned/searched feature): one simple vertical list of deals
 function setBodyHtml(k, label, rows, pers){
@@ -2637,6 +2689,7 @@ function setBodyHtml(k, label, rows, pers){
       + rows.map(function(r){ return '<div class="solo-wrap" style="margin-bottom:12px;">'+bigCardHtml(r, {extraClass:"solo", tag:cardTag(r)})+'</div>'; }).join("")
       + '</div>';
   }
+  var camp = campaignFor(k);
   var groups = {};
   rows.forEach(function(r){ (groups[r.d.subcategory] = groups[r.d.subcategory] || []).push(r); });
   var list = Object.keys(groups).map(function(name){
@@ -2644,13 +2697,30 @@ function setBodyHtml(k, label, rows, pers){
     groups[name].slice(0, 3).forEach(function(r){ sum += r.score; });
     return {name:name, rows:groups[name], score:sum};
   }).sort(function(a, b){ return b.score - a.score; });
-  function section(title, items, key, first){
+  function section(title, items, key, first, desc){
     return '<div class="module"'+(first ? ' id="spSection"' : '')+'>'
-      + '<div class="module-head"'+(key ? ' data-set="'+esc(key)+'" style="cursor:pointer"' : '')+'><div><h2>'+esc(title)+'</h2><div class="sub">'+items.length+(items.length===1 ? " deal" : " deals")+'</div></div>'+(key ? svgChevronR() : '')+'</div>'
+      + '<div class="module-head"'+(key ? ' data-set="'+esc(key)+'" style="cursor:pointer"' : '')+'><div><h2>'+esc(title)+'</h2><div class="sub">'+(desc ? esc(desc) : items.length+(items.length===1 ? " deal" : " deals"))+'</div></div>'+(key ? svgChevronR() : '')+'</div>'
       + '<div class="big-carousel" data-carousel="sp-'+esc(title)+'">'+items.map(function(r){ return bigCardHtml(r, {tag:cardTag(r)}); }).join("")+'</div></div>';
   }
-  return section(pers ? "Top picks for you" : "Popular picks", rows.slice(0, 6), null, true)
-    + list.map(function(g){ return section(g.name, g.rows, "sub|"+k.cat+"|"+g.name, false); }).join("");
+  var head = camp ? "" : section(pers ? "Top picks for you" : "Popular picks", rows.slice(0, 6), null, true);
+  return head + list.map(function(g, i){
+    var c = camp && camp.sections[g.name];
+    return section(c ? c.title : g.name, g.rows, "sub|"+k.cat+"|"+g.name, !head && i === 0, c ? c.desc : "");
+  }).join("");
+}
+function setBannerHtml(k, label, sub, rows){
+  var camp = campaignFor(k);
+  if(!camp){
+    return '<div class="sp-banner" style="background:'+photoStyle(rows[0].d.photoId, 900, 600)+';"><div class="sp-scrim"></div><div class="txt">'
+      + '<h1>'+esc(label)+'</h1><p>'+esc(sub)+'</p><button class="sp-find" id="spFind">Find deals →</button></div></div>'
+      + '<h2 class="sp-title">'+esc(label)+'</h2>';
+  }
+  var code = campaignCode(camp);
+  return '<div class="sp-banner camp" style="background:'+photoStyle(rows[0].d.photoId, 900, 600)+';"><div class="sp-scrim" style="background:'+camp.grad+';"></div><div class="txt">'
+    + '<span class="brand">GROUPON</span><h1>'+esc(camp.title)+'</h1><p>'+esc(camp.sub)+'</p>'
+    + (code ? '<span class="code">USE CODE: <b>'+esc(code)+'</b></span>' : '')
+    + '<button id="spFind" hidden></button></div></div>'
+    + '<h2 class="sp-title">'+esc(camp.pageTitle)+'</h2>';
 }
 function setPageHtml(key){
   var k = parseSetKey(key), label = setLabel(k), rows = setRows(k), pers = isPersonalized();
@@ -2661,15 +2731,14 @@ function setPageHtml(key){
     : "The best of " + label + ", for less.";
   return '<div class="sp-top"><button class="dd-round" id="spBack" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>'
     + '<div class="sp-search"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><span>Search '+esc(label)+'</span><u>'+esc(cityShort(state.profile.account.city))+'</u></div></div>'
-    + '<div class="sp-banner" style="background:'+photoStyle(rows[0].d.photoId, 900, 600)+';"><div class="sp-scrim"></div><div class="txt">'
-    +   '<h1>'+esc(label)+'</h1><p>'+esc(sub)+'</p><button class="sp-find" id="spFind">Find deals →</button></div></div>'
-    + '<h2 class="sp-title">'+esc(label)+'</h2>'
+    + setBannerHtml(k, label, sub, rows)
     + setBodyHtml(k, label, rows, pers);
 }
 var setStack = [];                              // page we came from (category → sub-category)
 function showSetPage(key){
   var el = document.getElementById("setPage");
   setKey = key;
+  el.classList.toggle("campaign", !!campaignFor(parseSetKey(key)));
   el.innerHTML = setPageHtml(key);
   el.scrollTop = 0;
   wireSetPage();
@@ -2692,7 +2761,7 @@ function wireSetPage(){
   });
   el.querySelector("#spFind").addEventListener("click", function(){
     var sec = el.querySelector("#spSection");
-    el.scrollTo({top: sec.offsetTop - 70, behavior:"smooth"});
+    if(sec) el.scrollTo({top: sec.offsetTop - 70, behavior:"smooth"});
   });
 }
 function refreshSetPage(){
