@@ -926,6 +926,7 @@ a{color:inherit;}
     <div class="d-section">
       <h3>5 · Why this page</h3>
       <ul class="trace-list" id="traceList"></ul>
+      <details class="xp" id="tilesBox"><summary>Top tiles: why each</summary><div class="xp-body" id="tilesBody"></div></details>
       <details class="xp" id="scoresBox"><summary>Deal scores (P × margin)</summary><div class="rank-table" id="rankTable"></div></details>
     </div>
 
@@ -1848,11 +1849,11 @@ function heroSets(n){
     return sum;
   }
   var seenSet = {};
-  function add(c, kind, label, list, eyebrow, key){
+  function add(c, kind, label, list, eyebrow, key, why){
     var dup = label.toLowerCase(), sig = list.map(function(r){ return r.d.id; }).sort().join(",");
     if(!list.length || seen[dup] || seenSet[sig]) return;          // same label or exactly the same deals: one tile is enough
     seen[dup] = 1; seenSet[sig] = 1;
-    cands[c].push({kind:kind, cat:c, label:label, rows:list, eyebrow:eyebrow, score:meanTop(list), key:key});
+    cands[c].push({kind:kind, cat:c, label:label, rows:list, eyebrow:eyebrow, score:meanTop(list), key:key, why:why || ""});
   }
   CATS.forEach(function(c){
     cands[c] = [];
@@ -1865,31 +1866,31 @@ function heroSets(n){
     if(pers){
       if(it && it.category===c) it.tokens.forEach(function(tk){
         var hits = inCat.filter(function(r){ return r.d.tok.tokens.indexOf(tk) > -1; }), close = hits.filter(isNear);
-        add(c, "intent", tokenTitle(tk), hits, "🔎 Your search", "tok|"+c+"|"+tk);
-        if(close.length >= 2 && close.length < hits.length) add(c, "intent", tokenTitle(tk) + " near you", close, "📍 Close to you", "near|"+c+"|"+tk);
+        add(c, "intent", tokenTitle(tk), hits, "🔎 Your search", "tok|"+c+"|"+tk, "your search “" + it.query + "” maps to " + prettyTok(tk) + "; " + hits.length + " deals carry this feature");
+        if(close.length >= 2 && close.length < hits.length) add(c, "intent", tokenTitle(tk) + " near you", close, "📍 Close to you", "near|"+c+"|"+tk, "same search feature, only the " + close.length + " of " + hits.length + " deals within " + NEAR_MILES + " mi");
       });
       var toks = p.tokens[c];
       Object.keys(toks).filter(function(tk){ return toks[tk] >= 0.15 && tileWorthy(tk, inCat); }).sort(function(a, b){ return toks[b] - toks[a]; }).slice(0, 2)
         .forEach(function(tk){
           var all = inCat.filter(function(r){ return r.d.tok.tokens.indexOf(tk) > -1; }), near = all.filter(isNear);
-          if(!(it && it.category===c && it.tokens.indexOf(tk) > -1)) add(c, "learned", tokenTitle(tk) + " for you", all, "🔥 For you", "tok|"+c+"|"+tk);
-          if(near.length >= 2 && near.length < all.length) add(c, "learned", tokenTitle(tk) + " near you", near, "📍 Close to you", "near|"+c+"|"+tk);
+          if(!(it && it.category===c && it.tokens.indexOf(tk) > -1)) add(c, "learned", tokenTitle(tk) + " for you", all, "🔥 For you", "tok|"+c+"|"+tk, "learned feature " + prettyTok(tk) + " (weight " + fmtW(toks[tk]) + " ≥ +0.15, shared by " + all.length + " deals)");
+          if(near.length >= 2 && near.length < all.length) add(c, "learned", tokenTitle(tk) + " near you", near, "📍 Close to you", "near|"+c+"|"+tk, "learned feature " + prettyTok(tk) + ", only the " + near.length + " of " + all.length + " deals within " + NEAR_MILES + " mi");
         });
       Object.keys(p.subs).filter(function(k){ return k.indexOf(c + "|") === 0 && p.subs[k] >= 0.25 && subs[k.slice(c.length + 1)]; })
         .sort(function(a, b){ return p.subs[b] - p.subs[a]; }).slice(0, 2).forEach(function(k){
           var name = k.slice(c.length + 1), list = subs[name], close = list.filter(isNear);
-          add(c, "learned", name + " for you", list, "🔥 For you", "sub|"+c+"|"+name);
-          if(close.length >= 2 && close.length < list.length) add(c, "learned", name + " near you", close, "📍 Close to you", "subnear|"+c+"|"+name);
+          add(c, "learned", name + " for you", list, "🔥 For you", "sub|"+c+"|"+name, "you engaged with " + name + " (interest " + fmtW(p.subs[k]) + " ≥ +0.25 from views, saves, buys, reads)");
+          if(close.length >= 2 && close.length < list.length) add(c, "learned", name + " near you", close, "📍 Close to you", "subnear|"+c+"|"+name, "engaged sub-category, only the " + close.length + " of " + list.length + " deals within " + NEAR_MILES + " mi");
         });
       subList.slice(0, 2).forEach(function(x){                        // the best sub-categories, restricted to what is close by
         var near = x.rows.filter(isNear);
-        if(near.length >= 2 && near.length < x.rows.length) add(c, "sub", x.k + " near you", near, "📍 Close to you", "subnear|"+c+"|"+x.k);
+        if(near.length >= 2 && near.length < x.rows.length) add(c, "sub", x.k + " near you", near, "📍 Close to you", "subnear|"+c+"|"+x.k, "one of the best sub-categories in " + SEGMENTS[c].cat + ", only the " + near.length + " of " + x.rows.length + " deals within " + NEAR_MILES + " mi");
       });
-      subList.forEach(function(x){ add(c, "sub", x.k, x.rows, SEGMENTS[c].cat, "sub|"+c+"|"+x.k); });
-      add(c, "cat", SEGMENTS[c].cat, inCat, catEyebrow, "cat|"+c);
+      subList.forEach(function(x){ add(c, "sub", x.k, x.rows, SEGMENTS[c].cat, "sub|"+c+"|"+x.k, "sub-category filler: its 3 best deals total " + x.score.toFixed(2) + " in score"); });
+      add(c, "cat", SEGMENTS[c].cat, inCat, catEyebrow, "cat|"+c, "the whole category (" + inCat.length + " deals)");
     } else {
-      add(c, "cat", SEGMENTS[c].cat, inCat, catEyebrow, "cat|"+c);
-      subList.forEach(function(x){ add(c, "sub", x.k, x.rows, SEGMENTS[c].cat, "sub|"+c+"|"+x.k); });
+      add(c, "cat", SEGMENTS[c].cat, inCat, catEyebrow, "cat|"+c, "cold start: the whole category, sized by its estimated share " + pct(t[c].share));
+      subList.forEach(function(x){ add(c, "sub", x.k, x.rows, SEGMENTS[c].cat, "sub|"+c+"|"+x.k, "cold start: biggest sub-category of " + SEGMENTS[c].cat + " (3 best deals total " + x.score.toFixed(2) + " in score)"); });
     }
   });
   var order = CATS.slice().sort(function(a, b){ return t[b].share - t[a].share; }), out = [];
@@ -1897,10 +1898,14 @@ function heroSets(n){
     order.forEach(function(c){
       var set = cands[c].slice(0, quota[c])[k];
       if(!set) return;
-      if(pers && t[c].share < 0.25 && set.kind !== "intent" && set.kind !== "learned") set.eyebrow = "✨ Try new";
+      if(pers && t[c].share < 0.25 && set.kind !== "intent" && set.kind !== "learned"){
+        set.eyebrow = "✨ Try new";
+        set.why += " · exploration slot: " + SEGMENTS[c].cat + " share " + pct(t[c].share) + " is below 25%";
+      }
       out.push(set);
     });
   }
+  out.meta = {quota:quota, totals:t};
   return out;
 }
 
@@ -2408,6 +2413,9 @@ function renderTrace(){
   lines.push("<li><b>4. Candidate deals</b> → " + rows.length + " of " + DEALS.length + " eligible" + (R.excluded.length ? " (" + R.excluded.length + " bought → excluded)" : "") + " · promo applies to " + promoN + "</li>");
   lines.push("<li><b>5. Ranking</b> → score = P(purchase) × margin · #1 <b>" + top.d.title + "</b>: " + pct1(top.P) + " × " + pct(top.m.rate) + " = " + top.score.toFixed(3) + "</li>");
   var hero = heroSets(8);
+  document.getElementById("tilesBody").innerHTML =
+    '<div>Tiles per category follow the category shares: ' + CATS.map(function(c){ return SEGMENTS[c].cat + " " + hero.meta.quota[c] + " (" + pct(hero.meta.totals[c].share) + ")"; }).join(" · ") + '.</div>'
+    + hero.map(function(h, i){ return '<div><b>' + (i + 1) + '. ' + esc(h.label) + '</b> <span>(' + esc(h.eyebrow) + ')</span>: ' + esc(h.why) + '</div>'; }).join("");
   lines.push("<li><b>6. Mobile page</b> → top tiles: " + hero.map(function(h){ return esc(h.label) + (h.kind==="intent" ? " (search)" : (h.kind==="learned" ? " (learned)" : "")); }).join(", ") + " · " + (pers ? "Picked for you" : "Trending") + " = #1–5 · " + (pers ? "Gifts you'll love to give" : "Trending gifts") + " with Featured deals in the middle</li>");
   var thisVisit = p.log.filter(function(e){ return e.visit===p.visit.n && e.icon!=="🚪"; }).length;
   lines.push("<li><b>7. Behavior</b> → " + thisVisit + " event(s) this visit · " + Object.keys(p.visit.exposed).length + " deals seen</li>");
