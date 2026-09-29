@@ -471,8 +471,108 @@ a{color:inherit;}
 .toast{
   position:absolute;left:16px;right:16px;bottom:100px;
   background:var(--text);color:var(--bg);font-size:12px;font-weight:600;
-  padding:9px 14px;border-radius:14px;z-index:40;text-align:center;
+  padding:9px 14px;border-radius:14px;z-index:80;text-align:center;
 }
+
+.anim-toggle{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;padding:0 6px;cursor:pointer;}
+.anim-toggle input{accent-color:var(--navy);}
+.replay-hint{font-size:11px;color:var(--text-muted);}
+.replay-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px;font-size:11.5px;}
+.replay-list li{display:flex;gap:6px;align-items:baseline;color:var(--text-muted);padding:3px 5px;border-radius:6px;}
+.replay-list li .k{flex:none;width:16px;text-align:right;}
+.replay-list li.done{color:var(--text);}
+.replay-list li.now{background:var(--green-light);color:var(--text);font-weight:700;}
+.replay-list li .x{margin-left:auto;cursor:pointer;padding:0 4px;}
+#cmpDeal{max-width:190px;}
+#cmpQuery{width:130px;}
+.btn:disabled{opacity:.45;cursor:default;}
+/* tapped-deal detail page */
+.deal-detail{
+  position:absolute;left:0;right:0;bottom:0;top:var(--dd-top,0px);
+  background:var(--surface);z-index:55;overflow-y:auto;padding-bottom:40px;
+  transform:translateY(100%);visibility:hidden;
+  transition:transform .38s ease, visibility 0s .38s;
+}
+.deal-detail.open{transform:none;visibility:visible;transition:transform .38s ease;}
+.dd-bar{
+  position:sticky;top:0;height:60px;margin-bottom:-60px;z-index:4;
+  display:flex;align-items:center;justify-content:space-between;padding:0 14px;
+  transition:background .2s, box-shadow .2s;
+}
+.dd-bar.solid{background:var(--surface);box-shadow:0 1px 0 var(--border);}
+.dd-right{display:flex;gap:10px;}
+.dd-round{
+  width:38px;height:38px;border-radius:50%;background:#fff;border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;position:relative;
+}
+.dd-badge{
+  position:absolute;top:-5px;right:-5px;min-width:16px;height:16px;border-radius:8px;
+  background:var(--green);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;
+}
+.dd-hero{margin:8px 12px 0;height:258px;border-radius:14px;}
+.dd-thumbs{display:flex;gap:10px;margin:10px 12px 0;}
+.dd-thumb{flex:1;height:112px;border-radius:12px;position:relative;}
+.dd-gift{position:absolute;left:8px;bottom:8px;background:var(--pink);color:#fff;font-size:11px;font-weight:700;padding:4px 9px;border-radius:6px;}
+.dd-dots{position:absolute;right:8px;bottom:8px;background:rgba(0,0,0,.55);border-radius:10px;padding:4px 7px;display:flex;gap:4px;}
+.dd-dots i{width:7px;height:7px;border-radius:50%;background:#fff;display:block;}
+.dd-dots i + i{opacity:.55;}
+.dd-title{font-family:'Baloo 2', system-ui, sans-serif;font-size:19px;line-height:1.28;font-weight:600;margin:14px 14px 0;}
+.dd-rate{display:flex;align-items:center;gap:7px;margin:8px 14px 0;font-size:13px;color:var(--text-muted);}
+.dd-rate b{color:var(--text);font-size:15px;}
+.dd-addr{display:flex;justify-content:space-between;gap:8px;margin:10px 14px 0;font-size:12.5px;color:var(--text);}
+.dd-addr span{color:var(--text-muted);flex:none;}
+.dd-promo{
+  margin:14px 14px 0;padding:12px 14px;border:1.5px dashed rgba(123,63,176,.55);background:rgba(123,63,176,.1);
+  border-radius:12px;display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12.5px;
+}
+.dd-promo .a{color:#7b3fb0;font-weight:700;}
+.dd-promo > div > .a{font-size:15px;}
+.dd-apply{background:#7b3fb0;color:#fff;border:none;border-radius:999px;padding:10px 20px;font-size:14px;font-weight:700;cursor:pointer;flex:none;}
+.dd-apply.done{background:#5a2d85;}
+.dd-opt{margin:16px 14px 0;border:2px solid var(--green);border-radius:16px;overflow:hidden;background:var(--surface);}
+.dd-opt-head{display:flex;justify-content:space-between;align-items:center;padding:14px 14px 4px;font-family:'Baloo 2', system-ui, sans-serif;font-size:17px;font-weight:600;}
+.dd-chev{width:32px;height:32px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;}
+.dd-incl{padding:6px 14px 14px;display:flex;flex-direction:column;gap:7px;font-size:13px;}
+.dd-incl b{font-size:14px;margin-bottom:2px;}
+.dd-incl .row{display:flex;gap:9px;align-items:center;color:var(--text-muted);}
+.dd-price{background:var(--tint);padding:14px;}
+.dd-price .t1{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
+.dd-price .orig{font-size:15px;text-decoration:line-through;color:var(--text-muted);}
+.dd-price .sale{font-family:'Baloo 2', system-ui, sans-serif;font-size:24px;font-weight:700;color:var(--green);}
+.dd-price .pct-pill{background:var(--green-light);color:var(--green);font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:6px;}
+.dd-price .t2{margin-top:2px;color:#7b3fb0;font-weight:600;font-size:14px;}
+.dd-price .t2 .pr{font-family:'Baloo 2', system-ui, sans-serif;font-size:22px;font-weight:700;}
+.dd-price .t2 small{font-weight:400;font-size:12px;}
+.dd-buyrow{display:flex;gap:10px;align-items:center;margin-top:12px;}
+.dd-qty{display:flex;align-items:center;gap:8px;font-size:15px;flex:none;}
+.dd-qty button{width:34px;height:34px;border-radius:50%;background:var(--surface);border:1px solid var(--border);font-size:18px;color:var(--text);cursor:pointer;padding:0;}
+.dd-qty button:disabled{opacity:.4;cursor:default;}
+.dd-qty i{font-style:normal;min-width:10px;text-align:center;}
+.dd-buy{flex:1;height:48px;border-radius:999px;background:var(--green);color:#fff;border:none;font-family:'Baloo 2', system-ui, sans-serif;font-size:18px;font-weight:600;cursor:pointer;}
+.dd-buy.done{background:var(--green-dark);cursor:default;}
+.dd-giftrow{margin-top:12px;border:1.5px solid rgba(63,138,18,.4);background:var(--green-light);border-radius:999px;padding:9px 10px;text-align:center;font-size:12.5px;color:var(--green);font-weight:600;}
+.dd-giftrow u{cursor:pointer;}
+/* replay overlay on the phone */
+.replay-shield{position:absolute;inset:0;z-index:85;}
+.tap-dot{
+  position:absolute;left:50%;top:86%;width:38px;height:38px;margin:-19px 0 0 -19px;border-radius:50%;
+  background:rgba(20,30,10,.28);border:2px solid rgba(255,255,255,.95);box-shadow:0 2px 8px rgba(0,0,0,.35);
+  z-index:90;pointer-events:none;opacity:0;
+  transition:left .55s cubic-bezier(.4,0,.2,1), top .55s cubic-bezier(.4,0,.2,1), opacity .2s;
+}
+.tap-dot.show{opacity:1;}
+.tap-dot.tap{animation:tapPulse .3s ease;}
+@keyframes tapPulse{0%{transform:scale(1);}40%{transform:scale(.68);background:rgba(20,30,10,.55);}100%{transform:scale(1);}}
+.replay-caption{
+  position:absolute;left:14px;right:14px;bottom:66px;z-index:88;pointer-events:none;
+  background:rgba(16,18,12,.9);color:#fff;font-size:12.5px;font-weight:600;padding:9px 14px;border-radius:14px;text-align:center;
+}
+.replay-banner{
+  position:absolute;inset:0;z-index:92;background:rgba(13,17,23,.88);color:#fff;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;
+  font-family:'Baloo 2', system-ui, sans-serif;font-size:26px;animation:fadein .3s ease;
+}
+.replay-banner small{font-family:'Work Sans', system-ui, sans-serif;font-size:14px;opacity:.85;}
 [hidden]{display:none!important;}
 @keyframes shimmer{0%{background-position:-300px 0;}100%{background-position:300px 0;}}
 .skel{
@@ -590,6 +690,12 @@ a{color:inherit;}
 
   <div id="toast" class="toast" hidden></div>
 
+  <div class="deal-detail" id="dealDetail"></div>
+  <div class="replay-shield" id="replayShield" hidden></div>
+  <div class="replay-caption" id="replayCaption" hidden></div>
+  <div class="replay-banner" id="replayBanner" hidden></div>
+  <div class="tap-dot" id="tapDot"></div>
+
   <div class="location-modal" id="locationModal" hidden>
     <div class="loc-modal-head">
       <button class="loc-close" id="locCloseBtn" aria-label="Close">&times;</button>
@@ -651,6 +757,20 @@ a{color:inherit;}
 
     <div class="d-section">
       <h3>5 · Behavior → updated profile</h3>
+      <div class="bucket-label">Replay · compose what the customer clicks</div>
+      <div class="select-line">
+        <select id="cmpType"><option value="search">🔎 Search</option><option value="view">👀 View deal</option><option value="save">❤️ Save</option><option value="buy">🛒 Buy</option><option value="nextVisit">🚪 Next visit</option></select>
+        <select id="cmpDeal"></select>
+        <input type="text" id="cmpQuery" placeholder="sushi, gift for mom…">
+        <button class="btn ghost" id="cmpAdd">+ Add</button>
+      </div>
+      <div class="replay-hint" id="replayHint"></div>
+      <ol class="replay-list" id="replayList"></ol>
+      <div class="rules-actions">
+        <button class="btn primary" id="cmpPlay">▶ Play</button>
+        <button class="btn ghost" id="cmpClear">Clear</button>
+      </div>
+      <div class="bucket-label">Event log (what each click changed)</div>
       <ul class="trace-list" id="behaviorLog"></ul>
       <div class="rules-actions">
         <button class="btn ghost" id="nextVisit">Next visit →</button>
@@ -680,6 +800,13 @@ a{color:inherit;}
       <button data-visit="1">1st</button>
       <button data-visit="2">2nd</button>
       <button data-visit="3">3rd</button>
+    </div>
+  </div>
+  <div class="demo-group">
+    <span class="demo-label">Replay</span>
+    <div class="demo-btns">
+      <label class="anim-toggle"><input type="checkbox" id="animToggle" checked> Animate clicks</label>
+      <button id="replaySkip">Skip ⏭</button>
     </div>
   </div>
 </div>
@@ -1728,8 +1855,7 @@ function wirePageEvents(root){
     el.addEventListener("click", function(){
       var d = DEALS_BY_ID[el.getAttribute("data-view")];
       if(!d) return;
-      actView(d);
-      afterInteraction();
+      viewDeal(d);
     });
   });
 
@@ -1746,16 +1872,6 @@ function wirePageEvents(root){
       var d = DEALS_BY_ID[b.getAttribute("data-heart")];
       var saved = actSave(d);
       toast(saved ? ("Saved: a positive signal for " + SEGMENTS[d.category].cat + " and this deal's features.") : "Removed from saved.");
-      afterInteraction();
-    });
-  });
-
-  scope.querySelectorAll("[data-buy]").forEach(function(b){
-    b.addEventListener("click", function(e){
-      e.stopPropagation();
-      var d = DEALS_BY_ID[b.getAttribute("data-buy")];
-      actBuy(d);
-      toast("Purchased: strong preference signal. Similar deals are paused for a while (need fulfilled).");
       afterInteraction();
     });
   });
@@ -2047,6 +2163,7 @@ document.getElementById("resetWeights").addEventListener("click", function(){
 });
 
 function resetDemo(blank){
+  cancelReplay();
   state = {profile: freshProfile({blank:blank}), viewOverride:"auto"};
   sliderFocus = "auto";
   openExplain = null;
@@ -2063,6 +2180,7 @@ document.getElementById("resetAllDemo").addEventListener("click", function(){
 });
 
 document.getElementById("nextVisit").addEventListener("click", function(){
+  cancelReplay();
   closeVisit();
   openExplain = null;
   render();
@@ -2072,55 +2190,448 @@ document.getElementById("nextVisit").addEventListener("click", function(){
 
 /* ---------- demo scenario controls (customer archetypes + repeat visits) ---------- */
 
-var CUSTOMER_SCENARIOS = {
-  "new": function(){ /* nothing known: demographic prior + context only */ },
-  "searched": function(){
-    actSearch("sushi");
-    actSave(DEALS_BY_ID.ramen_izakaya);
-  },
-  "redeemed": function(){
-    actSearch("spa day");
-    actView(DEALS_BY_ID.swedish_massage);
-    actSave(DEALS_BY_ID.hot_stone);
-    actBuy(DEALS_BY_ID.spa_day);
-  }
-};
+/* ---------- deal detail (opens when a card is tapped) ---------- */
 
-function applyCustomerScenario(kind){
-  resetDemo(true);
-  if(CUSTOMER_SCENARIOS[kind]) CUSTOMER_SCENARIOS[kind]();
-  render();
-  setActiveDemoBtn("demoCustomerBtns", "data-scenario", kind);
-  toast("Loaded a “" + kind + "” customer.");
+var detailId = null, detailTimer = null;
+var BOARD_LABEL = {all_inclusive:"All-inclusive", breakfast:"Breakfast included", half_board:"Half board", self_catering:"Self-catering"};
+function niceWord(v){ return String(v).replace(/_/g, " "); }
+function upFirst(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
+function isBought(id){ return state.profile.purchases.some(function(b){ return b.id===id; }); }
+
+// "What's included": only attributes we actually know for this deal
+function includedList(d){
+  var f = d.f, out = [];
+  if(d.category==="travel"){
+    if(isKnown(f.duration)) out.push(f.duration + (f.duration===1 ? " day" : " days") + " · " + f.destination);
+    if(isKnown(f.accommodation_type)) out.push(upFirst(niceWord(f.accommodation_type)) + (isKnown(f.star_rating) ? " · " + f.star_rating + "★" : ""));
+    if(isKnown(f.board_type)) out.push(BOARD_LABEL[f.board_type] || upFirst(niceWord(f.board_type)));
+    if(f.flight_included===true) out.push("Flights included");
+    if(isKnown(f.cancellation_flexibility)) out.push(f.cancellation_flexibility==="non_refundable" ? "Non-refundable" : "Free cancellation up to " + niceWord(f.cancellation_flexibility.replace("free_", "")));
+  } else if(d.category==="wellness"){
+    out.push(upFirst(niceWord(f.treatment_type)) + (isKnown(f.duration) ? " · " + f.duration + " min" : ""));
+    if(Array.isArray(f.facilities) && f.facilities.length) out.push("Access to " + niceWord(f.facilities.join(", ")));
+    if(f.facility_type==="mobile") out.push("Comes to your home");
+    if(f.service_level==="luxury" || f.service_level==="premium") out.push(upFirst(f.service_level) + " service");
+    if(isKnown(f.brand_or_product)) out.push("Products: " + f.brand_or_product);
+  } else {
+    if(isKnown(f.course_count)) out.push(f.course_count + " courses");
+    if(isKnown(f.group_size)) out.push(f.group_size===1 ? "For one" : "For " + f.group_size);
+    if(f.drinks_included===true) out.push("Drinks included");
+    if(isKnown(f.cuisine_type)) out.push(upFirst(niceWord(f.cuisine_type)) + " cuisine");
+    if(f.reservation_required===true) out.push("Reservation required");
+  }
+  return out.slice(0, 4);
 }
 
-// one customer, three visits in a month. Visit N = arrival at visit N after the scripted earlier visits.
-var VISIT_SCRIPTS = [
-  function(){
-    exposeTop(8);
-    actSearch("sushi");
-    actView(DEALS_BY_ID.sushi_omakase);
-    actSave(DEALS_BY_ID.ramen_izakaya);
-  },
-  function(){
-    exposeTop(8);
-    actSearch("sushi");
-    actView(DEALS_BY_ID.sushi_omakase);
-    actBuy(DEALS_BY_ID.sushi_omakase);
-    actSearch("gift for mom");
-    actView(DEALS_BY_ID.spa_day);
+function heartSvg(on){
+  return '<svg width="20" height="20" viewBox="0 0 24 24" fill="'+(on?"#e0241a":"none")+'" stroke="'+(on?"#e0241a":"#111")+'" stroke-width="2" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21.2l7.8-7.7 1-1.1a5.5 5.5 0 0 0 0-7.8z"/></svg>';
+}
+function detailHtml(d){
+  var px = rowFor(d).px, p = state.profile;
+  var liked = p.saved.indexOf(d.id) > -1, bought = isBought(d.id);
+  var h = '<div class="dd-bar" id="ddBar">'
+    + '<button class="dd-round" id="ddBack" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>'
+    + '<div class="dd-right">'
+    +   '<button class="dd-round" id="ddShare" aria-label="Share"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg></button>'
+    +   '<button class="dd-round" id="ddHeart" aria-label="Save">'+heartSvg(liked)+'</button>'
+    +   '<button class="dd-round" id="ddCart" aria-label="Cart"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3f8a12" stroke-width="1.8"><circle cx="9" cy="21" r="1.3" fill="#3f8a12" stroke="none"/><circle cx="18" cy="21" r="1.3" fill="#3f8a12" stroke="none"/><path d="M2 3h2l2.6 12.6a2 2 0 002 1.6h8.8a2 2 0 002-1.6L21 7H6"/></svg>'+(p.purchases.length ? '<span class="dd-badge">'+p.purchases.length+'</span>' : '')+'</button>'
+    + '</div></div>';
+  h += '<div class="dd-hero" style="background:'+photoStyle(d.photoId, 900, 700)+';"></div>';
+  h += '<div class="dd-thumbs">'
+    + '<div class="dd-thumb" style="background:'+photoStyle(d.photoId, 500, 400)+';background-size:240%;background-position:12% 85%;">'+(d.giftable ? '<span class="dd-gift">🎁 Popular Gift</span>' : '')+'</div>'
+    + '<div class="dd-thumb" style="background:'+photoStyle(d.photoId, 500, 400)+';background-size:240%;background-position:90% 20%;"><span class="dd-dots"><i></i><i></i></span></div>'
+    + '</div>';
+  h += '<h1 class="dd-title">'+esc(d.title)+' at '+esc(d.merchant)+', up to '+off(d)+'% off</h1>';
+  h += '<div class="dd-rate">'+starBar(d.rating)+' <b>'+d.rating.toFixed(1)+'</b> <u>('+d.review_count.toLocaleString("en-US")+' reviews)</u></div>';
+  h += '<div class="dd-addr"><u>'+esc(d.addr)+'</u><span>▲ '+esc(d.loc)+'</span></div>';
+  if(px.promo){
+    h += '<div class="dd-promo"><div><div class="a">Extra '+Math.round(px.promo.pct*100)+'% off · −'+money(px.promoAmount)+'</div><div>Promo <span class="a">'+px.promo.code+'</span> ends in '+hoursLeft(d)+' hours</div></div><button class="dd-apply" id="ddApply">Apply</button></div>';
   }
+  h += '<div class="dd-opt"><div class="dd-opt-head"><span>'+esc(d.subcategory)+' voucher</span><span class="dd-chev">'+chevronSvg()+'</span></div>'
+    + '<div class="dd-incl"><b>What\'s Included</b>'
+    + includedList(d).map(function(t){ return '<div class="row"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3f8a12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg><span>'+esc(t)+'</span></div>'; }).join("")
+    + '</div>'
+    + '<div class="dd-price">'
+    +   '<div class="t1"><span class="orig">$'+d.regular_price+'</span><span class="sale">$'+d.deal_price+'</span><span class="pct-pill">'+off(d)+'% Off</span></div>'
+    +   (px.promo ? '<div class="t2"><span class="pr">'+money(px.effective)+'</span> with promo, <small>Limited time</small></div>' : '')
+    +   '<div class="dd-buyrow"><span class="dd-qty"><button id="ddMinus" disabled>−</button><i>1</i><button id="ddPlus">+</button></span>'
+    +   '<button class="dd-buy'+(bought?" done":"")+'" id="ddBuy"'+(bought?" disabled":"")+'>'+(bought?"✓ Purchased":"Buy Now")+'</button></div>'
+    +   '<div class="dd-giftrow">Thinking about surprise? <u id="ddGift">🎁 Buy as a Gift</u></div>'
+    + '</div></div>';
+  return h;
+}
+function openDetail(id){
+  var d = DEALS_BY_ID[id];
+  if(!d) return;
+  var el = document.getElementById("dealDetail");
+  clearTimeout(detailTimer);
+  detailId = id;
+  el.style.setProperty("--dd-top", document.querySelector(".statusbar").offsetHeight + "px");
+  el.innerHTML = detailHtml(d);
+  el.scrollTop = 0;
+  var bar = el.querySelector("#ddBar");
+  el.onscroll = function(){ bar.classList.toggle("solid", el.scrollTop > 240); };
+  el.querySelector("#ddBack").addEventListener("click", closeDetail);
+  el.querySelector("#ddShare").addEventListener("click", function(){ toast("Sharing isn't part of this prototype."); });
+  el.querySelector("#ddCart").addEventListener("click", function(){ toast("Cart isn't part of this prototype (Explore homepage only)."); });
+  el.querySelector("#ddGift").addEventListener("click", function(){ toast("Gift checkout isn't part of this prototype."); });
+  el.querySelector("#ddPlus").addEventListener("click", function(){ toast("One voucher per order in this prototype."); });
+  var apply = el.querySelector("#ddApply");
+  if(apply) apply.addEventListener("click", function(){ apply.textContent = "Applied ✓"; apply.classList.add("done"); });
+  el.querySelector("#ddHeart").addEventListener("click", function(){
+    var saved = actSave(d);
+    this.innerHTML = heartSvg(saved);
+    toast(saved ? ("Saved: a positive signal for " + SEGMENTS[d.category].cat + " and this deal's features.") : "Removed from saved.");
+    afterInteraction();
+  });
+  var buy = el.querySelector("#ddBuy");
+  buy.addEventListener("click", function(){
+    if(buy.disabled) return;
+    actBuy(d);
+    toast("Purchased: strong preference signal. Similar deals are paused for a while (need fulfilled).");
+    buy.textContent = "✓ Purchased"; buy.classList.add("done"); buy.disabled = true;
+    afterInteraction();
+    detailTimer = setTimeout(function(){ if(detailId===id) closeDetail(); }, 1100);
+  });
+  void el.offsetWidth;
+  el.classList.add("open");
+}
+function closeDetail(){
+  clearTimeout(detailTimer);
+  detailId = null;
+  document.getElementById("dealDetail").classList.remove("open");
+}
+// a real tap on a card: log the view, refresh the ranking, open the detail
+function viewDeal(d){
+  actView(d);
+  afterInteraction();
+  openDetail(d.id);
+}
+
+/* ---------- replay: scripted user clicks played on the phone ---------- */
+
+var CANCEL = {};
+var replay = {run:0, running:false, skip:false, steps:[], idx:-1, label:"", view:"composer", wake:null};
+var composer = [];
+
+// building blocks: only what a customer can click (search, open a deal, save, buy) plus invisible/marker steps
+var S = {
+  search:function(q){ return {t:"search", q:q}; },
+  view:function(id){ return {t:"view", id:id}; },
+  save:function(id){ return {t:"save", id:id}; },
+  buy:function(id){ return {t:"buy", id:id}; },
+  expose:function(n){ return {t:"expose", n:n||8}; },      // invisible: the top-n deals were on screen
+  nextVisit:function(){ return {t:"nextVisit"}; }           // marker: time passes, a new visit starts
+};
+
+// edit these to change what the demo customers do; combine the blocks in any order
+var CUSTOMER_SCRIPTS = {
+  "new": [],
+  "searched": [S.search("sushi"), S.save("ramen_izakaya")],
+  "redeemed": [S.search("spa day"), S.view("swedish_massage"), S.save("hot_stone"), S.buy("spa_day")]
+};
+// Visit N button = arrival at visit N, after replaying every earlier visit
+var VISIT_SCRIPTS = [
+  [S.expose(8), S.search("sushi"), S.view("sushi_omakase"), S.save("ramen_izakaya")],
+  [S.expose(8), S.search("sushi"), S.view("sushi_omakase"), S.buy("sushi_omakase"), S.search("gift for mom"), S.view("spa_day")]
 ];
 
-function applyVisitScenario(n){
-  resetDemo(true);
-  for(var i=0; i<n-1 && i<VISIT_SCRIPTS.length; i++){
-    VISIT_SCRIPTS[i]();
-    closeVisit();
+function stepText(st){
+  var d = st.id ? DEALS_BY_ID[st.id] : null;
+  if(st.t==="search") return "🔎 Searches “" + st.q + "”";
+  if(st.t==="view") return "👀 Opens " + d.title;
+  if(st.t==="save") return "❤️ Saves " + d.title;
+  if(st.t==="buy") return "🛒 Buys " + d.title;
+  if(st.t==="nextVisit") return "🚪 Next visit";
+  return st.t;
+}
+
+function sleep(ms, id){
+  return new Promise(function(resolve, reject){
+    function done(){ if(id !== replay.run) reject(CANCEL); else resolve(); }
+    if(replay.skip || ms <= 0){ done(); return; }
+    var t = setTimeout(function(){ replay.wake = null; done(); }, ms);
+    replay.wake = function(){ clearTimeout(t); replay.wake = null; done(); };
+  });
+}
+
+function shellPoint(el){
+  var s = document.querySelector(".phone-shell").getBoundingClientRect(), r = el.getBoundingClientRect();
+  return {x:r.left - s.left + r.width/2, y:r.top - s.top + r.height/2};
+}
+async function tapTo(el, id){
+  var dot = document.getElementById("tapDot"), pt = shellPoint(el);
+  dot.style.left = pt.x + "px"; dot.style.top = pt.y + "px";
+  dot.classList.add("show");
+  await sleep(620, id);
+  dot.classList.remove("tap");
+  void dot.offsetWidth;
+  dot.classList.add("tap");
+  await sleep(240, id);
+}
+async function scrollBoxTo(box, el, id){
+  var b = box.getBoundingClientRect(), r = el.getBoundingClientRect();
+  var car = el.closest(".recent-carousel");
+  if(car){
+    var cr = car.getBoundingClientRect();
+    car.scrollTo({left:Math.max(0, car.scrollLeft + (r.left - cr.left) - 14), behavior:replay.skip ? "auto" : "smooth"});
   }
-  render();
-  setActiveDemoBtn("demoVisitBtns", "data-visit", String(n));
-  toast("Visit " + n + " of the same customer (day " + state.profile.visit.day + ").");
+  box.scrollTo({top:Math.max(0, box.scrollTop + (r.top - b.top) - (b.height - r.height)/2), behavior:replay.skip ? "auto" : "smooth"});
+  var last = -1;
+  for(var k=0; k<30; k++){
+    await sleep(90, id);
+    if(Math.abs(box.scrollTop - last) < 1) break;
+    last = box.scrollTop;
+  }
+}
+function caption(text){
+  var el = document.getElementById("replayCaption");
+  el.textContent = text;
+  el.hidden = !text;
+}
+function endReplayUI(){
+  document.getElementById("replayShield").hidden = true;
+  document.getElementById("replayCaption").hidden = true;
+  document.getElementById("replayBanner").hidden = true;
+  document.getElementById("tapDot").classList.remove("show", "tap");
+}
+function cancelReplay(){
+  replay.run++;
+  replay.running = false;
+  if(replay.wake) replay.wake();
+  endReplayUI();
+  closeDetail();
+  renderReplay();
+}
+
+function feedCard(id){ return document.querySelector('#content .big-card[data-view="'+id+'"]') || document.querySelector('#content .recent-card[data-view="'+id+'"]'); }
+function feedHeart(id){ return document.querySelector('#content [data-heart="'+id+'"]'); }
+
+async function closeDetailAnim(id){
+  if(!detailId) return;
+  var back = document.getElementById("ddBack");
+  await tapTo(back, id);
+  back.click();
+  await sleep(450, id);
+}
+// open the deal the way a customer would: find its card in the feed, tap it
+async function openViaCard(d, id){
+  if(detailId && detailId !== d.id) await closeDetailAnim(id);
+  if(detailId === d.id) return;
+  var card = feedCard(d.id);
+  if(card){
+    var target = card.querySelector(".title") || card;
+    await scrollBoxTo(document.getElementById("content"), target, id);
+    await tapTo(target, id);
+    card.click();
+  } else {
+    viewDeal(d);                               // not on the page: reached some other way (e.g. search results)
+  }
+  await sleep(600, id);
+}
+async function scrollDetailTo(el, id){
+  await scrollBoxTo(document.getElementById("dealDetail"), el, id);
+}
+
+async function animSearch(q, id){
+  var input = document.getElementById("searchInput");
+  await tapTo(input, id);
+  input.value = "";
+  for(var i=0; i<q.length; i++){ input.value = q.slice(0, i+1); await sleep(75, id); }
+  await sleep(350, id);
+  runSearch(q);
+  await sleep(1100, id);
+}
+async function animView(d, id){
+  await openViaCard(d, id);
+  var price = document.querySelector("#dealDetail .dd-price");
+  if(price) await scrollDetailTo(price, id);
+  await sleep(900, id);
+}
+async function animSave(d, id){
+  if(state.profile.saved.indexOf(d.id) > -1){ await sleep(300, id); return; }
+  if(detailId === d.id){
+    var dh = document.getElementById("ddHeart");
+    await tapTo(dh, id);
+    dh.click();
+  } else {
+    if(detailId) await closeDetailAnim(id);
+    var h = feedHeart(d.id);
+    if(h){
+      await scrollBoxTo(document.getElementById("content"), h, id);
+      await tapTo(h, id);
+      h.click();
+    } else {
+      actSave(d); afterInteraction();
+    }
+  }
+  await sleep(800, id);
+}
+async function animBuy(d, id){
+  if(isBought(d.id)){ await sleep(300, id); return; }
+  await openViaCard(d, id);
+  var btn = document.getElementById("ddBuy");
+  await scrollDetailTo(btn, id);
+  await tapTo(btn, id);
+  btn.click();
+  await sleep(1500, id);
+}
+async function animNextVisit(id){
+  if(detailId) await closeDetailAnim(id);
+  nextVisitInstant();
+  var v = state.profile.visit, b = document.getElementById("replayBanner");
+  b.innerHTML = 'Later this month…<small>Visit ' + v.n + ' · day ' + v.day + '</small>';
+  b.hidden = false;
+  await sleep(1700, id);
+  b.hidden = true;
+}
+function nextVisitInstant(){
+  closeVisit();
+  renderPage({instant:true, top:true});
+  renderDrawerDynamic();
+}
+
+function runSearch(q, quiet){
+  actSearch(q);
+  var it = state.profile.visit.intent;
+  if(!quiet) toast(it.category || it.gift || it.tokens.length ? "Search understood: " + describeIntent(it).replace(/<[^>]+>/g, "") : "No matching category: ranking unchanged.");
+  renderPage({instant:true, top:true});
+  renderDrawerDynamic();
+}
+
+// same actions without the show: used for "Animate" off and after Skip
+function instantStep(st){
+  var d = st.id ? DEALS_BY_ID[st.id] : null;
+  closeDetail();
+  if(st.t==="search") runSearch(st.q, true);
+  else if(st.t==="view"){ actView(d); afterInteraction(); }
+  else if(st.t==="save"){ if(state.profile.saved.indexOf(d.id) < 0){ actSave(d); afterInteraction(); } }
+  else if(st.t==="buy"){ if(!isBought(d.id)){ actBuy(d); afterInteraction(); } }
+  else if(st.t==="nextVisit") nextVisitInstant();
+}
+
+async function runStep(st, next, id){
+  if(st.t==="expose"){ exposeTop(st.n); return; }
+  if(replay.skip){ instantStep(st); await sleep(0, id); return; }
+  var d = st.id ? DEALS_BY_ID[st.id] : null;
+  caption(stepText(st));
+  if(st.t==="search") await animSearch(st.q, id);
+  else if(st.t==="view") await animView(d, id);
+  else if(st.t==="save") await animSave(d, id);
+  else if(st.t==="buy") await animBuy(d, id);
+  else if(st.t==="nextVisit") await animNextVisit(id);
+  // the detail stays open only when the next click continues on the same deal
+  if(detailId && !(next && (next.t==="save" || next.t==="buy") && next.id===detailId)) await closeDetailAnim(id);
+}
+
+async function playScript(steps, label){
+  var id = ++replay.run;
+  replay.running = true;
+  replay.skip = !document.getElementById("animToggle").checked;
+  replay.steps = steps; replay.idx = -1; replay.label = label; replay.view = "run";
+  document.getElementById("replayShield").hidden = replay.skip;
+  renderReplay();
+  try{
+    for(var i=0; i<steps.length; i++){
+      replay.idx = i;
+      renderReplay();
+      await runStep(steps[i], steps[i+1], id);
+    }
+    replay.idx = steps.length;
+    if(detailId) await closeDetailAnim(id);
+  }catch(e){
+    if(e === CANCEL) return false;
+    throw e;
+  }
+  replay.running = false;
+  endReplayUI();
+  renderReplay();
+  return true;
+}
+
+function renderReplay(){
+  var run = replay.view === "run" && replay.steps.length;
+  var steps = run ? replay.steps : composer;
+  var visible = steps.map(function(st, i){ return {st:st, i:i}; }).filter(function(x){ return x.st.t !== "expose"; });
+  var n = 0;
+  var html = visible.map(function(x){
+    n++;
+    var cls = run ? (x.i < replay.idx ? "done" : (x.i === replay.idx ? "now" : "")) : "";
+    return '<li class="'+cls+'"><span class="k">'+n+'.</span><span>'+esc(stepText(x.st))+'</span>'
+      + (run ? "" : '<span class="x" data-cmp-del="'+x.i+'" title="Remove">×</span>') + '</li>';
+  }).join("");
+  document.getElementById("replayList").innerHTML = html;
+  var hint;
+  if(run) hint = replay.running ? ("Replaying " + esc(replay.label) + " · step " + Math.min(replay.idx + 1, steps.length) + " of " + steps.length) : ("Replayed " + esc(replay.label) + ". The log below shows what each click changed.");
+  else hint = visible.length ? "Queue (runs on the current profile):" : "Compose user clicks, then ▶ Play. Visit and Customer buttons replay their own scripts here.";
+  document.getElementById("replayHint").innerHTML = hint;
+  document.getElementById("cmpPlay").disabled = replay.running || !composer.length;
+  document.querySelectorAll("#replayList [data-cmp-del]").forEach(function(x){
+    x.addEventListener("click", function(){ composer.splice(parseInt(x.getAttribute("data-cmp-del"), 10), 1); renderReplay(); });
+  });
+}
+
+function initComposer(){
+  var sel = document.getElementById("cmpDeal");
+  sel.innerHTML = CATS.map(function(c){
+    return '<optgroup label="'+SEGMENTS[c].label+'">' + DEALS.filter(function(d){ return d.category===c; })
+      .sort(function(a, b){ return a.title < b.title ? -1 : 1; })
+      .map(function(d){ return '<option value="'+d.id+'">'+esc(d.title)+'</option>'; }).join("") + '</optgroup>';
+  }).join("");
+  var type = document.getElementById("cmpType"), q = document.getElementById("cmpQuery");
+  function syncForm(){
+    sel.hidden = !(type.value==="view" || type.value==="save" || type.value==="buy");
+    q.hidden = type.value !== "search";
+  }
+  type.addEventListener("change", syncForm);
+  syncForm();
+  document.getElementById("cmpAdd").addEventListener("click", function(){
+    var t = type.value, st;
+    if(t==="search"){ if(!q.value.trim()) return; st = S.search(q.value.trim()); q.value = ""; }
+    else if(t==="nextVisit") st = S.nextVisit();
+    else st = S[t](sel.value);
+    composer.push(st);
+    replay.view = "composer";
+    renderReplay();
+  });
+  q.addEventListener("keydown", function(e){ if(e.key==="Enter") document.getElementById("cmpAdd").click(); });
+  document.getElementById("cmpClear").addEventListener("click", function(){
+    composer = [];
+    replay.view = "composer";
+    renderReplay();
+  });
+  document.getElementById("cmpPlay").addEventListener("click", function(){
+    if(replay.running || !composer.length) return;
+    playScript(composer.slice(), "your queue");
+  });
+  document.getElementById("replaySkip").addEventListener("click", function(){
+    replay.skip = true;
+    if(replay.wake) replay.wake();
+  });
+}
+
+/* ---------- demo scenario controls (customer archetypes + repeat visits) ---------- */
+
+async function startScenario(steps, label, activeGroup, attr, value, doneMsg){
+  resetDemo(true);
+  renderPage({instant:true, top:true});
+  renderDrawerDynamic();
+  setActiveDemoBtn(activeGroup, attr, value);
+  var ok = await playScript(steps, label);
+  if(ok){
+    render();
+    toast(doneMsg());
+  }
+}
+function applyCustomerScenario(kind){
+  return startScenario(CUSTOMER_SCRIPTS[kind] || [], kind + " customer", "demoCustomerBtns", "data-scenario", kind,
+    function(){ return "Loaded a “" + kind + "” customer."; });
+}
+function applyVisitScenario(n){
+  var steps = [];
+  for(var i=0; i<n-1 && i<VISIT_SCRIPTS.length; i++){ steps = steps.concat(VISIT_SCRIPTS[i], [S.nextVisit()]); }
+  return startScenario(steps, (n>1 ? "visits 1–" + (n-1) : "visit 1 arrival"), "demoVisitBtns", "data-visit", String(n),
+    function(){ return "Visit " + n + " of the same customer (day " + state.profile.visit.day + ")."; });
 }
 
 function setActiveDemoBtn(groupId, attr, value){
@@ -2157,11 +2668,7 @@ document.getElementById("searchInput").addEventListener("keydown", function(e){
   if(e.key !== "Enter") return;
   var q = e.target.value.trim();
   if(!q) return;
-  actSearch(q);
-  var it = state.profile.visit.intent;
-  toast(it.category || it.gift || it.tokens.length ? "Search understood: " + describeIntent(it).replace(/<[^>]+>/g, "") : "No matching category: ranking unchanged.");
-  renderPage({instant:true, top:true});
-  renderDrawerDynamic();
+  runSearch(q);
 });
 
 function tickClock(){
@@ -2246,6 +2753,9 @@ document.getElementById("locSelectCountry").addEventListener("click", function()
 document.getElementById("locSearchInput").addEventListener("input", function(e){
   renderLocationResults(e.target.value);
 });
+
+initComposer();
+renderReplay();
 
 /* light / dark toggle for the engine panel (remembered per browser) */
 function setTermTheme(light){
