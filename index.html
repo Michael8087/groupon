@@ -294,7 +294,11 @@ a{color:inherit;}
 .recent-card .info .price-ladder .promo{font-size:13px;}
 .sponsored-tag{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text-muted);}
 .module.featured{margin:6px 0 18px;}
-.hero-slide{cursor:pointer;}
+.hero-slide.tile{width:37%;height:150px;cursor:pointer;}
+.hero-slide.tile .txt{padding:12px;gap:2px;}
+.hero-slide.tile h1{font-size:16px;-webkit-line-clamp:2;}
+.hero-slide.tile p{font-size:11px;text-decoration:none;opacity:.9;}
+.hero-slide.tile .eyebrow{font-size:9px;}
 .nudge{
   background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
   padding:14px;display:flex;gap:12px;align-items:center;margin:0 14px;
@@ -1538,22 +1542,20 @@ var KNOWN_CITIES = ["Chicago, US","Praha, TX","New York, US","Los Angeles, US","
 var GPS_CITY = "Chicago, US";
 function whyBtn(idx){ return '<button class="why-btn" data-why="'+idx+'">i</button>'; }
 
-function heroSlideHtml(item){
-  var d = item.r.d, px = item.r.px;
-  return '<div class="hero-slide" data-view="'+d.id+'" style="background:'+photoStyle(d.photoId)+';">'
+function heroTileHtml(t){
+  return '<div class="hero-slide tile" data-nolink="1" style="background:'+photoStyle(t.rows[0].d.photoId, 500, 500)+';">'
     + '<div class="scrim"></div><div class="txt">'
-    + '<span class="eyebrow">'+esc(item.eyebrow)+'</span>'
-    + '<h1>'+esc(d.title)+'</h1><p>'+money(px.effective)+' · '+pct(px.effectiveDiscount)+' off · '+esc(d.addr)+'</p></div></div>';
+    + '<span class="eyebrow">'+esc(t.eyebrow)+'</span>'
+    + '<h1>'+esc(t.label)+'</h1><p>'+t.rows.length+(t.rows.length===1 ? ' deal' : ' deals')+'</p></div></div>';
 }
-function heroCarouselHtml(items){
-  var dotsHtml = items.map(function(_, i){ return '<span class="dot'+(i===0?" on":"")+'"></span>'; }).join("");
-  return '<div class="hero-carousel" data-carousel="hero">' + items.map(heroSlideHtml).join("") + '</div>'
+function heroCarouselHtml(tiles){
+  var dotsHtml = tiles.map(function(_, i){ return '<span class="dot'+(i===0?" on":"")+'"></span>'; }).join("");
+  return '<div class="hero-carousel" data-carousel="hero">' + tiles.map(heroTileHtml).join("") + '</div>'
     + '<div class="dots-row" data-dots="hero">' + dotsHtml + '</div>';
 }
-// n individual deals. Slots per category follow the category shares (segment prior at cold start,
-// prior + learned + intent afterwards); every category with a real share keeps at least one slot.
-function heroItems(n){
-  var rows = getRanking().rows, t = categoryTotals(), pers = isPersonalized();
+// tiles per category follow the category shares (segment prior at cold start; prior + learned + intent later);
+// every category with a real share keeps at least one tile
+function categoryQuotas(n, t){
   var quota = {}, sum = 0;
   CATS.forEach(function(c){ quota[c] = Math.floor(t[c].share*n); sum += quota[c]; });
   CATS.slice().sort(function(a, b){ return (t[b].share*n - quota[b]) - (t[a].share*n - quota[a]); })
@@ -1564,15 +1566,54 @@ function heroItems(n){
       if(quota[big] > 1){ quota[big]--; quota[c]++; }
     }
   });
-  var order = CATS.slice().sort(function(a, b){ return t[b].share - t[a].share; }), picks = {};
-  CATS.forEach(function(c){ picks[c] = rows.filter(function(r){ return r.d.category===c; }).slice(0, quota[c]); });
-  var out = [];
+  return quota;
+}
+// The narrow tiles at the top are sets of deals. Cold start: the categories and their biggest sub-categories,
+// mixed by the estimated segment shares. Later: the current search and learned features come first
+// (e.g. "Sushi", "Japanese"), then the best sub-categories, plus one "try something new" tile.
+function heroSets(n){
+  var rows = getRanking().rows, t = categoryTotals(), pers = isPersonalized(), p = state.profile, it = p.visit.intent;
+  var quota = categoryQuotas(n, t), cands = {}, seen = {};
+  function meanTop(list){                      // total score of the set's 3 best deals: bigger sets win over one-deal sets
+    var sum = 0;
+    list.slice(0, 3).forEach(function(r){ sum += r.score; });
+    return sum;
+  }
+  function add(c, kind, label, list, eyebrow){
+    var key = label.toLowerCase();
+    if(!list.length || seen[key]) return;
+    seen[key] = 1;
+    cands[c].push({kind:kind, cat:c, label:label, rows:list, eyebrow:eyebrow, score:meanTop(list)});
+  }
+  CATS.forEach(function(c){
+    cands[c] = [];
+    var inCat = rows.filter(function(r){ return r.d.category===c; });
+    var subs = {};
+    inCat.forEach(function(r){ (subs[r.d.subcategory] = subs[r.d.subcategory] || []).push(r); });
+    var subList = Object.keys(subs).map(function(k){ return {k:k, rows:subs[k], score:meanTop(subs[k])}; })
+      .sort(function(a, b){ return b.score - a.score; });
+    var catEyebrow = pers && it && it.category===c ? "🔎 Your search" : "Category";
+    if(pers){
+      if(it && it.category===c) it.tokens.forEach(function(tk){
+        add(c, "intent", upFirst(tokVal(tk)), inCat.filter(function(r){ return r.d.tok.tokens.indexOf(tk) > -1; }), "🔎 Your search");
+      });
+      var toks = p.tokens[c];
+      Object.keys(toks).filter(function(tk){ return toks[tk] >= 0.15; }).sort(function(a, b){ return toks[b] - toks[a]; }).slice(0, 2)
+        .forEach(function(tk){ add(c, "learned", upFirst(tokVal(tk)), inCat.filter(function(r){ return r.d.tok.tokens.indexOf(tk) > -1; }), "🔥 You like this"); });
+      subList.forEach(function(x){ add(c, "sub", x.k, x.rows, SEGMENTS[c].cat); });
+      add(c, "cat", SEGMENTS[c].cat, inCat, catEyebrow);
+    } else {
+      add(c, "cat", SEGMENTS[c].cat, inCat, catEyebrow);
+      subList.forEach(function(x){ add(c, "sub", x.k, x.rows, SEGMENTS[c].cat); });
+    }
+  });
+  var order = CATS.slice().sort(function(a, b){ return t[b].share - t[a].share; }), out = [];
   for(var k=0; out.length<n && k<n; k++){
     order.forEach(function(c){
-      var r = picks[c][k];
-      if(!r) return;
-      var why = topReason(r);
-      out.push({r:r, cat:c, eyebrow: why ? why.tag : (pers && t[c].share < 0.25 ? "✨ Try something new" : SEGMENTS[c].cat)});
+      var set = cands[c].slice(0, quota[c])[k];
+      if(!set) return;
+      if(pers && t[c].share < 0.25 && set.kind !== "intent" && set.kind !== "learned") set.eyebrow = "✨ Try new";
+      out.push(set);
     });
   }
   return out;
@@ -1780,7 +1821,7 @@ function renderPage(opts){
   top.concat(gifts).forEach(function(r){ shown[r.d.id] = true; });
   var featured = rows.filter(function(r){ return !shown[r.d.id]; }).slice(0, 6);
 
-  var html = heroCarouselHtml(heroItems(6));
+  var html = heroCarouselHtml(heroSets(8));
   html += dealsModuleHtml(pers ? "Deals for you" : "Trending in " + city, reason, top, 0,
     pers ? "Personalised: ranks #1–#5 by score = P(purchase) × margin." : "Cold start: ranks #1–#5 from the estimated segment mix + deal quality, price and margin only.");
   var modules = [recentlyViewedModuleHtml(), giftsModuleHtml(gifts, featured, pers)].filter(Boolean);
@@ -2050,9 +2091,8 @@ function renderTrace(){
   var promoN = rows.filter(function(r){ return r.px.promo; }).length;
   lines.push("<li><b>4. Candidate deals</b> → " + rows.length + " of " + DEALS.length + " eligible" + (R.excluded.length ? " (" + R.excluded.length + " bought → excluded)" : "") + " · promo applies to " + promoN + "</li>");
   lines.push("<li><b>5. Ranking</b> → score = P(purchase) × margin · #1 <b>" + top.d.title + "</b>: " + pct1(top.P) + " × " + pct(top.m.rate) + " = " + top.score.toFixed(3) + "</li>");
-  var hero = heroItems(6), hc = {};
-  hero.forEach(function(h){ hc[h.cat] = (hc[h.cat]||0) + 1; });
-  lines.push("<li><b>6. Mobile page</b> → hero " + hero.length + " deals: " + CATS.filter(function(c){ return hc[c]; }).map(function(c){ return hc[c] + " " + SEGMENTS[c].cat; }).join(" / ") + " · " + (pers ? "Deals for you" : "Trending") + " = #1–5 · " + (pers ? "Gifts for you" : "Trending gifts") + " with Featured deals in the middle</li>");
+  var hero = heroSets(8);
+  lines.push("<li><b>6. Mobile page</b> → top tiles: " + hero.map(function(h){ return esc(h.label); }).join(", ") + " · " + (pers ? "Deals for you" : "Trending") + " = #1–5 · " + (pers ? "Gifts for you" : "Trending gifts") + " with Featured deals in the middle</li>");
   var thisVisit = p.log.filter(function(e){ return e.visit===p.visit.n && e.icon!=="🚪"; }).length;
   lines.push("<li><b>7. Behavior</b> → " + thisVisit + " event(s) this visit · " + Object.keys(p.visit.exposed).length + " deals seen</li>");
   lines.push("<li><b>8. Updated profile</b> → " + p.nSignals + " signal(s), stored in this browser; ▲▼ below = rank change since this visit started</li>");
