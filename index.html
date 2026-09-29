@@ -902,7 +902,7 @@ a{color:inherit;}
       <h3>4 · Behavior → updated profile</h3>
       <div class="bucket-label">Simulate a visit · optional custom plan of customer clicks</div>
       <div class="select-line">
-        <select id="cmpType"><option value="search">🔎 Search</option><option value="view">👀 View deal</option><option value="save">❤️ Save</option><option value="buy">🛒 Buy</option></select>
+        <select id="cmpType"><option value="search">🔎 Search</option><option value="view">👀 View deal</option><option value="read">📖 Read deal (lingers)</option><option value="save">❤️ Save</option><option value="buy">🛒 Buy</option></select>
         <select id="cmpDeal"></select>
         <input type="text" id="cmpQuery" placeholder="sushi, gift for mom…">
         <button class="btn ghost" id="cmpAdd">+ Add</button>
@@ -989,7 +989,8 @@ var LEARNING = {
   repeatSearch: 0.3,                   // a search repeated in a later visit becomes a long-term preference
   giftContext: 0.3,                    // behaviour under a gift intent says less about the customer's own taste
   interestRate: 0.4, dimRate: 0.35, tokenRate: 0.4,
-  nlpDeclare: 0.2                      // a "Just ask" sentence also nudges the long-term profile by this much
+  nlpDeclare: 0.2,                     // a "Just ask" sentence also nudges the long-term profile by this much
+  dwellRead: 0.1, dwellDeep: 0.25      // lingering on a deal page: read (≥6 s), or deep read (≥10 s and ≥3 up/down scrolls)
 };
 
 /* ---------- segments: cold-start priors over deal categories, not identities ---------- */
@@ -1711,6 +1712,21 @@ function actSearch(q, nlp){
     p.searchHistory.push({q:q, visit:p.visit.n, day:p.visit.day, category:it.category, tokens:it.tokens, gift:it.gift});
     return {text:(nlp ? "Asked (Just ask) " : "Searched ") + describeIntent(it), note:note};
   });
+}
+// lingering on a deal page (time + up/down scrolling) is a weak positive signal, never a negative one
+function dwellStrength(secs, flips){
+  if(secs >= 10 && flips >= 3) return LEARNING.dwellDeep;
+  if(secs >= 6) return LEARNING.dwellRead;
+  return 0;
+}
+function actDwell(d, secs, flips){
+  var st = dwellStrength(secs, flips);
+  if(!st) return false;
+  recordEvent("📖", "Read <b>" + d.title + "</b> for " + secs + "s, scrolled up/down " + flips + "×", function(){
+    learnFromDeal(d, st);
+    return {note:"Lingering is a weak positive signal (" + st + "): more than a glance (" + LEARNING.view + " on open), less than a save (" + LEARNING.save + "). It is not read as negative if nothing was bought."};
+  });
+  return true;
 }
 function actView(d){
   recordEvent("👀", "Viewed <b>" + d.title + "</b>", function(){
@@ -2490,7 +2506,7 @@ document.getElementById("nextVisit").addEventListener("click", async function(){
 
 /* ---------- deal detail (opens when a card is tapped) ---------- */
 
-var detailId = null, detailTimer = null;
+var detailId = null, detailTimer = null, detailTrack = null;
 var BOARD_LABEL = {all_inclusive:"All-inclusive", breakfast:"Breakfast included", half_board:"Half board", self_catering:"Self-catering"};
 function niceWord(v){ return String(v).replace(/_/g, " "); }
 function upFirst(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
@@ -2568,8 +2584,23 @@ function openDetail(id){
   el.innerHTML = detailHtml(d);
   el.scrollTop = 0;
   var bar = el.querySelector("#ddBar");
-  el.onscroll = function(){ bar.classList.toggle("solid", el.scrollTop > 240); };
-  el.querySelector("#ddBack").addEventListener("click", closeDetail);
+  detailTrack = {start:Date.now(), flips:0, dir:0, anchor:0, bought:false};
+  el.onscroll = function(){
+    bar.classList.toggle("solid", el.scrollTop > 240);
+    var dy = el.scrollTop - detailTrack.anchor;
+    if(Math.abs(dy) > 60){                                   // a real move; count every change of direction
+      var dir = dy > 0 ? 1 : -1;
+      if(detailTrack.dir && dir !== detailTrack.dir) detailTrack.flips++;
+      detailTrack.dir = dir; detailTrack.anchor = el.scrollTop;
+    }
+  };
+  el.querySelector("#ddBack").addEventListener("click", function(){
+    var t = detailTrack;
+    if(!replay.running && t && !t.bought && detailId === id){
+      if(actDwell(d, Math.round((Date.now() - t.start)/1000), t.flips)) afterInteraction();
+    }
+    closeDetail();
+  });
   el.querySelector("#ddShare").addEventListener("click", function(){ toast("Sharing isn't part of this prototype."); });
   el.querySelector("#ddCart").addEventListener("click", function(){ toast("Cart isn't part of this prototype (Explore homepage only)."); });
   el.querySelector("#ddGift").addEventListener("click", function(){ toast("Gift checkout isn't part of this prototype."); });
@@ -2585,6 +2616,7 @@ function openDetail(id){
   var buy = el.querySelector("#ddBuy");
   buy.addEventListener("click", function(){
     if(buy.disabled) return;
+    if(detailTrack) detailTrack.bought = true;
     actBuy(d);
     toast("Purchased: strong preference signal. Similar deals are paused for a while (need fulfilled).");
     buy.textContent = "✓ Purchased"; buy.classList.add("done"); buy.disabled = true;
@@ -2892,6 +2924,7 @@ var S = {
   view:function(id){ return {t:"view", id:id}; },
   save:function(id){ return {t:"save", id:id}; },
   buy:function(id){ return {t:"buy", id:id}; },
+  read:function(id){ return {t:"read", id:id}; },          // opens the deal and lingers, scrolling up and down
   expose:function(n){ return {t:"expose", n:n||8}; },      // invisible: the top-n deals were on screen
   nextVisit:function(){ return {t:"nextVisit"}; },          // marker: time passes, a new visit starts
   ref:function(st, r){ st.ref = r; return st; }
@@ -2908,6 +2941,7 @@ function stepText(st){
   if(st.t==="search") return "🔎 Searches “" + st.q + "”";
   if(st.t==="view") return "👀 Opens " + dealLabel(st);
   if(st.t==="save") return "❤️ Saves " + dealLabel(st);
+  if(st.t==="read") return "📖 Reads " + dealLabel(st) + " (lingers, scrolls)";
   if(st.t==="buy") return "🛒 Buys " + dealLabel(st);
   if(st.t==="nextVisit") return "🔄 Reload app · next visit";
   return st.t;
@@ -2947,7 +2981,7 @@ function defaultVisitPlan(){
   var q = topLearnedWord(cat) || {travel:"city break", wellness:"massage", food:"dinner"}[cat];
   var plan = [S.search(q), S.ref(S.view("@rank:0"), "a"), S.ref(S.save("@rank:0"), "a")];
   if(n % 2 === 0) plan.push(S.ref(S.buy("@rank:0"), "a"));
-  plan.push(S.ref(S.view("@rank:1"), "b"), S.ref(S.view("@rank:3"), "c"), S.ref(S.view("@disc:0"), "d"));
+  plan.push(S.ref(S.read("@rank:1"), "b"), S.ref(S.view("@rank:3"), "c"), S.ref(S.view("@disc:0"), "d"));
   if(n % 3 === 0) plan.push(S.search("gift for mom"), S.ref(S.view("@gift:0"), "e"), S.ref(S.save("@gift:0"), "e"));
   return plan;
 }
@@ -3061,6 +3095,20 @@ async function animSearch(q, id){
   back.click();
   await sleep(450, id);
 }
+async function animRead(d, id){
+  await openViaCard(d, id);
+  var price = document.querySelector("#dealDetail .dd-price"), title = document.querySelector("#dealDetail .dd-title");
+  for(var k=0; k<2; k++){                                       // down, up, down, up: four direction changes with pauses
+    if(price) await scrollDetailTo(price, id);
+    await sleep(600, id);
+    if(title) await scrollDetailTo(title, id);
+    await sleep(500, id);
+  }
+  if(price) await scrollDetailTo(price, id);
+  await sleep(500, id);
+  actDwell(d, 15, 4);                                           // simulated reading time; a real visitor's is measured
+  afterInteraction();
+}
 async function animView(d, id){
   await openViaCard(d, id);
   var price = document.querySelector("#dealDetail .dd-price");
@@ -3127,6 +3175,7 @@ function instantStep(st){
   closeDetail();
   if(st.t==="search") runSearch(st.q, true);
   else if(st.t==="view"){ actView(d); afterInteraction(); }
+  else if(st.t==="read"){ actView(d); actDwell(d, 15, 4); afterInteraction(); }
   else if(st.t==="save"){ if(state.profile.saved.indexOf(d.id) < 0){ actSave(d); afterInteraction(); } }
   else if(st.t==="buy"){ if(!isBought(d.id)){ actBuy(d); afterInteraction(); } }
   else if(st.t==="nextVisit") nextVisitInstant();
@@ -3140,6 +3189,7 @@ async function runStep(st, next, id){
   caption(stepText(st));
   if(st.t==="search") await animSearch(st.q, id);
   else if(st.t==="view") await animView(d, id);
+  else if(st.t==="read") await animRead(d, id);
   else if(st.t==="save") await animSave(d, id);
   else if(st.t==="buy") await animBuy(d, id);
   else if(st.t==="nextVisit") await animNextVisit(id);
@@ -3207,7 +3257,7 @@ function initComposer(){
   }).join("");
   var type = document.getElementById("cmpType"), q = document.getElementById("cmpQuery");
   function syncForm(){
-    sel.hidden = !(type.value==="view" || type.value==="save" || type.value==="buy");
+    sel.hidden = !(type.value==="view" || type.value==="read" || type.value==="save" || type.value==="buy");
     q.hidden = type.value !== "search";
   }
   type.addEventListener("change", syncForm);
