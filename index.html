@@ -419,10 +419,11 @@ a{color:inherit;}
   flex:1;min-width:0;border:none;outline:none;resize:none;background:none;font-family:inherit;font-size:16px;
   color:var(--text);height:24px;padding:0;line-height:24px;overflow:hidden;
 }
-.sv-field.nlp{border-radius:20px;flex-wrap:wrap;align-items:flex-start;padding:12px 10px 10px 14px;}
+.sv-field.nlp{border-radius:20px;flex-wrap:wrap;align-items:center;padding:8px 10px 10px 14px;row-gap:4px;}
 .sv-field.nlp svg{margin-top:2px;}
-.sv-field.nlp textarea{height:78px;line-height:1.35;flex:1 1 calc(100% - 30px);}
-.sv-field.nlp .nlp-chip{margin-left:auto;}
+.sv-field.nlp svg{order:1;}
+.sv-field.nlp textarea{order:3;height:64px;line-height:1.35;flex:1 1 100%;}
+.sv-field.nlp .nlp-chip{order:2;margin-left:auto;}
 .sv-loc{
   margin:2px 14px 4px;background:var(--tint);border-radius:14px;padding:12px 14px;
   display:flex;justify-content:space-between;align-items:center;font-size:15px;color:var(--text);
