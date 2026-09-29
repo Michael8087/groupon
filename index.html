@@ -2457,7 +2457,7 @@ function renderBehaviorLog(){
 var lastVisitShown = 1;
 function renderVisitBadge(){
   var v = state.profile.visit, el = document.getElementById("visitBadge");
-  el.textContent = "Visit " + v.n + " · day " + v.day;
+  el.textContent = "Visit " + v.n;
   el.classList.toggle("returning", v.n > 1);
   if(v.n !== lastVisitShown){
     el.classList.remove("bump"); void el.offsetWidth; el.classList.add("bump");
@@ -2531,7 +2531,7 @@ document.getElementById("nextVisit").addEventListener("click", async function(){
   composer = [];
   openExplain = null;
   var ok = await playScript([S.expose(8)].concat(plan, [S.nextVisit()]), custom ? "your visit plan" : "simulated visit " + n);
-  if(ok) toast("Visit " + state.profile.visit.n + " (day " + state.profile.visit.day + "): " + (plan.length) + " clicks from visit " + n + " are in the profile.");
+  if(ok) toast("Visit " + state.profile.visit.n + ": " + (plan.length) + " clicks from visit " + n + " are in the profile.");
 });
 
 /* ---------- demo scenario controls (customer archetypes + repeat visits) ---------- */
@@ -3221,7 +3221,7 @@ async function animNextVisit(id){
   if(detailId) await closeDetailAnim(id);
   nextVisitInstant();
   var v = state.profile.visit, b = document.getElementById("replayBanner");
-  b.innerHTML = 'Later this month…<small>Visit ' + v.n + ' · day ' + v.day + '</small>';
+  b.innerHTML = 'Later this month…<small>Visit ' + v.n + '</small>';
   b.hidden = false;
   await sleep(1700, id);
   b.hidden = true;
