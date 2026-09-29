@@ -1097,7 +1097,7 @@ function freshProfile(opts){
     tokens[c] = {};
   });
   return {
-    account:{gender:"F", age:40, city:"Prague, CZ", recentLocations:["Prague, CZ"]},
+    account:{gender:"F", age:40, city:"Prague, OK", recentLocations:["Prague, OK"]},
     acquisition:{source:"Facebook login"},
     interest:{travel:0, wellness:0, food:0},   // learned long-term category preference (logit)
     dims:dims,                                  // learned weights on the 5 calibrated attributes per category, −1…1
@@ -1120,7 +1120,12 @@ function loadState(){
     var raw = localStorage.getItem(STORE_KEY);
     if(raw){
       var s = JSON.parse(raw);
-      if(s && s.profile && s.profile.dims && s.profile.tokens && s.profile.visit && s.profile.dims.food) return s;
+      if(s && s.profile && s.profile.dims && s.profile.tokens && s.profile.visit && s.profile.dims.food){
+        var acc = s.profile.account;                 // profiles saved before the city rename
+        if(acc.city === "Prague, CZ") acc.city = "Prague, OK";
+        acc.recentLocations = (acc.recentLocations || []).map(function(c){ return c === "Prague, CZ" ? "Prague, OK" : c; });
+        return s;
+      }
     }
   }catch(e){}
   return {profile: freshProfile(), viewOverride:"auto"};
@@ -1521,7 +1526,7 @@ function closeVisit(){
 
 function chevronSvg(){ return '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>'; }
 function cityShort(city){ return (city||"").split(",")[0]; }
-var KNOWN_CITIES = ["Chicago, US","Prague, CZ","New York, US","Los Angeles, US","London, UK","Paris, FR","Barcelona, ES","Miami, US","Austin, US","Seattle, US","Vienna, AT","Rome, IT"];
+var KNOWN_CITIES = ["Chicago, US","Prague, OK","New York, US","Los Angeles, US","London, UK","Paris, FR","Barcelona, ES","Miami, US","Austin, US","Seattle, US","Vienna, AT","Rome, IT"];
 var GPS_CITY = "Chicago, US";
 function whyBtn(idx){ return '<button class="why-btn" data-why="'+idx+'">i</button>'; }
 
