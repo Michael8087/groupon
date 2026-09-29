@@ -1975,7 +1975,7 @@ function renderWeightSliders(){
   var el = document.getElementById("weightSliders");
   var w = state.profile.dims[c];
   var autoCat = state.viewOverride !== "auto" ? state.viewOverride : primaryCategory();
-  var html = '<div class="select-line">Segment <select id="focusSel"><option value="auto">Auto ('+SEGMENTS[autoCat].cat+')</option>'
+  var html = '<div class="select-line">Segment <select id="focusSel"><option value="auto">'+SEGMENTS[autoCat].cat+' (auto)</option>'
     + CATS.map(function(k){ return '<option value="'+k+'">'+SEGMENTS[k].label+'</option>'; }).join("") + '</select></div>';
   html += '<div class="weight-row"><span class="src">5 learned attribute weights for '+seg.label+'. Effect on a deal = weight × (attribute − 0.5) × 2 × '+MODEL.dimGain+' logit; unknown attribute = no effect.</span></div>';
   seg.dims.forEach(function(dm){
