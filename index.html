@@ -730,15 +730,7 @@ a{color:inherit;}
         <div class="demo-btns" id="demoCustomerBtns">
           <button data-scenario="new">New</button>
           <button data-scenario="searched">Searched</button>
-          <button data-scenario="redeemed">Redeemed</button>
-        </div>
-      </div>
-      <div class="demo-group">
-        <span class="demo-label">Visit</span>
-        <div class="demo-btns" id="demoVisitBtns">
-          <button data-visit="1">1st</button>
-          <button data-visit="2">2nd</button>
-          <button data-visit="3">3rd</button>
+          <button data-scenario="purchased">Purchased</button>
         </div>
       </div>
       <div class="demo-group">
@@ -2324,14 +2316,8 @@ var S = {
 var CUSTOMER_SCRIPTS = {
   "new": [],
   "searched": [S.search("sushi"), S.save("ramen_izakaya")],
-  "redeemed": [S.search("spa day"), S.view("swedish_massage"), S.save("hot_stone"), S.buy("spa_day")]
+  "purchased": [S.search("spa day"), S.view("swedish_massage"), S.save("hot_stone"), S.buy("spa_day")]
 };
-// Visit N button = arrival at visit N, after replaying every earlier visit
-var VISIT_SCRIPTS = [
-  [S.expose(8), S.search("sushi"), S.view("sushi_omakase"), S.save("ramen_izakaya")],
-  [S.expose(8), S.search("sushi"), S.view("sushi_omakase"), S.buy("sushi_omakase"), S.search("gift for mom"), S.view("spa_day")]
-];
-
 function stepText(st){
   var d = st.id ? DEALS_BY_ID[st.id] : null;
   if(st.t==="search") return "🔎 Searches “" + st.q + "”";
@@ -2629,16 +2615,7 @@ function applyCustomerScenario(kind){
   return startScenario(CUSTOMER_SCRIPTS[kind] || [], kind + " customer", "demoCustomerBtns", "data-scenario", kind,
     function(){ return "Loaded a “" + kind + "” customer."; });
 }
-function applyVisitScenario(n){
-  var steps = [];
-  for(var i=0; i<n-1 && i<VISIT_SCRIPTS.length; i++){ steps = steps.concat(VISIT_SCRIPTS[i], [S.nextVisit()]); }
-  return startScenario(steps, (n>1 ? "visits 1–" + (n-1) : "visit 1 arrival"), "demoVisitBtns", "data-visit", String(n),
-    function(){ return "Visit " + n + " of the same customer (day " + state.profile.visit.day + ")."; });
-}
-
 function setActiveDemoBtn(groupId, attr, value){
-  var otherGroupId = groupId === "demoCustomerBtns" ? "demoVisitBtns" : "demoCustomerBtns";
-  document.querySelectorAll("#"+otherGroupId+" button").forEach(function(b){ b.classList.remove("active"); });
   document.querySelectorAll("#"+groupId+" button").forEach(function(b){
     b.classList.toggle("active", b.getAttribute(attr) === value);
   });
@@ -2649,12 +2626,6 @@ document.getElementById("demoCustomerBtns").addEventListener("click", function(e
   if(!b) return;
   applyCustomerScenario(b.getAttribute("data-scenario"));
 });
-document.getElementById("demoVisitBtns").addEventListener("click", function(e){
-  var b = e.target.closest("[data-visit]");
-  if(!b) return;
-  applyVisitScenario(parseInt(b.getAttribute("data-visit"), 10));
-});
-
 document.querySelectorAll(".tab").forEach(function(t){
   t.addEventListener("click", function(){
     if(t.getAttribute("data-tab") === "explore"){
