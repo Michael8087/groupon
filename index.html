@@ -1496,6 +1496,13 @@ function leadStats(){
   top.forEach(function(r){ w[r.d.category] += r.score; n[r.d.category]++; });
   return {w:w, n:n};
 }
+// auto-detected segment = the largest share in "2 · Segment detection" (prior × weight + learned interest + intent);
+// manual attribute sliders do not move it, demographics and behaviour do
+function detectedCategory(){
+  var t = categoryTotals(), best = CATS[0];
+  CATS.forEach(function(c){ if(t[c].total > t[best].total) best = c; });
+  return best;
+}
 function primaryCategory(){
   var s = leadStats(), best = CATS[0];
   CATS.forEach(function(c){ if(s.w[c] > s.w[best]) best = c; });
@@ -2249,7 +2256,8 @@ function renderSegBars(){
   if(state.viewOverride !== "auto") txt = "Demo override: prior forced to " + SEGMENTS[state.viewOverride].label + ". Not a learned preference.";
   else if(!isPersonalized()) txt = "Cold start: prior from " + (a.gender==="U" ? "population" : a.gender + " " + ageBandLabel(a.age)) + " (demo mix), weight " + pw.toFixed(2) + ". No learned preferences yet.";
   else txt = "Learned personalisation: " + state.profile.nSignals + " signals, prior weight shrunk to " + pw.toFixed(2) + ". Multi-interest: every category stays in the ranking.";
-  document.getElementById("segReadout").textContent = txt;
+  var det = state.viewOverride === "auto" ? "Auto-detected: " + SEGMENTS[detectedCategory()].label + ". " : "";
+  document.getElementById("segReadout").textContent = det + txt;
   renderSegMath();
 }
 
@@ -2272,13 +2280,13 @@ var sliderFocus = "auto";
 function focusCategory(){
   if(sliderFocus !== "auto") return sliderFocus;
   if(state.viewOverride !== "auto") return state.viewOverride;
-  return primaryCategory();
+  return detectedCategory();
 }
 function renderWeightSliders(){
   var c = focusCategory(), seg = SEGMENTS[c];
   var el = document.getElementById("weightSliders");
   var w = state.profile.dims[c];
-  var autoCat = state.viewOverride !== "auto" ? state.viewOverride : primaryCategory();
+  var autoCat = state.viewOverride !== "auto" ? state.viewOverride : detectedCategory();
   var html = '<div class="select-line">Segment <select id="focusSel"><option value="auto">'+SEGMENTS[autoCat].cat+' (auto)</option>'
     + CATS.map(function(k){ return '<option value="'+k+'">'+SEGMENTS[k].label+'</option>'; }).join("") + '</select></div>';
   html += '<div class="weight-row"><span class="src">5 learned attribute weights for '+seg.label+'. Effect on a deal = weight × (attribute − 0.5) × 2 × '+MODEL.dimGain+' logit; unknown attribute = no effect.</span></div>';
@@ -2981,12 +2989,7 @@ function topLearnedWord(cat){
 function defaultVisitPlan(){
   var n = state.profile.visit.n, cat = primaryCategory();
   var q = topLearnedWord(cat) || {travel:"city break", wellness:"massage", food:"dinner"}[cat];
-  var sentence = {
-    wellness:"Relaxing massage for two under $100",
-    food:(topLearnedWord("food") ? upFirst(topLearnedWord("food")) + " dinner for two under $80" : "Romantic dinner for two under $80"),
-    travel:"Weekend city break for two under $400"
-  }[cat];
-  var plan = [n % 2 === 1 ? S.ask(sentence) : S.search(q), S.ref(S.view("@rank:0"), "a"), S.ref(S.save("@rank:0"), "a")];
+  var plan = [S.search(q), S.ref(S.view("@rank:0"), "a"), S.ref(S.save("@rank:0"), "a")];
   if(n % 2 === 0) plan.push(S.ref(S.buy("@rank:0"), "a"));
   plan.push(S.ref(S.read("@rank:1"), "b"), S.ref(S.view("@rank:3"), "c"), S.ref(S.view("@disc:0"), "d"));
   if(n % 3 === 0) plan.push(S.search("gift for mom"), S.ref(S.view("@gift:0"), "e"), S.ref(S.save("@gift:0"), "e"));
