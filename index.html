@@ -2421,7 +2421,10 @@ async function openViaCard(d, id){
     await tapTo(target, id);
     card.click();
   } else {
-    viewDeal(d);                               // not on the page: reached some other way (e.g. search results)
+    // not on today's Explore page: a customer would arrive through a link, so show that instead of a silent jump
+    caption("🔗 " + d.title + " opened via link (not on today's Explore page)");
+    await tapTo(document.getElementById("content"), id);
+    viewDeal(d);
   }
   await sleep(600, id);
 }
@@ -2458,7 +2461,10 @@ async function animSave(d, id){
       await tapTo(h, id);
       h.click();
     } else {
-      actSave(d); afterInteraction();
+      await openViaCard(d, id);
+      var dh2 = document.getElementById("ddHeart");
+      await tapTo(dh2, id);
+      dh2.click();
     }
   }
   await sleep(800, id);
