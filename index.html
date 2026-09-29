@@ -419,11 +419,14 @@ a{color:inherit;}
   flex:1;min-width:0;border:none;outline:none;resize:none;background:none;font-family:inherit;font-size:16px;
   color:var(--text);height:24px;padding:0;line-height:24px;overflow:hidden;
 }
-.sv-field.nlp{border-radius:20px;align-items:flex-start;padding:12px 14px 10px;background:rgba(123,63,176,.09);border-color:rgba(123,63,176,.55);}
-.sv-field.nlp svg{margin-top:2px;stroke:#7b3fb0;}
+.sv-field.nlp{
+  border-radius:20px;align-items:flex-start;padding:12px 14px 10px;border:2px solid transparent;
+  background:linear-gradient(var(--surface),var(--surface)) padding-box, linear-gradient(90deg,#7b3fb0,#4a6be0) border-box;
+}
+.sv-field.nlp:focus-within{border-color:transparent;box-shadow:0 0 0 3px rgba(123,63,176,.12);}
+.sv-field.nlp svg{margin-top:2px;}
 .sv-field.nlp .nlp-chip{display:none;}
 .sv-field.nlp textarea{height:84px;line-height:1.4;}
-.sv-field.nlp textarea::placeholder{color:#7b3fb0;opacity:.75;}
 .sv-loc{
   margin:2px 14px 4px;background:var(--tint);border-radius:14px;padding:12px 14px;
   display:flex;justify-content:space-between;align-items:center;font-size:15px;color:var(--text);
