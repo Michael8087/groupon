@@ -95,14 +95,6 @@ a{color:inherit;}
     height:min(844px, calc(100dvh - 56px));
   }
 }
-.demo-controls{
-  width:100%;max-width:430px;
-  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
-  padding:14px 16px;box-shadow:var(--shadow);
-  display:flex;flex-direction:column;gap:12px;
-  font-family:'Work Sans', system-ui, sans-serif;
-}
-.demo-controls-title{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);}
 .demo-group{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
 .demo-label{font-size:12.5px;font-weight:700;color:var(--text);flex:none;width:60px;}
 .demo-btns{display:flex;gap:6px;flex-wrap:wrap;}
@@ -573,6 +565,8 @@ a{color:inherit;}
   font-family:'Baloo 2', system-ui, sans-serif;font-size:26px;animation:fadein .3s ease;
 }
 .replay-banner small{font-family:'Work Sans', system-ui, sans-serif;font-size:14px;opacity:.85;}
+.terminal-panel .demo-btns button.active{background:var(--green);border-color:var(--green);color:#fff;}
+.terminal-panel .demo-label{width:64px;}
 [hidden]{display:none!important;}
 @keyframes shimmer{0%{background-position:-300px 0;}100%{background-position:300px 0;}}
 .skel{
@@ -730,6 +724,33 @@ a{color:inherit;}
   <div class="drawer-scroll">
 
     <div class="d-section">
+      <h3>Demo scenarios</h3>
+      <div class="demo-group">
+        <span class="demo-label">Customer</span>
+        <div class="demo-btns" id="demoCustomerBtns">
+          <button data-scenario="new">New</button>
+          <button data-scenario="searched">Searched</button>
+          <button data-scenario="redeemed">Redeemed</button>
+        </div>
+      </div>
+      <div class="demo-group">
+        <span class="demo-label">Visit</span>
+        <div class="demo-btns" id="demoVisitBtns">
+          <button data-visit="1">1st</button>
+          <button data-visit="2">2nd</button>
+          <button data-visit="3">3rd</button>
+        </div>
+      </div>
+      <div class="demo-group">
+        <span class="demo-label">Replay</span>
+        <div class="demo-btns">
+          <label class="anim-toggle"><input type="checkbox" id="animToggle" checked> Animate clicks</label>
+          <button id="replaySkip">Skip ⏭</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-section">
       <h3>1 · Customer profile</h3>
       <div class="sig-list" id="acctList"></div>
     </div>
@@ -784,32 +805,7 @@ a{color:inherit;}
 
 </div>
 
-<div class="demo-controls">
-  <div class="demo-controls-title">Demo scenarios</div>
-  <div class="demo-group">
-    <span class="demo-label">Customer</span>
-    <div class="demo-btns" id="demoCustomerBtns">
-      <button data-scenario="new">New</button>
-      <button data-scenario="searched">Searched</button>
-      <button data-scenario="redeemed">Redeemed</button>
-    </div>
-  </div>
-  <div class="demo-group">
-    <span class="demo-label">Visit</span>
-    <div class="demo-btns" id="demoVisitBtns">
-      <button data-visit="1">1st</button>
-      <button data-visit="2">2nd</button>
-      <button data-visit="3">3rd</button>
-    </div>
-  </div>
-  <div class="demo-group">
-    <span class="demo-label">Replay</span>
-    <div class="demo-btns">
-      <label class="anim-toggle"><input type="checkbox" id="animToggle" checked> Animate clicks</label>
-      <button id="replaySkip">Skip ⏭</button>
-    </div>
-  </div>
-</div>
+
 
 </div>
 
