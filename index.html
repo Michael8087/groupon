@@ -1275,6 +1275,7 @@ function freshProfile(opts){
   return {
     account:{gender:"F", age:40, city:"Praha, TX", recentLocations:["Praha, TX"]},
     acquisition:{source:"Facebook login"},
+    subs:{},                                    // learned interest per sub-category ("wellness|Massage"), drives "X for you" tiles
     interest:{travel:0, wellness:0, food:0},   // learned long-term category preference (logit)
     dims:dims,                                  // learned weights on the 5 calibrated attributes per category, −1…1
     tokens:tokens,                              // learned weights on categorical deal features, e.g. cuisine_type=japanese
@@ -1311,6 +1312,7 @@ var RANK_CACHE = null;
 function persist(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){} }
 function saveState(){ RANK_CACHE = null; persist(); }
 var state = loadState();
+if(!state.profile.subs) state.profile.subs = {};
 if(!state.viewOverride) state.viewOverride = "auto";
 
 /* ---------- context: pricing (promo) and expected margin ---------- */
@@ -1525,6 +1527,8 @@ function learnFromDeal(d, strength){
   var s = strength * (p.visit.intent && p.visit.intent.gift ? LEARNING.giftContext : 1);
   var px = pricing(d);
   p.interest[c] = clamp(p.interest[c] + LEARNING.interestRate*s, -1.5, 2.5);
+  var sk = c + "|" + d.subcategory;
+  p.subs[sk] = clamp((p.subs[sk] || 0) + s, 0, 3);
   SEGMENTS[c].dims.forEach(function(dm){
     var x = dm.value(d, px);
     if(x===null) return;                                   // unknown ≠ negative: nothing to learn
@@ -1548,6 +1552,7 @@ function flatProfile(){
   var p = state.profile, f = {};
   CATS.forEach(function(c){
     f["i." + c] = p.interest[c];
+    Object.keys(p.subs).forEach(function(k){ if(k.indexOf(c + "|") === 0) f["s." + c + "." + k.slice(c.length + 1)] = p.subs[k]; });
     SEGMENTS[c].dims.forEach(function(dm){ f["d." + c + "." + dm.key] = p.dims[c][dm.key] || 0; });
     Object.keys(p.tokens[c]).forEach(function(t){ f["t." + c + "." + t] = p.tokens[c][t]; });
   });
@@ -1557,6 +1562,7 @@ function flatLabel(k){
   var a = k.split(".");
   var seg = SEGMENTS[a[1]];
   if(a[0]==="i") return seg.cat + " interest";
+  if(a[0]==="s") return seg.cat + " · " + a.slice(2).join(".") + " interest";
   if(a[0]==="d"){
     var dm = seg.dims.filter(function(x){ return x.key===a[2]; })[0];
     return seg.cat + " · " + dm.lowLabel + "⟷" + dm.highLabel;
@@ -1841,10 +1847,11 @@ function heroSets(n){
     list.slice(0, 3).forEach(function(r){ sum += r.score; });
     return sum;
   }
+  var seenSet = {};
   function add(c, kind, label, list, eyebrow, key){
-    var dup = label.toLowerCase();
-    if(!list.length || seen[dup]) return;
-    seen[dup] = 1;
+    var dup = label.toLowerCase(), sig = list.map(function(r){ return r.d.id; }).sort().join(",");
+    if(!list.length || seen[dup] || seenSet[sig]) return;          // same label or exactly the same deals: one tile is enough
+    seen[dup] = 1; seenSet[sig] = 1;
     cands[c].push({kind:kind, cat:c, label:label, rows:list, eyebrow:eyebrow, score:meanTop(list), key:key});
   }
   CATS.forEach(function(c){
@@ -1867,6 +1874,12 @@ function heroSets(n){
           var all = inCat.filter(function(r){ return r.d.tok.tokens.indexOf(tk) > -1; }), near = all.filter(isNear);
           if(!(it && it.category===c && it.tokens.indexOf(tk) > -1)) add(c, "learned", tokenTitle(tk) + " for you", all, "🔥 For you", "tok|"+c+"|"+tk);
           if(near.length >= 2 && near.length < all.length) add(c, "learned", tokenTitle(tk) + " near you", near, "📍 Close to you", "near|"+c+"|"+tk);
+        });
+      Object.keys(p.subs).filter(function(k){ return k.indexOf(c + "|") === 0 && p.subs[k] >= 0.25 && subs[k.slice(c.length + 1)]; })
+        .sort(function(a, b){ return p.subs[b] - p.subs[a]; }).slice(0, 2).forEach(function(k){
+          var name = k.slice(c.length + 1), list = subs[name], close = list.filter(isNear);
+          add(c, "learned", name + " for you", list, "🔥 For you", "sub|"+c+"|"+name);
+          if(close.length >= 2 && close.length < list.length) add(c, "learned", name + " near you", close, "📍 Close to you", "subnear|"+c+"|"+name);
         });
       subList.slice(0, 2).forEach(function(x){                        // the best sub-categories, restricted to what is close by
         var near = x.rows.filter(isNear);
@@ -2395,7 +2408,7 @@ function renderTrace(){
   lines.push("<li><b>4. Candidate deals</b> → " + rows.length + " of " + DEALS.length + " eligible" + (R.excluded.length ? " (" + R.excluded.length + " bought → excluded)" : "") + " · promo applies to " + promoN + "</li>");
   lines.push("<li><b>5. Ranking</b> → score = P(purchase) × margin · #1 <b>" + top.d.title + "</b>: " + pct1(top.P) + " × " + pct(top.m.rate) + " = " + top.score.toFixed(3) + "</li>");
   var hero = heroSets(8);
-  lines.push("<li><b>6. Mobile page</b> → top tiles: " + hero.map(function(h){ return esc(h.label); }).join(", ") + " · " + (pers ? "Picked for you" : "Trending") + " = #1–5 · " + (pers ? "Gifts you'll love to give" : "Trending gifts") + " with Featured deals in the middle</li>");
+  lines.push("<li><b>6. Mobile page</b> → top tiles: " + hero.map(function(h){ return esc(h.label) + (h.kind==="intent" ? " (search)" : (h.kind==="learned" ? " (learned)" : "")); }).join(", ") + " · " + (pers ? "Picked for you" : "Trending") + " = #1–5 · " + (pers ? "Gifts you'll love to give" : "Trending gifts") + " with Featured deals in the middle</li>");
   var thisVisit = p.log.filter(function(e){ return e.visit===p.visit.n && e.icon!=="🚪"; }).length;
   lines.push("<li><b>7. Behavior</b> → " + thisVisit + " event(s) this visit · " + Object.keys(p.visit.exposed).length + " deals seen</li>");
   lines.push("<li><b>8. Updated profile</b> → " + p.nSignals + " signal(s), stored in this browser; ▲▼ below = rank change since this visit started</li>");
@@ -2487,6 +2500,7 @@ document.getElementById("resetWeights").addEventListener("click", function(){
     SEGMENTS[c].dims.forEach(function(dm){ p.dims[c][dm.key] = 0; });
     p.tokens[c] = {};
     p.interest[c] = 0;
+    Object.keys(p.subs).forEach(function(k){ if(k.indexOf(c + "|") === 0) delete p.subs[k]; });
     return {note:"Attribute weights, feature preferences and category interest back to 0; the segment prior still applies."};
   });
   afterInteraction();
