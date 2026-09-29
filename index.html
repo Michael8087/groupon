@@ -292,8 +292,15 @@ a{color:inherit;}
 .recent-card .info .price-ladder .pct-pill{font-size:10px;padding:1px 6px;}
 .recent-card .info .price-ladder .tier2{font-size:10px;}
 .recent-card .info .price-ladder .promo{font-size:13px;}
-.sponsored-tag{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text-muted);}
-.module.featured{margin:6px 0 18px;}
+.module.featured{background:var(--tint);padding:18px 0 20px;margin:8px 0 18px;gap:14px;}
+.module.featured .module-head h2{font-size:19px;gap:10px;}
+.featured-carousel{gap:12px;}
+.feat-wrap{flex:none;width:76%;background:var(--surface);border-radius:12px;padding:12px;scroll-snap-align:start;display:flex;}
+.feat-wrap .big-card{border:none;box-shadow:none;border-radius:8px;}
+.feat-wrap .big-card .photo{border-radius:10px;height:180px;}
+.feat-wrap .big-card .info{padding:12px 2px 2px;}
+.feat-wrap .buy-btn{display:none;}
+.feat-wrap .tag-pill{gap:6px;}
 .hero-slide.tile{width:37%;height:150px;cursor:pointer;}
 .hero-slide.tile .txt{padding:12px;gap:2px;}
 .hero-slide.tile h1{font-size:16px;-webkit-line-clamp:2;}
@@ -1696,7 +1703,7 @@ function dealsModuleHtml(title, sub, rows, idx, whyLead){
     + stackedCardsHtml(rows)
     + '</div>';
 }
-function recentCardHtml(r, sponsored){
+function recentCardHtml(r){
   var d = r.d;
   var liked = state.profile.saved.indexOf(d.id) > -1;
   return '<div class="recent-card" data-view="'+d.id+'">'
@@ -1704,7 +1711,6 @@ function recentCardHtml(r, sponsored){
     +   '<button class="heart-btn'+(liked?" on":"")+'" data-heart="'+d.id+'" aria-label="Save">'+(liked?"♥":"♡")+'</button>'
     + '</div>'
     + '<div class="info">'
-    +   (sponsored ? '<span class="sponsored-tag">Sponsored</span>' : '')
     +   '<span class="title">'+d.title+'</span>'
     +   '<span class="addr">'+d.addr+'</span>'
     +   '<span class="rating-row">'+starBar(d.rating)+' <b>'+d.rating.toFixed(1)+'</b> ('+reviewsLabel(d.review_count)+')</span>'
@@ -1720,13 +1726,17 @@ function recentlyViewedModuleHtml(){
     + '<div class="recent-carousel" data-carousel="recent">'+cardsHtml+'</div>'
     + '</div>';
 }
-// featured (sponsored) deals: horizontal like recently viewed, placed in the middle of the gifts
+// featured (sponsored) deals: a grey band with large cards in a horizontal carousel, in the middle of the gifts
+var SPONSORED_PILL = '<svg width="15" height="15" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#111"/><path d="M7 12.5l3.5 3.5L17 9" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg> Sponsored';
 function featuredModuleHtml(rows, idx){
   var lines = rows.map(function(r){ return "#"+r.rank+" "+esc(r.d.title)+": "+r.score.toFixed(3); }).join("<br>");
+  var cards = rows.map(function(r){
+    return '<div class="feat-wrap">'+bigCardHtml(r, {extraClass:"solo", tag:SPONSORED_PILL})+'</div>';
+  }).join("");
   return '<div class="module featured">'
-    + '<div class="module-head"><div><h2>Featured deals</h2><div class="sub">Sponsored</div></div>'+whyBtn(idx)+'</div>'
+    + '<div class="module-head"><div><h2><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="M3.5 9.5v5h3l8 4v-13l-8 4h-3z"/><path d="M6.5 14.5l1 4.5h2l-.7-3.5"/><path d="M18 9a4 4 0 010 6"/></svg> Featured deals</h2></div>'+whyBtn(idx)+'</div>'
     + '<div class="why-note" id="why-'+idx+'" hidden>Sponsored placement (demo): the next-best deals by score that are not already shown above. The real app fills this slot with paid placements.<br>'+lines+'</div>'
-    + '<div class="recent-carousel" data-carousel="featured">'+rows.map(function(r){ return recentCardHtml(r, true); }).join("")+'</div>'
+    + '<div class="recent-carousel featured-carousel" data-carousel="featured">'+cards+'</div>'
     + '</div>';
 }
 function giftsModuleHtml(rows, featured, pers){
