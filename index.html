@@ -390,6 +390,16 @@ a{color:inherit;}
 .term-dot{width:11px;height:11px;border-radius:50%;flex:none;}
 .term-dot.r{background:#ff5f56;} .term-dot.y{background:#ffbd2e;} .term-dot.g{background:#27c93f;}
 .term-title{margin-left:6px;color:var(--text-muted);font-size:11.5px;}
+.term-theme{
+  margin-left:auto;background:var(--bg);border:1px solid var(--border);color:var(--text);
+  border-radius:999px;padding:3px 10px;font-size:11px;font-family:inherit;cursor:pointer;
+}
+@media (min-width:480px){
+  .terminal-panel.light{
+    --bg:#f6f7f3; --surface:#ffffff; --text:#16190f; --text-muted:#666f5c;
+    --border:#e3e5dc; --green:#3f8a12; --green-light:#e8f4dd; --red:#c22b1f;
+  }
+}
 .drawer-scroll{overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:16px;font-size:12.5px;}
 .d-section{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;}
 .d-section h3{margin:0;font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);}
@@ -609,6 +619,7 @@ a{color:inherit;}
   <div class="term-titlebar">
     <span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span>
     <span class="term-title">personalization-engine — zsh</span>
+    <button class="term-theme" id="termTheme" aria-label="Toggle light / dark mode"></button>
   </div>
   <div class="drawer-scroll">
 
@@ -2235,6 +2246,21 @@ document.getElementById("locSelectCountry").addEventListener("click", function()
 document.getElementById("locSearchInput").addEventListener("input", function(e){
   renderLocationResults(e.target.value);
 });
+
+/* light / dark toggle for the engine panel (remembered per browser) */
+function setTermTheme(light){
+  document.querySelector(".terminal-panel").classList.toggle("light", light);
+  document.getElementById("termTheme").textContent = light ? "☾ Dark" : "☀ Light";
+  try{ localStorage.setItem("groupon_term_theme", light ? "light" : "dark"); }catch(e){}
+}
+document.getElementById("termTheme").addEventListener("click", function(){
+  setTermTheme(!document.querySelector(".terminal-panel").classList.contains("light"));
+});
+(function(){
+  var light = false;
+  try{ light = localStorage.getItem("groupon_term_theme") === "light"; }catch(e){}
+  setTermTheme(light);
+})();
 
 if(!state.profile.snaps.arrival) takeArrivalSnapshot();
 document.getElementById("cityLabel").textContent = cityShort(state.profile.account.city);
