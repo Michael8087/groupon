@@ -733,9 +733,9 @@ a{color:inherit;}
 
     <div class="d-section">
       <h3>4 · Behavior → updated profile</h3>
-      <div class="bucket-label">Replay · compose what the customer clicks</div>
+      <div class="bucket-label">Next visit · optional custom plan of customer clicks</div>
       <div class="select-line">
-        <select id="cmpType"><option value="search">🔎 Search</option><option value="view">👀 View deal</option><option value="save">❤️ Save</option><option value="buy">🛒 Buy</option><option value="nextVisit">🚪 Next visit</option></select>
+        <select id="cmpType"><option value="search">🔎 Search</option><option value="view">👀 View deal</option><option value="save">❤️ Save</option><option value="buy">🛒 Buy</option></select>
         <select id="cmpDeal"></select>
         <input type="text" id="cmpQuery" placeholder="sushi, gift for mom…">
         <button class="btn ghost" id="cmpAdd">+ Add</button>
@@ -743,13 +743,13 @@ a{color:inherit;}
       <div class="replay-hint" id="replayHint"></div>
       <ol class="replay-list" id="replayList"></ol>
       <div class="rules-actions">
-        <button class="btn primary" id="cmpPlay">▶ Play</button>
-        <button class="btn ghost" id="cmpClear">Clear</button>
+        <button class="btn primary" id="nextVisit">Next visit →</button>
+        <button class="btn ghost" id="cmpClear">Clear plan</button>
+        <button class="btn ghost" id="cmpSkip">Skip ⏭</button>
       </div>
       <div class="bucket-label">Event log (what each click changed)</div>
       <div class="why-scroll"><ul class="trace-list" id="behaviorLog"></ul></div>
       <div class="rules-actions">
-        <button class="btn ghost" id="nextVisit">Next visit →</button>
         <button class="btn ghost" id="resetAllDemo">Reset whole demo</button>
       </div>
     </div>
@@ -2144,12 +2144,14 @@ document.getElementById("resetAllDemo").addEventListener("click", function(){
   toast("Demo reset: profile, history and visits cleared.");
 });
 
-document.getElementById("nextVisit").addEventListener("click", function(){
-  cancelReplay();
-  closeVisit();
+document.getElementById("nextVisit").addEventListener("click", async function(){
+  if(replay.running) return;
+  var custom = composer.length > 0, n = state.profile.visit.n;
+  var plan = custom ? composer.slice() : defaultVisitPlan();
+  composer = [];
   openExplain = null;
-  render();
-  toast("Visit " + state.profile.visit.n + " (day " + state.profile.visit.day + "): same customer, profile loaded from storage.");
+  var ok = await playScript([S.expose(8)].concat(plan, [S.nextVisit()]), custom ? "your visit plan" : "simulated visit " + n);
+  if(ok) toast("Visit " + state.profile.visit.n + " (day " + state.profile.visit.day + "): " + (plan.length) + " clicks from visit " + n + " are in the profile.");
 });
 
 /* ---------- demo scenario controls (customer archetypes + repeat visits) ---------- */
@@ -2275,7 +2277,7 @@ function viewDeal(d){
 /* ---------- replay: scripted user clicks played on the phone ---------- */
 
 var CANCEL = {};
-var replay = {run:0, running:false, skip:false, steps:[], idx:-1, label:"", view:"composer", wake:null};
+var replay = {run:0, running:false, skip:false, steps:[], idx:-1, label:"", view:"composer", wake:null, refs:{}, used:{}};
 var composer = [];
 
 // building blocks: only what a customer can click (search, open a deal, save, buy) plus invisible/marker steps
@@ -2285,17 +2287,63 @@ var S = {
   save:function(id){ return {t:"save", id:id}; },
   buy:function(id){ return {t:"buy", id:id}; },
   expose:function(n){ return {t:"expose", n:n||8}; },      // invisible: the top-n deals were on screen
-  nextVisit:function(){ return {t:"nextVisit"}; }           // marker: time passes, a new visit starts
+  nextVisit:function(){ return {t:"nextVisit"}; },          // marker: time passes, a new visit starts
+  ref:function(st, r){ st.ref = r; return st; }
 };
 
+function dealLabel(st){
+  var d = DEALS_BY_ID[st.id];
+  if(d) return d.title;
+  if(String(st.id).indexOf("@disc") === 0) return "a deal from another category";
+  if(String(st.id).indexOf("@gift") === 0) return "a gift idea";
+  return "a top-ranked deal";
+}
 function stepText(st){
-  var d = st.id ? DEALS_BY_ID[st.id] : null;
   if(st.t==="search") return "🔎 Searches “" + st.q + "”";
-  if(st.t==="view") return "👀 Opens " + d.title;
-  if(st.t==="save") return "❤️ Saves " + d.title;
-  if(st.t==="buy") return "🛒 Buys " + d.title;
+  if(st.t==="view") return "👀 Opens " + dealLabel(st);
+  if(st.t==="save") return "❤️ Saves " + dealLabel(st);
+  if(st.t==="buy") return "🛒 Buys " + dealLabel(st);
   if(st.t==="nextVisit") return "🚪 Next visit";
   return st.t;
+}
+// "@rank:N" = the N-th deal of the ranking at the moment of the click, "@disc:N" = same within the least-preferred
+// category (exploration), "@gift:N" = giftable deals. Steps sharing a ref hit the same deal.
+function resolveDealId(st){
+  if(!st.id || st.id.charAt(0) !== "@") return;
+  if(st.ref && replay.refs[st.ref]){ st.id = replay.refs[st.ref]; return; }
+  var m = /^@(rank|disc|gift):(\d+)$/.exec(st.id), rows = getRanking().rows, n = parseInt(m[2], 10);
+  if(m[1]==="disc"){ var dc = discoverCategory(); rows = rows.filter(function(r){ return r.d.category===dc; }); }
+  if(m[1]==="gift") rows = rows.filter(function(r){ return r.d.giftable; });
+  var pick = null;
+  for(var i=n; i<rows.length && !pick; i++){ if(!replay.used[rows[i].d.id]) pick = rows[i].d.id; }
+  if(!pick) pick = rows[0].d.id;
+  replay.used[pick] = true;
+  if(st.ref) replay.refs[st.ref] = pick;
+  st.id = pick;
+}
+function sameDeal(next){
+  return !!next && (next.t==="save" || next.t==="buy") && (next.id===detailId || (next.ref && replay.refs[next.ref]===detailId));
+}
+function topLearnedWord(cat){
+  var toks = state.profile.tokens[cat], best = null;
+  Object.keys(toks).forEach(function(t){
+    if(toks[t] > 0.05 && (!best || toks[t] > toks[best])) best = t;
+  });
+  if(!best) return null;
+  var w = tokVal(best).toLowerCase();
+  var it = parseQuery(w);
+  return it.category===cat && it.tokens.length ? w : null;
+}
+// what this customer plausibly does in the visit: looks for what they like, opens what the page shows them,
+// saves (and every 2nd visit buys) the best deal, checks one deal from another category, every 3rd visit a gift
+function defaultVisitPlan(){
+  var n = state.profile.visit.n, cat = primaryCategory();
+  var q = topLearnedWord(cat) || {travel:"city break", wellness:"massage", food:"dinner"}[cat];
+  var plan = [S.search(q), S.ref(S.view("@rank:0"), "a"), S.ref(S.save("@rank:0"), "a")];
+  if(n % 2 === 0) plan.push(S.ref(S.buy("@rank:0"), "a"));
+  plan.push(S.ref(S.view("@rank:1"), "b"), S.ref(S.view("@rank:3"), "c"), S.ref(S.view("@disc:0"), "d"));
+  if(n % 3 === 0) plan.push(S.search("gift for mom"), S.ref(S.view("@gift:0"), "e"), S.ref(S.save("@gift:0"), "e"));
+  return plan;
 }
 
 function sleep(ms, id){
@@ -2469,6 +2517,7 @@ function instantStep(st){
 }
 
 async function runStep(st, next, id){
+  resolveDealId(st);
   if(st.t==="expose"){ exposeTop(st.n); return; }
   if(replay.skip){ instantStep(st); await sleep(0, id); return; }
   var d = st.id ? DEALS_BY_ID[st.id] : null;
@@ -2479,7 +2528,7 @@ async function runStep(st, next, id){
   else if(st.t==="buy") await animBuy(d, id);
   else if(st.t==="nextVisit") await animNextVisit(id);
   // the detail stays open only when the next click continues on the same deal
-  if(detailId && !(next && (next.t==="save" || next.t==="buy") && next.id===detailId)) await closeDetailAnim(id);
+  if(detailId && !sameDeal(next)) await closeDetailAnim(id);
 }
 
 async function playScript(steps, label){
@@ -2487,6 +2536,7 @@ async function playScript(steps, label){
   replay.running = true;
   replay.skip = false;
   replay.steps = steps; replay.idx = -1; replay.label = label; replay.view = "run";
+  replay.refs = {}; replay.used = {};
   document.getElementById("replayShield").hidden = replay.skip;
   renderReplay();
   try{
@@ -2521,9 +2571,10 @@ function renderReplay(){
   document.getElementById("replayList").innerHTML = html;
   var hint;
   if(run) hint = replay.running ? ("Replaying " + esc(replay.label) + " · step " + Math.min(replay.idx + 1, steps.length) + " of " + steps.length) : ("Replayed " + esc(replay.label) + ". The log below shows what each click changed.");
-  else hint = visible.length ? "Queue (runs on the current profile):" : "Compose user clicks, then ▶ Play. Visit and Customer buttons replay their own scripts here.";
+  else hint = visible.length ? "Your custom visit plan. Next visit plays it instead of the default." : "Empty: Next visit simulates a typical visit (search, open, save, sometimes buy) from the current profile. Add clicks to write your own visit instead.";
   document.getElementById("replayHint").innerHTML = hint;
-  document.getElementById("cmpPlay").disabled = replay.running || !composer.length;
+  document.getElementById("nextVisit").disabled = replay.running;
+  document.getElementById("cmpSkip").disabled = !replay.running;
   document.querySelectorAll("#replayList [data-cmp-del]").forEach(function(x){
     x.addEventListener("click", function(){ composer.splice(parseInt(x.getAttribute("data-cmp-del"), 10), 1); renderReplay(); });
   });
@@ -2546,7 +2597,6 @@ function initComposer(){
   document.getElementById("cmpAdd").addEventListener("click", function(){
     var t = type.value, st;
     if(t==="search"){ if(!q.value.trim()) return; st = S.search(q.value.trim()); q.value = ""; }
-    else if(t==="nextVisit") st = S.nextVisit();
     else st = S[t](sel.value);
     composer.push(st);
     replay.view = "composer";
@@ -2558,9 +2608,9 @@ function initComposer(){
     replay.view = "composer";
     renderReplay();
   });
-  document.getElementById("cmpPlay").addEventListener("click", function(){
-    if(replay.running || !composer.length) return;
-    playScript(composer.slice(), "your queue");
+  document.getElementById("cmpSkip").addEventListener("click", function(){
+    replay.skip = true;
+    if(replay.wake) replay.wake();
   });
 }
 
