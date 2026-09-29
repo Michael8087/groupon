@@ -625,7 +625,7 @@ a{color:inherit;}
 
   <header class="app-header">
     <div class="location-row" id="locationRow">
-      <span id="cityLabel">Prague</span>
+      <span id="cityLabel">Prague, OK</span>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
     </div>
     <div class="search-bar">
@@ -1892,7 +1892,7 @@ function renderAcctList(){
   document.getElementById("acctAge").addEventListener("change", function(e){ p.account.age = parseInt(e.target.value,10)||30; saveState(); afterInteraction(); });
   document.getElementById("acctCity").addEventListener("change", function(e){
     p.account.city = e.target.value;
-    document.getElementById("cityLabel").textContent = cityShort(e.target.value);
+    document.getElementById("cityLabel").textContent = e.target.value;
     saveState(); afterInteraction();
   });
   document.getElementById("acqSource").addEventListener("change", function(e){ p.acquisition.source = e.target.value; saveState(); renderTrace(); });
@@ -2134,7 +2134,7 @@ function resetDemo(blank){
   openExplain = null;
   saveState();
   takeArrivalSnapshot();
-  document.getElementById("cityLabel").textContent = cityShort(state.profile.account.city);
+  document.getElementById("cityLabel").textContent = state.profile.account.city;
 }
 
 document.getElementById("resetAllDemo").addEventListener("click", function(){
@@ -2594,7 +2594,7 @@ setInterval(tickClock, 15000);
 
 function selectLocation(city){
   state.profile.account.city = city;
-  document.getElementById("cityLabel").textContent = cityShort(city);
+  document.getElementById("cityLabel").textContent = city;
   var rl = state.profile.account.recentLocations;
   var i = rl.indexOf(city);
   if(i > -1) rl.splice(i, 1);
@@ -2683,7 +2683,7 @@ document.getElementById("termTheme").addEventListener("click", function(){
 })();
 
 if(!state.profile.snaps.arrival) takeArrivalSnapshot();
-document.getElementById("cityLabel").textContent = cityShort(state.profile.account.city);
+document.getElementById("cityLabel").textContent = state.profile.account.city;
 render();
 })();
 </script>
