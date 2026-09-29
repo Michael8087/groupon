@@ -902,7 +902,7 @@ a{color:inherit;}
       <h3>4 · Behavior → updated profile</h3>
       <div class="bucket-label">Simulate a visit · optional custom plan of customer clicks</div>
       <div class="select-line">
-        <select id="cmpType"><option value="search">🔎 Search</option><option value="view">👀 View deal</option><option value="read">📖 Read deal (lingers)</option><option value="save">❤️ Save</option><option value="buy">🛒 Buy</option></select>
+        <select id="cmpType"><option value="search">🔎 Search</option><option value="ask">✨ Just ask (NLP)</option><option value="view">👀 View deal</option><option value="read">📖 Read deal (lingers)</option><option value="save">❤️ Save</option><option value="buy">🛒 Buy</option></select>
         <select id="cmpDeal"></select>
         <input type="text" id="cmpQuery" placeholder="sushi, gift for mom…">
         <button class="btn ghost" id="cmpAdd">+ Add</button>
@@ -2921,6 +2921,7 @@ var composer = [];
 // building blocks: only what a customer can click (search, open a deal, save, buy) plus invisible/marker steps
 var S = {
   search:function(q){ return {t:"search", q:q}; },
+  ask:function(q){ return {t:"ask", q:q}; },                // "Just ask": a whole sentence, mapped to deal features
   view:function(id){ return {t:"view", id:id}; },
   save:function(id){ return {t:"save", id:id}; },
   buy:function(id){ return {t:"buy", id:id}; },
@@ -2939,6 +2940,7 @@ function dealLabel(st){
 }
 function stepText(st){
   if(st.t==="search") return "🔎 Searches “" + st.q + "”";
+  if(st.t==="ask") return "✨ Asks “" + st.q + "” (Just ask)";
   if(st.t==="view") return "👀 Opens " + dealLabel(st);
   if(st.t==="save") return "❤️ Saves " + dealLabel(st);
   if(st.t==="read") return "📖 Reads " + dealLabel(st) + " (lingers, scrolls)";
@@ -2979,7 +2981,12 @@ function topLearnedWord(cat){
 function defaultVisitPlan(){
   var n = state.profile.visit.n, cat = primaryCategory();
   var q = topLearnedWord(cat) || {travel:"city break", wellness:"massage", food:"dinner"}[cat];
-  var plan = [S.search(q), S.ref(S.view("@rank:0"), "a"), S.ref(S.save("@rank:0"), "a")];
+  var sentence = {
+    wellness:"Relaxing massage for two under $100",
+    food:(topLearnedWord("food") ? upFirst(topLearnedWord("food")) + " dinner for two under $80" : "Romantic dinner for two under $80"),
+    travel:"Weekend city break for two under $400"
+  }[cat];
+  var plan = [n % 2 === 1 ? S.ask(sentence) : S.search(q), S.ref(S.view("@rank:0"), "a"), S.ref(S.save("@rank:0"), "a")];
   if(n % 2 === 0) plan.push(S.ref(S.buy("@rank:0"), "a"));
   plan.push(S.ref(S.read("@rank:1"), "b"), S.ref(S.view("@rank:3"), "c"), S.ref(S.view("@disc:0"), "d"));
   if(n % 3 === 0) plan.push(S.search("gift for mom"), S.ref(S.view("@gift:0"), "e"), S.ref(S.save("@gift:0"), "e"));
@@ -3109,6 +3116,23 @@ async function animRead(d, id){
   actDwell(d, 15, 4);                                           // simulated reading time; a real visitor's is measured
   afterInteraction();
 }
+async function animAsk(q, id){
+  var chip = document.getElementById("nlpChip");
+  await tapTo(chip, id);
+  chip.click();
+  await sleep(700, id);
+  var f = document.getElementById("svInput");
+  for(var i=0; i<q.length; i++){ f.value = q.slice(0, i+1); svRender(); await sleep(45, id); }
+  await sleep(1800, id);                                        // time to read "How we read it"
+  var go = document.getElementById("svGo");
+  await tapTo(go, id);
+  go.click();
+  await sleep(3200, id);                                        // results, mapping and "Added to your profile"
+  var back = document.getElementById("svBack");
+  await tapTo(back, id);
+  back.click();
+  await sleep(450, id);
+}
 async function animView(d, id){
   await openViaCard(d, id);
   var price = document.querySelector("#dealDetail .dd-price");
@@ -3174,6 +3198,7 @@ function instantStep(st){
   var d = st.id ? DEALS_BY_ID[st.id] : null;
   closeDetail();
   if(st.t==="search") runSearch(st.q, true);
+  else if(st.t==="ask") runSearch(st.q, true, true);
   else if(st.t==="view"){ actView(d); afterInteraction(); }
   else if(st.t==="read"){ actView(d); actDwell(d, 15, 4); afterInteraction(); }
   else if(st.t==="save"){ if(state.profile.saved.indexOf(d.id) < 0){ actSave(d); afterInteraction(); } }
@@ -3188,6 +3213,7 @@ async function runStep(st, next, id){
   var d = st.id ? DEALS_BY_ID[st.id] : null;
   caption(stepText(st));
   if(st.t==="search") await animSearch(st.q, id);
+  else if(st.t==="ask") await animAsk(st.q, id);
   else if(st.t==="view") await animView(d, id);
   else if(st.t==="read") await animRead(d, id);
   else if(st.t==="save") await animSave(d, id);
@@ -3258,13 +3284,14 @@ function initComposer(){
   var type = document.getElementById("cmpType"), q = document.getElementById("cmpQuery");
   function syncForm(){
     sel.hidden = !(type.value==="view" || type.value==="read" || type.value==="save" || type.value==="buy");
-    q.hidden = type.value !== "search";
+    q.hidden = !(type.value === "search" || type.value === "ask");
+    q.placeholder = type.value === "ask" ? "Romantic dinner for two under $80" : "sushi, gift for mom…";
   }
   type.addEventListener("change", syncForm);
   syncForm();
   document.getElementById("cmpAdd").addEventListener("click", function(){
     var t = type.value, st;
-    if(t==="search"){ if(!q.value.trim()) return; st = S.search(q.value.trim()); q.value = ""; }
+    if(t==="search" || t==="ask"){ if(!q.value.trim()) return; st = S[t](q.value.trim()); q.value = ""; }
     else st = S[t](sel.value);
     composer.push(st);
     replay.view = "composer";
