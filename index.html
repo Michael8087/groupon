@@ -2148,7 +2148,7 @@ function renderPage(opts){
   var featured = rows.filter(function(r){ return !shown[r.d.id]; }).slice(0, 6);
 
   var html = heroCarouselHtml(heroSets(8));
-  html += dealsModuleHtml(pers ? "Deals for you" : "Trending in " + city, reason, top, 0,
+  html += dealsModuleHtml(pers ? "Picked for you" : "Trending in " + city, reason, top, 0,
     pers ? "Personalised: ranks #1–#5 by score = P(purchase) × margin." : "Cold start: ranks #1–#5 from the estimated segment mix + deal quality, price and margin only.", !pers);
   var modules = [recentlyViewedModuleHtml(), giftsModuleHtml(gifts, featured, pers)].filter(Boolean);
 
@@ -2446,7 +2446,7 @@ function renderTrace(){
   lines.push("<li><b>4. Candidate deals</b> → " + rows.length + " of " + DEALS.length + " eligible" + (R.excluded.length ? " (" + R.excluded.length + " bought → excluded)" : "") + " · promo applies to " + promoN + "</li>");
   lines.push("<li><b>5. Ranking</b> → score = P(purchase) × margin · #1 <b>" + top.d.title + "</b>: " + pct1(top.P) + " × " + pct(top.m.rate) + " = " + top.score.toFixed(3) + "</li>");
   var hero = heroSets(8);
-  lines.push("<li><b>6. Mobile page</b> → top tiles: " + hero.map(function(h){ return esc(h.label); }).join(", ") + " · " + (pers ? "Deals for you" : "Trending") + " = #1–5 · " + (pers ? "Gifts you'll love to give" : "Trending gifts") + " with Featured deals in the middle</li>");
+  lines.push("<li><b>6. Mobile page</b> → top tiles: " + hero.map(function(h){ return esc(h.label); }).join(", ") + " · " + (pers ? "Picked for you" : "Trending") + " = #1–5 · " + (pers ? "Gifts you'll love to give" : "Trending gifts") + " with Featured deals in the middle</li>");
   var thisVisit = p.log.filter(function(e){ return e.visit===p.visit.n && e.icon!=="🚪"; }).length;
   lines.push("<li><b>7. Behavior</b> → " + thisVisit + " event(s) this visit · " + Object.keys(p.visit.exposed).length + " deals seen</li>");
   lines.push("<li><b>8. Updated profile</b> → " + p.nSignals + " signal(s), stored in this browser; ▲▼ below = rank change since this visit started</li>");
