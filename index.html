@@ -434,6 +434,8 @@ a{color:inherit;}
 .promo-line input{margin:2px 0 0;accent-color:var(--green);}
 .promo-line b{color:var(--text);}
 .log-sub{font-size:11px;color:var(--text-muted);margin-top:2px;padding-left:12px;}
+.why-scroll{max-height:250px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding-right:6px;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+.why-scroll.open{max-height:520px;}
 .rank-table{display:flex;flex-direction:column;gap:1px;font-size:11px;}
 .rank-head,.rank-row{display:grid;grid-template-columns:18px 26px minmax(0,1fr) auto;gap:6px;align-items:center;padding:3px 5px;border-radius:6px;}
 .rank-head{color:var(--text-muted);font-size:10px;border-bottom:1px solid var(--border);}
@@ -731,8 +733,10 @@ a{color:inherit;}
 
     <div class="d-section">
       <h3>4 · Why this page</h3>
-      <ul class="trace-list" id="traceList"></ul>
-      <div class="rank-table" id="rankTable"></div>
+      <div class="why-scroll" id="whyScroll">
+        <ul class="trace-list" id="traceList"></ul>
+        <div class="rank-table" id="rankTable"></div>
+      </div>
     </div>
 
     <div class="d-section">
@@ -2057,6 +2061,7 @@ function renderTrace(){
     h += '<div class="rank-row open" data-explain="'+r2.d.id+'"><span class="n">'+r2.rank+'</span>'+moveBadge(r2.d.id, r2.rank)+'<span class="t">'+r2.d.title+'</span><span class="s">'+r2.score.toFixed(3)+'</span></div>' + explainHtml(r2);
   }
   tb.innerHTML = h;
+  document.getElementById("whyScroll").classList.toggle("open", !!openExplain);
   tb.querySelectorAll("[data-explain]").forEach(function(row){
     row.addEventListener("click", function(){
       var id = row.getAttribute("data-explain");
