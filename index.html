@@ -117,6 +117,13 @@ a{color:inherit;}
   font-weight:600;
   font-variant-numeric:tabular-nums;
 }
+.visit-badge{
+  font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;
+  padding:3px 10px;border-radius:999px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.35);color:#fff;
+}
+.visit-badge.returning{background:#3f8a12;border-color:#63b52e;}
+.visit-badge.bump{animation:badgeBump .7s ease;}
+@keyframes badgeBump{0%{transform:scale(1);}35%{transform:scale(1.25);}100%{transform:scale(1);}}
 .statusbar .icons{display:flex;gap:6px;align-items:center;}
 /* header */
 .app-header{
@@ -748,6 +755,7 @@ a{color:inherit;}
 
   <div class="statusbar">
     <span id="clock">9:41</span>
+    <span class="visit-badge" id="visitBadge">Visit 1</span>
     <div class="icons">
       <svg width="16" height="11" viewBox="0 0 16 11" fill="none"><rect x="0" y="7" width="3" height="4" rx="0.5" fill="#fff"/><rect x="4.5" y="5" width="3" height="6" rx="0.5" fill="#fff"/><rect x="9" y="2.5" width="3" height="8.5" rx="0.5" fill="#fff"/><rect x="13" y="0" width="3" height="11" rx="0.5" fill="#fff"/></svg>
       <svg width="15" height="11" viewBox="0 0 16 12" fill="none"><path d="M1 4a11 11 0 0114 0M3.3 6.6a7.4 7.4 0 019.4 0M5.6 9a3.9 3.9 0 014.8 0" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/><circle cx="8" cy="10.6" r="1" fill="#fff"/></svg>
@@ -875,7 +883,7 @@ a{color:inherit;}
 
     <div class="d-section">
       <h3>4 · Behavior → updated profile</h3>
-      <div class="bucket-label">Next visit · optional custom plan of customer clicks</div>
+      <div class="bucket-label">Simulate a visit · optional custom plan of customer clicks</div>
       <div class="select-line">
         <select id="cmpType"><option value="search">🔎 Search</option><option value="view">👀 View deal</option><option value="save">❤️ Save</option><option value="buy">🛒 Buy</option></select>
         <select id="cmpDeal"></select>
@@ -885,8 +893,10 @@ a{color:inherit;}
       <div class="replay-hint" id="replayHint"></div>
       <ol class="replay-list" id="replayList"></ol>
       <div class="rules-actions">
-        <button class="btn primary" id="nextVisit">Next visit →</button>
         <button class="btn ghost" id="cmpClear">Clear plan</button>
+      </div>
+      <div class="rules-actions">
+        <button class="btn primary" id="nextVisit">▶ Simulate interaction &amp; reload app</button>
         <button class="btn ghost" id="cmpSkip">Skip ⏭</button>
       </div>
       <div class="bucket-label">Event log (what each click changed)</div>
@@ -2338,7 +2348,18 @@ function renderBehaviorLog(){
   }).join("");
 }
 
+var lastVisitShown = 1;
+function renderVisitBadge(){
+  var v = state.profile.visit, el = document.getElementById("visitBadge");
+  el.textContent = "Visit " + v.n + " · day " + v.day;
+  el.classList.toggle("returning", v.n > 1);
+  if(v.n !== lastVisitShown){
+    el.classList.remove("bump"); void el.offsetWidth; el.classList.add("bump");
+    lastVisitShown = v.n;
+  }
+}
 function renderDrawerDynamic(){
+  renderVisitBadge();
   renderAcctList();
   renderSegBars();
   renderSegGrid();
@@ -2808,7 +2829,7 @@ function stepText(st){
   if(st.t==="view") return "👀 Opens " + dealLabel(st);
   if(st.t==="save") return "❤️ Saves " + dealLabel(st);
   if(st.t==="buy") return "🛒 Buys " + dealLabel(st);
-  if(st.t==="nextVisit") return "🚪 Next visit";
+  if(st.t==="nextVisit") return "🔄 Reload app · next visit";
   return st.t;
 }
 // "@rank:N" = the N-th deal of the ranking at the moment of the click, "@disc:N" = same within the least-preferred
@@ -3088,7 +3109,7 @@ function renderReplay(){
   document.getElementById("replayList").innerHTML = html;
   var hint;
   if(run) hint = replay.running ? ("Replaying " + esc(replay.label) + " · step " + Math.min(replay.idx + 1, steps.length) + " of " + steps.length) : ("Replayed " + esc(replay.label) + ". The log below shows what each click changed.");
-  else hint = visible.length ? "Your custom visit plan. Next visit plays it instead of the default." : "Empty: Next visit simulates a typical visit (search, open, save, sometimes buy) from the current profile. Add clicks to write your own visit instead.";
+  else hint = visible.length ? "Your custom visit plan. The button plays it instead of the default, then reloads the app as the next visit." : "Empty: the button simulates a typical visit (search, open, save, sometimes buy) from the current profile, then reloads the app as the next visit. Add clicks to write your own visit instead.";
   document.getElementById("replayHint").innerHTML = hint;
   document.getElementById("nextVisit").disabled = replay.running;
   document.getElementById("cmpSkip").disabled = !replay.running;
